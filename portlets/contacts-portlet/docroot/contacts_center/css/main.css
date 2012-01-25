@@ -5,6 +5,20 @@ $section-header-bg: #CCE6F7;
 	padding: 0;
 }
 
+div.aui-editable {
+	z-index: 100;
+}
+
+div.quick-edit-field {
+	background: none;	
+}
+
+div.quick-edit-field:hover {
+	background: #EEEEEE url("../images/edit.png") no-repeat scroll left top;	
+	padding-left: 20px;
+	border: 1px solid #ECECEC;
+}
+
 .contacts-portlet {
 	.clear {
 		clear: both;
@@ -210,10 +224,16 @@ $section-header-bg: #CCE6F7;
 			font-size: 2em;
 		}
 
-		.lfr-contact-job-title {
+		.lfr-contact-label {
 			color: #777;
 			font-size: 1.25em;
 			font-weight: bold;
+			padding: 2px;
+		}
+		
+		.lfr-contact-value {
+			color: #777;
+			padding: 2px;
 		}
 
 		.aui-column-content {
