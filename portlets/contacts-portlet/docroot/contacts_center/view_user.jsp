@@ -32,25 +32,20 @@ else {
 
 user2 = user2.toEscapedModel();
 
-boolean myProfile = false;
-String editableClass = "";
+String editableClass = StringUtil.BLANK;
 
 if (user2.getUserId() == themeDisplay.getUser().getUserId()) {
-	myProfile = true;
 	editableClass = "quick-edit-field";
 }
 
-
-
 request.setAttribute("view_user.jsp-user", user2);
-request.setAttribute("view_user.jsp-myProfile", myProfile);
 request.setAttribute("view_user.jsp-editableClass", editableClass);
 %>
 
 <div id="<portlet:namespace/>saveMessages"></div>
 
 <c:if test="<%= user2 != null %>">
-	<div id="<portlet:namespace />ContactsWrapper" class="contacts-profile">
+	<div class="contacts-profile" id="<portlet:namespace />ContactsWrapper">
 		<c:if test="<%= (displayStyle == ContactsConstants.DISPLAY_STYLE_BASIC) || (displayStyle ==ContactsConstants.DISPLAY_STYLE_FULL) %>">
 			<aui:layout cssClass="social-relations">
 
@@ -158,7 +153,7 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 					</div>
 
 					<c:if test="<%= Validator.isNotNull(user2.getJobTitle()) %>">
-						<div class="<%= editableClass %>" id="<portlet:namespace/>editable-jobTitle">
+						<div class="<%= editableClass %>" id="<portlet:namespace/>jobTitle">
 							<%= HtmlUtil.escape(user2.getJobTitle()) %>
 						</div>
 					</c:if>
@@ -167,7 +162,7 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 						<liferay-ui:message key="email-address" />:
 					</div>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>editable-emailAddress">
+					<div class="<%= editableClass %>" id="<portlet:namespace/>emailAddress">
 						<%= HtmlUtil.escape(user2.getEmailAddress()) %>
 					</div>
 				</div>
@@ -341,7 +336,7 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 	</div>
 </c:if>
 
-<c:if test="<%= myProfile %>">
+<c:if test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
 	<aui:script use="aui-editable,aui-io-request">
 		var saveMessages = A.one('#<portlet:namespace/>saveMessages');
 
@@ -352,7 +347,7 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 		A.all('#p_p_id<portlet:namespace /> .quick-edit-field').each(
 			function(node) {
 				var fieldName = node.get('id');
-				var elementId = node.attr('data-element-id');
+				var elementId = node.attr('data-elementId');
 
 				new A.Editable(
 				{

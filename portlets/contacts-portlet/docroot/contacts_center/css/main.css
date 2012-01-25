@@ -10,13 +10,13 @@ div.aui-editable {
 }
 
 div.quick-edit-field {
-	background: none;	
+	background: none;
 }
 
 div.quick-edit-field:hover {
-	background: #EEEEEE url("../images/edit.png") no-repeat scroll left top;	
-	padding-left: 20px;
+	background: #EEE url(../images/edit.png) no-repeat scroll left top;
 	border: 1px solid #ECECEC;
+	padding-left: 20px;
 }
 
 .contacts-portlet {
