@@ -20,6 +20,9 @@
 User user2 = (User)request.getAttribute("view_user.jsp-user");
 
 Contact contact2 = user2.getContact();
+
+boolean myProfile = (Boolean)request.getAttribute("view_user.jsp-myProfile");
+String editableClass = (String)request.getAttribute("view_user.jsp-editableClass");
 %>
 
 <c:if test="<%= showComments && Validator.isNotNull(user2.getComments()) %>">
@@ -45,12 +48,15 @@ List<Phone> phones = PhoneServiceUtil.getPhones(Contact.class.getName(), contact
 		<ul class="property-list">
 
 			<%
-			for (Phone phone: phones) {
+			for (Phone phone : phones) {
+				phone = phone.toEscapedModel();
 			%>
 
 				<li class="<%= phone.isPrimary() ? "primary" : "" %>">
 					<span class="property-type"><%= LanguageUtil.get(pageContext, phone.getType().getName()) %></span>
-					<span class="property"><%= phone.getNumber() %> <%= phone.getExtension() %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_phone_<%= phone.getPhoneId() %>" data-element-id="<%= phone.getPhoneId() %>">
+						<span class="property"><%= phone.getNumber() %> <%= phone.getExtension() %></span>
+					</div>
 				</li>
 
 			<%
@@ -72,13 +78,25 @@ List<EmailAddress> emailAddresses = EmailAddressServiceUtil.getEmailAddresses(Co
 		<ul class="property-list">
 
 			<%
-			for (int i = 0; i < emailAddresses.size(); i++) {
-				EmailAddress emailAddress = emailAddresses.get(i);
+			for (EmailAddress emailAddress : emailAddresses) {
+				emailAddress = emailAddress.toEscapedModel();
 			%>
 
 				<li class="<%= emailAddress.isPrimary() ? "primary" : "" %>">
 					<span class="property-type"><%= LanguageUtil.get(pageContext, emailAddress.getType().getName()) %></span>
-					<span class="property"><a href="mailto:<%= emailAddress.getAddress() %>"><%= emailAddress.getAddress() %></a></span>
+
+					<span class="property">
+						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_emailAddress_<%= emailAddress.getEmailAddressId() %>" data-element-id="<%= emailAddress.getEmailAddressId() %>">
+							<c:choose>
+								<c:when test="<%= myProfile %>">
+									<%= emailAddress.getAddress() %>
+								</c:when>
+								<c:otherwise>
+									<a href="mailto:<%= emailAddress.getAddress() %>"><%= emailAddress.getAddress() %></a>
+								</c:otherwise>
+							</c:choose>
+						</div>
+					</span>
 				</li>
 
 			<%
@@ -90,68 +108,80 @@ List<EmailAddress> emailAddresses = EmailAddressServiceUtil.getEmailAddresses(Co
 </c:if>
 
 <%
-String aim = contact2.getAimSn();
-String icq = contact2.getIcqSn();
-String jabber = contact2.getJabberSn();
-String msn = contact2.getMsnSn();
-String skype = contact2.getSkypeSn();
-String ym = contact2.getYmSn();
+String aimSn = contact2.getAimSn();
+String icqSn = contact2.getIcqSn();
+String jabberSn = contact2.getJabberSn();
+String msnSn = contact2.getMsnSn();
+String skypeSn = contact2.getSkypeSn();
+String ymSn = contact2.getYmSn();
 %>
 
-<c:if test="<%= showInstantMessenger && (Validator.isNotNull(aim) || Validator.isNotNull(icq) || Validator.isNotNull(jabber) || Validator.isNotNull(msn) || Validator.isNotNull(skype) || Validator.isNotNull(ym)) %>">
+<c:if test="<%= showInstantMessenger && (Validator.isNotNull(aimSn) || Validator.isNotNull(icqSn) || Validator.isNotNull(jabberSn) || Validator.isNotNull(msnSn) || Validator.isNotNull(skypeSn) || Validator.isNotNull(ymSn)) %>">
 	<div class="section lfr-user-instant-messenger">
 		<h3><liferay-ui:message key="instant-messenger" />:</h3>
 
 		<ul class="property-list">
-			<c:if test="<%= Validator.isNotNull(aim) %>">
+			<c:if test="<%= Validator.isNotNull(aimSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="aim" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(aim) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_aimSn">
+						<%= HtmlUtil.escape(aimSn) %>
+					</div>
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(icq) %>">
+			<c:if test="<%= Validator.isNotNull(icqSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="icq" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(icq) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_icqSn">
+						<%= HtmlUtil.escape(icqSn) %>
+					</div>
 
-					<img alt="" class="instant-messenger-logo" src="http://web.icq.com/whitepages/online?icq=<%= HtmlUtil.escapeAttribute(icq) %>&img=5" />
+					<img alt="" class="instant-messenger-logo" src="http://web.icq.com/whitepages/online?icq=<%= HtmlUtil.escapeAttribute(icqSn) %>&img=5" />
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(jabber) %>">
+			<c:if test="<%= Validator.isNotNull(jabberSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="jabber" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(jabber) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_jabberSn">
+						<%= HtmlUtil.escape(jabberSn) %>
+					</div>
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(msn) %>">
+			<c:if test="<%= Validator.isNotNull(msnSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="msn" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(msn) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_msnSn">
+						<%= HtmlUtil.escape(msnSn) %>
+					</div>
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(skype) %>">
+			<c:if test="<%= Validator.isNotNull(skypeSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="skype" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(skype) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_skypeSn">
+						<%= HtmlUtil.escape(skypeSn) %>
+					</div>
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(ym) %>">
+			<c:if test="<%= Validator.isNotNull(ymSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="ym" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(ym) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_ymSn">
+						<%= HtmlUtil.escape(ymSn) %>
+					</div>
 
-					<img alt="" class="instant-messenger-logo" src="http://opi.yahoo.com/online?u=<%= HtmlUtil.escapeAttribute(ym) %>&m=g&t=0" />
+					<img alt="" class="instant-messenger-logo" src="http://opi.yahoo.com/online?u=<%= HtmlUtil.escapeAttribute(ymSn) %>&m=g&t=0" />
 				</li>
 			</c:if>
 		</ul>
@@ -249,7 +279,7 @@ List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(),
 		<ul class="property-list">
 
 			<%
-			for (Website website: websites) {
+			for (Website website : websites) {
 				website = website.toEscapedModel();
 			%>
 
@@ -257,7 +287,18 @@ List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(),
 				<li class="<%= website.isPrimary() ? "primary" : "" %>">
 					<span class="property-type"><%= LanguageUtil.get(pageContext, website.getType().getName()) %></span>
 
-					<span class="property"><a href="<%= website.getUrl() %>"><%= website.getUrl() %></a></span>
+					<span class="property">
+						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_website_<%= website.getWebsiteId() %>" data-element-id="<%= website.getWebsiteId() %>">
+							<c:choose>
+								<c:when test="<%= myProfile %>">
+									<%= website.getUrl() %>
+								</c:when>
+								<c:otherwise>
+									<a href="<%= website.getUrl() %>"><%= website.getUrl() %></a>
+								</c:otherwise>
+							</c:choose>
+						</div>
+					</span>
 				</li>
 
 			<%
@@ -269,37 +310,43 @@ List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(),
 </c:if>
 
 <%
-String facebook = contact2.getFacebookSn();
-String mySpace = contact2.getMySpaceSn();
-String twitter = contact2.getTwitterSn();
+String facebookSn = contact2.getFacebookSn();
+String mySpaceSn = contact2.getMySpaceSn();
+String twitterSn = contact2.getTwitterSn();
 %>
 
-<c:if test="<%= showSocialNetwork && (Validator.isNotNull(facebook) || Validator.isNotNull(mySpace) || Validator.isNotNull(twitter)) %>">
+<c:if test="<%= showSocialNetwork && (Validator.isNotNull(facebookSn) || Validator.isNotNull(mySpaceSn) || Validator.isNotNull(twitterSn)) %>">
 	<div class="section lfr-user-social-network">
 		<h3><liferay-ui:message key="social-network" />:</h3>
 
 		<ul class="property-list">
-			<c:if test="<%= Validator.isNotNull(facebook) %>">
+			<c:if test="<%= Validator.isNotNull(facebookSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="facebook" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(facebook) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_facebookSn">
+						<%= HtmlUtil.escape(facebookSn) %>
+					</div>
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(mySpace) %>">
+			<c:if test="<%= Validator.isNotNull(mySpaceSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="myspace" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(mySpace) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_myspaceSn">
+						<%= HtmlUtil.escape(mySpaceSn) %>
+					</div>
 				</li>
 			</c:if>
 
-			<c:if test="<%= Validator.isNotNull(twitter) %>">
+			<c:if test="<%= Validator.isNotNull(twitterSn) %>">
 				<li>
 					<span class="property-type"><liferay-ui:message key="twitter" /></span>
 
-					<span class="property"><%= HtmlUtil.escape(twitter) %></span>
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_twitterSn">
+						<%= HtmlUtil.escape(twitterSn) %>
+					</div>
 				</li>
 			</c:if>
 		</dl>
@@ -312,7 +359,9 @@ String twitter = contact2.getTwitterSn();
 
 		<ul class="property-list">
 			<li class="property">
-				<%= HtmlUtil.escape(contact2.getSmsSn()) %>
+				<div class="<%= editableClass %>" id="<portlet:namespace/>contact_smsSn">
+					<%= HtmlUtil.escape(contact2.getSmsSn()) %>
+				</div>
 			</li>
 		</ul>
 	</div>

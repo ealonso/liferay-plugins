@@ -32,36 +32,26 @@ else {
 
 user2 = user2.toEscapedModel();
 
+boolean myProfile = false;
+String editableClass = "";
+
+if (user2.getUserId() == themeDisplay.getUser().getUserId()) {
+	myProfile = true;
+	editableClass = "quick-edit-field";
+}
+
+
+
 request.setAttribute("view_user.jsp-user", user2);
+request.setAttribute("view_user.jsp-myProfile", myProfile);
+request.setAttribute("view_user.jsp-editableClass", editableClass);
 %>
 
+<div id="<portlet:namespace/>saveMessages"></div>
+
 <c:if test="<%= user2 != null %>">
-	<div class="contacts-profile">
+	<div id="<portlet:namespace />ContactsWrapper" class="contacts-profile">
 		<c:if test="<%= (displayStyle == ContactsConstants.DISPLAY_STYLE_BASIC) || (displayStyle ==ContactsConstants.DISPLAY_STYLE_FULL) %>">
-			<div class="lfr-contact-grid-item">
-				<c:if test="<%= showIcon %>">
-					<div class="lfr-contact-thumb">
-						<a href="<%= user2.getDisplayURL(themeDisplay) %>"><img alt="<%= HtmlUtil.escape(user2.getFullName()) %>" src="<%= user2.getPortraitURL(themeDisplay) %>" /></a>
-					</div>
-				</c:if>
-
-				<div class="<%= showIcon ? StringPool.BLANK : "no-icon" %> lfr-contact-info">
-					<div class="lfr-contact-name">
-						<a href="<%= user2.getDisplayURL(themeDisplay) %>"><%= HtmlUtil.escape(user2.getFullName()) %></a>
-					</div>
-
-					<div class="lfr-contact-job-title">
-						<%= HtmlUtil.escape(user2.getJobTitle()) %>
-					</div>
-
-					<div class="lfr-contact-extra">
-						<%= HtmlUtil.escape(user2.getEmailAddress()) %>
-					</div>
-				</div>
-
-				<div class="clear"><!-- --></div>
-			</div>
-
 			<aui:layout cssClass="social-relations">
 
 				<%
@@ -150,6 +140,40 @@ request.setAttribute("view_user.jsp-user", user2);
 					</c:choose>
 				</aui:layout>
 			</aui:layout>
+
+			<div class="lfr-contact-grid-item">
+				<c:if test="<%= showIcon %>">
+					<div class="lfr-contact-thumb">
+						<a href="<%= user2.getDisplayURL(themeDisplay) %>"><img alt="<%= HtmlUtil.escape(user2.getFullName()) %>" src="<%= user2.getPortraitURL(themeDisplay) %>" /></a>
+					</div>
+				</c:if>
+
+				<div class="<%= showIcon ? StringPool.BLANK : "no-icon" %> lfr-contact-info">
+					<div class="lfr-contact-name">
+						<a href="<%= user2.getDisplayURL(themeDisplay) %>"><%= HtmlUtil.escape(user2.getFullName()) %></a>
+					</div>
+
+					<div class="lfr-contact-label">
+						<liferay-ui:message key="job-title" />:
+					</div>
+
+					<c:if test="<%= Validator.isNotNull(user2.getJobTitle()) %>">
+						<div class="<%= editableClass %>" id="<portlet:namespace/>editable-jobTitle">
+							<%= HtmlUtil.escape(user2.getJobTitle()) %>
+						</div>
+					</c:if>
+
+					<div class="lfr-contact-label">
+						<liferay-ui:message key="email-address" />:
+					</div>
+
+					<div class="<%= editableClass %>" id="<portlet:namespace/>editable-emailAddress">
+						<%= HtmlUtil.escape(user2.getEmailAddress()) %>
+					</div>
+				</div>
+
+				<div class="clear"><!-- --></div>
+			</div>
 		</c:if>
 
 		<c:if test="<%= ((displayStyle == ContactsConstants.DISPLAY_STYLE_DETAIL) || (displayStyle ==ContactsConstants.DISPLAY_STYLE_FULL)) && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
@@ -315,4 +339,64 @@ request.setAttribute("view_user.jsp-user", user2);
 			</c:if>
 		</c:if>
 	</div>
+</c:if>
+
+<c:if test="<%= myProfile %>">
+	<aui:script use="aui-editable,aui-io-request">
+		var saveMessages = A.one('#<portlet:namespace/>saveMessages');
+
+		var updateMessage = function(message, type) {
+			saveMessages.html('<span class="portlet-msg-' + type + '">' + message + '</span>');
+		};
+
+		A.all('#p_p_id<portlet:namespace /> .quick-edit-field').each(
+			function(node) {
+				var fieldName = node.get('id');
+				var elementId = node.attr('data-element-id');
+
+				new A.Editable(
+				{
+					after: {
+						contentTextChange: function(event) {
+							var prevValue = event.prevVal;
+
+							if (!event.initial) {
+								A.io.request(
+									'<portlet:actionURL name="saveMyProfileField" />',
+									{
+										after: {
+											failure: function(e, id, obj) {
+												node.html(prevValue);
+
+												updateMessage('<%= LanguageUtil.get(pageContext, "your-request-failed-to-complete") %>', 'error');
+											},
+											success: function(e, id, obj) {
+												var responseData = this.get('responseData');
+
+												if (!responseData.success) {
+													node.html(prevValue);
+
+													updateMessage(responseData.message, 'error');
+												}
+												else {
+													updateMessage(responseData.message, 'success');
+												}
+											}
+										},
+										data: {
+											fieldName: fieldName,
+											value: event.newVal,
+											elementId: elementId
+										},
+										dataType: 'json'
+									}
+								);
+							}
+						}
+					},
+					node: '#' + fieldName
+				});
+			}
+		);
+	</aui:script>
 </c:if>
