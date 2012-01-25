@@ -21,7 +21,6 @@ User user2 = (User)request.getAttribute("view_user.jsp-user");
 
 Contact contact2 = user2.getContact();
 
-boolean myProfile = (Boolean)request.getAttribute("view_user.jsp-myProfile");
 String editableClass = (String)request.getAttribute("view_user.jsp-editableClass");
 %>
 
@@ -54,7 +53,7 @@ List<Phone> phones = PhoneServiceUtil.getPhones(Contact.class.getName(), contact
 
 				<li class="<%= phone.isPrimary() ? "primary" : "" %>">
 					<span class="property-type"><%= LanguageUtil.get(pageContext, phone.getType().getName()) %></span>
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_phone_<%= phone.getPhoneId() %>" data-element-id="<%= phone.getPhoneId() %>">
+					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_phone_<%= phone.getPhoneId() %>" data-elementId="<%= phone.getPhoneId() %>">
 						<span class="property"><%= phone.getNumber() %> <%= phone.getExtension() %></span>
 					</div>
 				</li>
@@ -86,9 +85,9 @@ List<EmailAddress> emailAddresses = EmailAddressServiceUtil.getEmailAddresses(Co
 					<span class="property-type"><%= LanguageUtil.get(pageContext, emailAddress.getType().getName()) %></span>
 
 					<span class="property">
-						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_emailAddress_<%= emailAddress.getEmailAddressId() %>" data-element-id="<%= emailAddress.getEmailAddressId() %>">
+						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_emailAddress_<%= emailAddress.getEmailAddressId() %>" data-elementId="<%= emailAddress.getEmailAddressId() %>">
 							<c:choose>
-								<c:when test="<%= myProfile %>">
+								<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
 									<%= emailAddress.getAddress() %>
 								</c:when>
 								<c:otherwise>
@@ -288,9 +287,9 @@ List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(),
 					<span class="property-type"><%= LanguageUtil.get(pageContext, website.getType().getName()) %></span>
 
 					<span class="property">
-						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_website_<%= website.getWebsiteId() %>" data-element-id="<%= website.getWebsiteId() %>">
+						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_website_<%= website.getWebsiteId() %>" data-elementId="<%= website.getWebsiteId() %>">
 							<c:choose>
-								<c:when test="<%= myProfile %>">
+								<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
 									<%= website.getUrl() %>
 								</c:when>
 								<c:otherwise>
