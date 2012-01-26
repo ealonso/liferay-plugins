@@ -32,7 +32,7 @@ else {
 
 user2 = user2.toEscapedModel();
 
-String editableClass = StringUtil.BLANK;
+String editableClass = StringPool.BLANK;
 
 if (user2.getUserId() == themeDisplay.getUser().getUserId()) {
 	editableClass = "quick-edit-field";
@@ -148,23 +148,27 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 						<a href="<%= user2.getDisplayURL(themeDisplay) %>"><%= HtmlUtil.escape(user2.getFullName()) %></a>
 					</div>
 
-					<div class="lfr-contact-label">
-						<liferay-ui:message key="job-title" />:
-					</div>
+					<c:choose>
+						<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
+							<div class="<%= editableClass %>" data-fieldName="jobTitle">
+								<%= Validator.isNotNull(user2.getJobTitle()) ? HtmlUtil.escape(user2.getJobTitle()) : LanguageUtil.get(pageContext,  "add-your-job-title-here") %>
+							</div>
+						</c:when>
+						<c:otherwise>
+								<%= HtmlUtil.escape(user2.getJobTitle()) %>
+						</c:otherwise>
+					</c:choose>
 
-					<c:if test="<%= Validator.isNotNull(user2.getJobTitle()) %>">
-						<div class="<%= editableClass %>" id="<portlet:namespace/>jobTitle">
-							<%= HtmlUtil.escape(user2.getJobTitle()) %>
-						</div>
-					</c:if>
-
-					<div class="lfr-contact-label">
-						<liferay-ui:message key="email-address" />:
-					</div>
-
-					<div class="<%= editableClass %>" id="<portlet:namespace/>emailAddress">
-						<%= HtmlUtil.escape(user2.getEmailAddress()) %>
-					</div>
+					<c:choose>
+						<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
+							<div class="<%= editableClass %>" data-fieldName="emailAddress">
+								<%= Validator.isNotNull(user2.getEmailAddress()) ? HtmlUtil.escape(user2.getEmailAddress()) : LanguageUtil.get(pageContext,  "add-your-email-here") %>
+							</div>
+						</c:when>
+						<c:otherwise>
+								<%= HtmlUtil.escape(user2.getEmailAddress()) %>
+						</c:otherwise>
+					</c:choose>
 				</div>
 
 				<div class="clear"><!-- --></div>
@@ -346,14 +350,23 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 
 		A.all('#p_p_id<portlet:namespace /> .quick-edit-field').each(
 			function(node) {
-				var fieldName = node.get('id');
+				var fieldName = node.attr('data-fieldName');
 				var elementId = node.attr('data-elementId');
+
+				var inputType = 'text';
+
+				if (fieldName == 'comments') {
+					inputType = 'textarea';
+				}
 
 				new A.Editable(
 				{
 					after: {
 						contentTextChange: function(event) {
 							var prevValue = event.prevVal;
+
+							console.log(fieldName);
+							console.log(event.newVal);
 
 							if (!event.initial) {
 								A.io.request(
@@ -389,7 +402,8 @@ request.setAttribute("view_user.jsp-editableClass", editableClass);
 							}
 						}
 					},
-					node: '#' + fieldName
+					inputType: inputType,
+					node: node
 				});
 			}
 		);

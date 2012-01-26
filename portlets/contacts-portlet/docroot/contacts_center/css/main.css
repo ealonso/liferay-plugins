@@ -9,11 +9,11 @@ div.aui-editable {
 	z-index: 100;
 }
 
-div.quick-edit-field {
+.quick-edit-field {
 	background: none;
 }
 
-div.quick-edit-field:hover {
+.quick-edit-field:hover {
 	background: #EEE url(../images/edit.png) no-repeat scroll left top;
 	border: 1px solid #ECECEC;
 	padding-left: 20px;

@@ -24,13 +24,22 @@ Contact contact2 = user2.getContact();
 String editableClass = (String)request.getAttribute("view_user.jsp-editableClass");
 %>
 
-<c:if test="<%= showComments && Validator.isNotNull(user2.getComments()) %>">
+<c:if test="<%= showComments %>">
 	<div class="section lfr-user-comments">
 		<h3><liferay-ui:message key="Introduction" />:</h3>
 
 		<ul class="property-list">
 			<li>
-				<span class="property"><%= user2.getComments() %></span>
+				<c:choose>
+					<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
+						<div class="<%= editableClass %>" data-fieldName="comments">
+							<span class="property"><%= Validator.isNotNull(user2.getComments()) ? HtmlUtil.escape(user2.getComments()) : LanguageUtil.get(pageContext,  "add-your-introduction-here") %></span>
+						</div>
+					</c:when>
+					<c:otherwise>
+							<span class="property"><%= HtmlUtil.escape(user2.getComments()) %></span>
+					</c:otherwise>
+				</c:choose>
 			</li>
 		</ul>
 	</div>
@@ -53,7 +62,7 @@ List<Phone> phones = PhoneServiceUtil.getPhones(Contact.class.getName(), contact
 
 				<li class="<%= phone.isPrimary() ? "primary" : "" %>">
 					<span class="property-type"><%= LanguageUtil.get(pageContext, phone.getType().getName()) %></span>
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_phone_<%= phone.getPhoneId() %>" data-elementId="<%= phone.getPhoneId() %>">
+					<div class="<%= editableClass %>" data-fieldName="phone" data-elementId="<%= phone.getPhoneId() %>">
 						<span class="property"><%= phone.getNumber() %> <%= phone.getExtension() %></span>
 					</div>
 				</li>
@@ -85,7 +94,7 @@ List<EmailAddress> emailAddresses = EmailAddressServiceUtil.getEmailAddresses(Co
 					<span class="property-type"><%= LanguageUtil.get(pageContext, emailAddress.getType().getName()) %></span>
 
 					<span class="property">
-						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_emailAddress_<%= emailAddress.getEmailAddressId() %>" data-elementId="<%= emailAddress.getEmailAddressId() %>">
+						<div class="<%= editableClass %>" data-fieldName="additionalEmailAddress" data-elementId="<%= emailAddress.getEmailAddressId() %>">
 							<c:choose>
 								<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
 									<%= emailAddress.getAddress() %>
@@ -124,9 +133,9 @@ String ymSn = contact2.getYmSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="aim" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_aimSn">
+					<span class="<%= editableClass %>" data-fieldName="aimSn">
 						<%= HtmlUtil.escape(aimSn) %>
-					</div>
+					</span>
 				</li>
 			</c:if>
 
@@ -134,9 +143,9 @@ String ymSn = contact2.getYmSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="icq" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_icqSn">
+					<span class="<%= editableClass %>" data-fieldName="icqSn">
 						<%= HtmlUtil.escape(icqSn) %>
-					</div>
+					</span>
 
 					<img alt="" class="instant-messenger-logo" src="http://web.icq.com/whitepages/online?icq=<%= HtmlUtil.escapeAttribute(icqSn) %>&img=5" />
 				</li>
@@ -146,9 +155,9 @@ String ymSn = contact2.getYmSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="jabber" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_jabberSn">
+					<span class="<%= editableClass %>" data-fieldName="jabberSn">
 						<%= HtmlUtil.escape(jabberSn) %>
-					</div>
+					</span>
 				</li>
 			</c:if>
 
@@ -156,9 +165,9 @@ String ymSn = contact2.getYmSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="msn" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_msnSn">
+					<span class="<%= editableClass %>" data-fieldName="msnSn">
 						<%= HtmlUtil.escape(msnSn) %>
-					</div>
+					</span>
 				</li>
 			</c:if>
 
@@ -166,9 +175,9 @@ String ymSn = contact2.getYmSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="skype" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_skypeSn">
+					<span class="<%= editableClass %>" data-fieldName="skypeSn">
 						<%= HtmlUtil.escape(skypeSn) %>
-					</div>
+					</span>
 				</li>
 			</c:if>
 
@@ -176,9 +185,9 @@ String ymSn = contact2.getYmSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="ym" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_ymSn">
+					<span class="<%= editableClass %>" data-fieldName="ymSn">
 						<%= HtmlUtil.escape(ymSn) %>
-					</div>
+					</span>
 
 					<img alt="" class="instant-messenger-logo" src="http://opi.yahoo.com/online?u=<%= HtmlUtil.escapeAttribute(ymSn) %>&m=g&t=0" />
 				</li>
@@ -263,7 +272,7 @@ List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(),
 					<span class="property-type"><%= LanguageUtil.get(pageContext, website.getType().getName()) %></span>
 
 					<span class="property">
-						<div class="<%= editableClass %>" id="<portlet:namespace/>contact_website_<%= website.getWebsiteId() %>" data-elementId="<%= website.getWebsiteId() %>">
+						<div class="<%= editableClass %>" data-fieldName="website" data-elementId="<%= website.getWebsiteId() %>">
 							<c:choose>
 								<c:when test="<%= user2.getUserId() == themeDisplay.getUser().getUserId() %>">
 									<%= website.getUrl() %>
@@ -299,7 +308,7 @@ String twitterSn = contact2.getTwitterSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="facebook" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_facebookSn">
+					<div class="<%= editableClass %>" data-fieldName="facebookSn">
 						<%= HtmlUtil.escape(facebookSn) %>
 					</div>
 				</li>
@@ -309,7 +318,7 @@ String twitterSn = contact2.getTwitterSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="myspace" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_myspaceSn">
+					<div class="<%= editableClass %>" data-fieldName="myspaceSn">
 						<%= HtmlUtil.escape(mySpaceSn) %>
 					</div>
 				</li>
@@ -319,7 +328,7 @@ String twitterSn = contact2.getTwitterSn();
 				<li>
 					<span class="property-type"><liferay-ui:message key="twitter" /></span>
 
-					<div class="<%= editableClass %>" id="<portlet:namespace/>contact_twitterSn">
+					<div class="<%= editableClass %>" data-fieldName="twitterSn">
 						<%= HtmlUtil.escape(twitterSn) %>
 					</div>
 				</li>
@@ -334,7 +343,7 @@ String twitterSn = contact2.getTwitterSn();
 
 		<ul class="property-list">
 			<li class="property">
-				<div class="<%= editableClass %>" id="<portlet:namespace/>contact_smsSn">
+				<div class="<%= editableClass %>" data-fieldName="smsSn">
 					<%= HtmlUtil.escape(contact2.getSmsSn()) %>
 				</div>
 			</li>
