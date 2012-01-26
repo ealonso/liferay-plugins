@@ -47,6 +47,7 @@ import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.UserServiceUtil;
 import com.liferay.portal.service.WebsiteServiceUtil;
+import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.UserLastNameComparator;
@@ -440,10 +441,19 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		PortletDisplay portletDisplay= themeDisplay.getPortletDisplay();
+		String portletId= portletDisplay.getId();
+
+		System.out.println("portletId: " + portletId);
+
 		User user = themeDisplay.getUser();
 
+		long elementId = ParamUtil.getLong(actionRequest, "elementId");
 		String fieldName = ParamUtil.getString(actionRequest, "fieldName");
 		String newValue = ParamUtil.getString(actionRequest, "value");
+
+		System.out.println(fieldName);
+		System.out.println(newValue);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -461,31 +471,34 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		String ymSn= contact.getYmSn();
 
 		try {
-			if (fieldName.equals("contact_aimSn")) {
+			if (fieldName.equals("aimSn")) {
 				aimSn = newValue;
 			}
-			else if (fieldName.equals("contact_facebookSn")) {
+			else if (fieldName.equals("comments")) {
+				user.setComments(newValue);
+			}
+			else if (fieldName.equals("facebookSn")) {
 				facebookSn = newValue;
 			}
-			else if (fieldName.equals("contact_icqSn")) {
+			else if (fieldName.equals("icqSn")) {
 				icqSn = newValue;
 			}
-			else if (fieldName.equals("contact_jabberSn")) {
+			else if (fieldName.equals("jabberSn")) {
 				jabberSn = newValue;
 			}
-			else if (fieldName.equals("contact_msnSn")) {
+			else if (fieldName.equals("msnSn")) {
 				msnSn = newValue;
 			}
-			else if (fieldName.equals("contact_skypeSn")) {
+			else if (fieldName.equals("skypeSn")) {
 				skypeSn = newValue;
 			}
-			else if (fieldName.equals("contact_smsSn")) {
+			else if (fieldName.equals("smsSn")) {
 				smsSn = newValue;
 			}
-			else if (fieldName.equals("contact_twitterSn")) {
+			else if (fieldName.equals("twitterSn")) {
 				twitterSn = newValue;
 			}
-			else if (fieldName.equals("contact_ymSn")) {
+			else if (fieldName.equals("ymSn")) {
 				ymSn = newValue;
 			}
 			else if (fieldName.equals("emailAddress")) {
@@ -494,39 +507,35 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			else if (fieldName.equals("jobTitle")) {
 				user.setJobTitle(newValue);
 			}
-			else if (fieldName.startsWith("contact_")) {
-				long elementId = ParamUtil.getLong(actionRequest, "elementId");
+			else if (fieldName.startsWith("phone")) {
+				Phone phone = PhoneServiceUtil.getPhone(elementId);
 
-				if (fieldName.startsWith("contact_phone")) {
-					Phone phone = PhoneServiceUtil.getPhone(elementId);
+				phone.setNumber(newValue);
 
-					phone.setNumber(newValue);
+				PhoneServiceUtil.updatePhone(
+					phone.getPhoneId(), phone.getNumber(),
+					phone.getExtension(), phone.getTypeId(),
+					phone.getPrimary());
+			}
+			else if (fieldName.startsWith("website")) {
+				Website website = WebsiteServiceUtil.getWebsite(elementId);
 
-					PhoneServiceUtil.updatePhone(
-						phone.getPhoneId(), phone.getNumber(),
-						phone.getExtension(), phone.getTypeId(),
-						phone.getPrimary());
-				}
-				else if (fieldName.startsWith("contact_website")) {
-					Website website = WebsiteServiceUtil.getWebsite(elementId);
+				website.setUrl(newValue);
 
-					website.setUrl(newValue);
+				WebsiteServiceUtil.updateWebsite(
+					website.getWebsiteId(), website.getUrl(),
+					website.getTypeId(), website.getPrimary());
+			}
+			else if (fieldName.startsWith("additionemailAddress")) {
+				EmailAddress emailAddress =
+					EmailAddressServiceUtil.getEmailAddress(elementId);
 
-					WebsiteServiceUtil.updateWebsite(
-						website.getWebsiteId(), website.getUrl(),
-						website.getTypeId(), website.getPrimary());
-				}
-				else if (fieldName.startsWith("contact_emailAddress")) {
-					EmailAddress emailAddress =
-						EmailAddressServiceUtil.getEmailAddress(elementId);
+				emailAddress.setAddress(newValue);
 
-					emailAddress.setAddress(newValue);
-
-					EmailAddressServiceUtil.updateEmailAddress(
-						emailAddress.getEmailAddressId(),
-						emailAddress.getAddress(), emailAddress.getTypeId(),
-						emailAddress.getPrimary());
-				}
+				EmailAddressServiceUtil.updateEmailAddress(
+					emailAddress.getEmailAddressId(),
+					emailAddress.getAddress(), emailAddress.getTypeId(),
+					emailAddress.getPrimary());
 			}
 
 			Calendar cal = CalendarFactoryUtil.getCalendar();
