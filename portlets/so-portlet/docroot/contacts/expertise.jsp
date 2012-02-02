@@ -21,6 +21,7 @@
 
 <%
 User user2 = (User)request.getAttribute("view_user.jsp-user");
+String editableClass = (String)request.getAttribute("view_user.jsp-editableClass");
 
 List<ProjectsEntry> projectsEntries = null;
 
@@ -30,35 +31,42 @@ if (user2 != null) {
 %>
 
 <c:if test="<%= (projectsEntries != null) && !projectsEntries.isEmpty() %>">
+	
+	<ul class="property-list" id="expertise-list">
 
-	<%
-	for (ProjectsEntry projectsEntry : projectsEntries) {
-		String startDate = dateFormatDate.format(projectsEntry.getStartDate());
+		<%
+		for (ProjectsEntry projectsEntry : projectsEntries) {
+			String startDate = dateFormatDate.format(projectsEntry.getStartDate());
+	
+			String endDate = null;
+	
+			if (projectsEntry.getEndDate() != null) {
+				endDate = dateFormatDate.format(projectsEntry.getEndDate());
+			}
+			else {
+				endDate = LanguageUtil.get(pageContext, "current");
+			}
+		%>
 
-		String endDate = null;
-
-		if (projectsEntry.getEndDate() != null) {
-			endDate = dateFormatDate.format(projectsEntry.getEndDate());
+			<li>
+				<div class="project">
+					<span class="<%= editableClass %> property-type" data-fieldName="expertiseType" data-elementId="<%= projectsEntry.getProjectsEntryId() %>">
+						<%= projectsEntry.getTitle() %>
+					</span>
+		
+					<div class="project-date">
+						<%= startDate %> - <%= endDate %>
+					</div>
+		
+					<div class="<%= editableClass %> project-description" data-elementId="<%= projectsEntry.getProjectsEntryId() %>" data-fieldName="expertiseDescription" data-fieldType="textarea">
+						<%= projectsEntry.getDescription() %>
+					</div>
+				</div>
+			<li>
+		<%
 		}
-		else {
-			endDate = LanguageUtil.get(pageContext, "current");
-		}
-	%>
+		%>
 
-		<div class="project">
-			<h3 class="project-title"><%= projectsEntry.getTitle() %></h3>
-
-			<div class="project-date">
-				<%= startDate %> - <%= endDate %>
-			</div>
-
-			<div class="project-description">
-				<%= projectsEntry.getDescription() %>
-			</div>
-		</div>
-
-	<%
-	}
-	%>
-
+	</ul>
+	
 </c:if>
