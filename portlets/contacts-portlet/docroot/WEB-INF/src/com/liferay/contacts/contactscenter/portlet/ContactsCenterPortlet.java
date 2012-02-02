@@ -15,6 +15,9 @@
 package com.liferay.contacts.contactscenter.portlet;
 
 import com.liferay.contacts.util.ContactsUtil;
+
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -47,7 +50,6 @@ import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.UserServiceUtil;
 import com.liferay.portal.service.WebsiteServiceUtil;
-import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.UserLastNameComparator;
@@ -61,6 +63,8 @@ import com.liferay.portlet.social.model.SocialRequestFeedEntry;
 import com.liferay.portlet.social.service.SocialRelationLocalServiceUtil;
 import com.liferay.portlet.social.service.SocialRequestInterpreterLocalServiceUtil;
 import com.liferay.portlet.social.service.SocialRequestLocalServiceUtil;
+import com.liferay.so.model.ProjectsEntry;
+import com.liferay.so.service.ProjectsEntryLocalServiceUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
 
 import java.io.IOException;
@@ -83,6 +87,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author Ryan Park
  * @author Jonathan Lee
+ * @author Manuel de la Peña
  */
 public class ContactsCenterPortlet extends MVCPortlet {
 
@@ -394,6 +399,9 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			else if (cmd.equals("requestSocialRelation")) {
 				requestSocialRelation(actionRequest, actionResponse);
 			}
+			else if (cmd.equals("saveMyProfileField")) {
+				saveMyProfileField(actionRequest, actionResponse);
+			}
 		}
 		catch (Exception e) {
 			throw new PortletException(e);
@@ -441,19 +449,11 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		PortletDisplay portletDisplay= themeDisplay.getPortletDisplay();
-		String portletId= portletDisplay.getId();
-
-		System.out.println("portletId: " + portletId);
-
 		User user = themeDisplay.getUser();
 
 		long elementId = ParamUtil.getLong(actionRequest, "elementId");
 		String fieldName = ParamUtil.getString(actionRequest, "fieldName");
 		String newValue = ParamUtil.getString(actionRequest, "value");
-
-		System.out.println(fieldName);
-		System.out.println(newValue);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -469,6 +469,8 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		String smsSn = contact.getSmsSn();
 		String twitterSn = contact.getTwitterSn();
 		String ymSn= contact.getYmSn();
+
+		boolean saveUser = true;
 
 		try {
 			if (fieldName.equals("aimSn")) {
@@ -526,7 +528,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 					website.getWebsiteId(), website.getUrl(),
 					website.getTypeId(), website.getPrimary());
 			}
-			else if (fieldName.startsWith("additionemailAddress")) {
+			else if (fieldName.startsWith("additionEmailAddress")) {
 				EmailAddress emailAddress =
 					EmailAddressServiceUtil.getEmailAddress(elementId);
 
@@ -537,49 +539,66 @@ public class ContactsCenterPortlet extends MVCPortlet {
 					emailAddress.getAddress(), emailAddress.getTypeId(),
 					emailAddress.getPrimary());
 			}
+			else if (fieldName.startsWith("expertise")) {
+				ProjectsEntry projectsEntry =
+					ProjectsEntryLocalServiceUtil.getProjectsEntry(elementId);
 
-			Calendar cal = CalendarFactoryUtil.getCalendar();
-			cal.setTime(user.getBirthday());
+				if (fieldName.equals("expertiseType")) {
+					projectsEntry.setTitle(newValue);
+				}
+				else if (fieldName.equals("expertiseDescription")) {
+					projectsEntry.setDescription(newValue);
+				}
 
-			int birthdayDay = cal.get(Calendar.DATE);
-			int birthdayMonth = cal.get(Calendar.MONTH);
-			int birthdayYear = cal.get(Calendar.YEAR);
+				saveProjectEntry(projectsEntry);
 
-			List<UserGroupRole> userGroupRoles =
-				UserGroupRoleLocalServiceUtil.getUserGroupRoles(
-					user.getUserId());
+				saveUser = false;
+			}
 
-			List<EmailAddress> emailAddresses =
-				EmailAddressServiceUtil.getEmailAddresses(
-					Contact.class.getName(), user.getContactId());
+			if (saveUser) {
+				Calendar cal = CalendarFactoryUtil.getCalendar();
+				cal.setTime(user.getBirthday());
 
-			List<AnnouncementsDelivery> deliveries =
-				AnnouncementsDeliveryLocalServiceUtil.getUserDeliveries(
-					user.getUserId());
+				int birthdayDay = cal.get(Calendar.DATE);
+				int birthdayMonth = cal.get(Calendar.MONTH);
+				int birthdayYear = cal.get(Calendar.YEAR);
 
-			user = UserServiceUtil.updateUser(
-				user.getUserId(), user.getPasswordUnencrypted(),
-				user.getPasswordUnencrypted(), user.getPasswordUnencrypted(),
-				user.getPasswordReset(), user.getReminderQueryQuestion(),
-				user.getReminderQueryAnswer(), user.getScreenName(),
-				user.getEmailAddress(), user.getFacebookId(), user.getOpenId(),
-				user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
-				user.getComments(), user.getFirstName(), user.getMiddleName(),
-				user.getLastName(), contact.getPrefixId(),
-				contact.getSuffixId(), user.isMale(), birthdayMonth,
-				birthdayDay, birthdayYear, smsSn, aimSn, facebookSn, icqSn,
-				jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn, ymSn,
-				user.getJobTitle(), user.getGroupIds(),
-				user.getOrganizationIds(), user.getRoleIds(),
-				userGroupRoles, user.getUserGroupIds(), user.getAddresses(),
-				emailAddresses, user.getPhones(), user.getWebsites(),
-				deliveries, new ServiceContext());
+				List<UserGroupRole> userGroupRoles =
+					UserGroupRoleLocalServiceUtil.getUserGroupRoles(
+						user.getUserId());
+
+				List<EmailAddress> emailAddresses =
+					EmailAddressServiceUtil.getEmailAddresses(
+						Contact.class.getName(), user.getContactId());
+
+				List<AnnouncementsDelivery> deliveries =
+					AnnouncementsDeliveryLocalServiceUtil.getUserDeliveries(
+						user.getUserId());
+
+				user = UserServiceUtil.updateUser(
+					user.getUserId(), user.getPasswordUnencrypted(),
+					user.getPasswordUnencrypted(), user.getPasswordUnencrypted(),
+					user.getPasswordReset(), user.getReminderQueryQuestion(),
+					user.getReminderQueryAnswer(), user.getScreenName(),
+					user.getEmailAddress(), user.getFacebookId(), user.getOpenId(),
+					user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
+					user.getComments(), user.getFirstName(), user.getMiddleName(),
+					user.getLastName(), contact.getPrefixId(),
+					contact.getSuffixId(), user.isMale(), birthdayMonth,
+					birthdayDay, birthdayYear, smsSn, aimSn, facebookSn, icqSn,
+					jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn, ymSn,
+					user.getJobTitle(), user.getGroupIds(),
+					user.getOrganizationIds(), user.getRoleIds(),
+					userGroupRoles, user.getUserGroupIds(), user.getAddresses(),
+					emailAddresses, user.getPhones(), user.getWebsites(),
+					deliveries, new ServiceContext());
+			}
 
 			jsonObject.put("success", true);
 
 			putMessage(
 				actionRequest, jsonObject,
-				"the-field-x-has-been-saved-successfully", fieldName);
+				"x-has-been-updated-successfully", fieldName);
 
 			writeJSON(actionRequest, actionResponse, jsonObject);
 
@@ -587,8 +606,7 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			jsonObject.put("success", false);
 
 			putMessage(
-				actionRequest, jsonObject,
-				"data-could-not-be-saved-please-review-value");
+				actionRequest, jsonObject, "your-request-failed-to-complete");
 
 			writeJSON(actionRequest, actionResponse, jsonObject);
 		}
@@ -681,6 +699,42 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			themeDisplay.getLocale(), key, arguments);
 
 		jsonObject.put("message", message);
+	}
+
+	protected void saveProjectEntry(ProjectsEntry projectsEntry)
+		throws PortalException, SystemException {
+
+		Calendar projectStartCal = CalendarFactoryUtil.getCalendar();
+		projectStartCal.setTime(projectsEntry.getStartDate());
+
+		int startDateDay = projectStartCal.get(Calendar.DATE);
+		int startDateMonth = projectStartCal.get(Calendar.MONTH);
+		int startDateYear = projectStartCal.get(Calendar.YEAR);
+
+		Calendar projectEndCal = CalendarFactoryUtil.getCalendar();
+		projectEndCal.setTime(projectsEntry.getStartDate());
+
+		int endDateDay = projectEndCal.get(Calendar.DATE);
+		int endDateMonth = projectEndCal.get(Calendar.MONTH);
+		int endDateYear = projectEndCal.get(Calendar.YEAR);
+
+		boolean current = true;
+
+		if (projectsEntry.getStartDate() != null) {
+			projectStartCal.setTime(projectsEntry.getStartDate());
+		}
+
+		if (projectsEntry.getEndDate() != null) {
+			projectEndCal.setTime(projectsEntry.getEndDate());
+
+			current = false;
+		}
+
+		ProjectsEntryLocalServiceUtil.updateProjectsEntry(
+			projectsEntry.getProjectsEntryId(),
+			projectsEntry.getTitle(), projectsEntry.getDescription(),
+			startDateMonth, startDateDay, startDateYear, endDateMonth,
+			endDateDay, endDateYear, current, projectsEntry.getData());
 	}
 
 	protected void sendNotificationEvent(

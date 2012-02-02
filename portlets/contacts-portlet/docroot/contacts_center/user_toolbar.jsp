@@ -144,17 +144,6 @@ else if (SocialRelationLocalServiceUtil.hasRelation(themeDisplay.getUserId(), us
 	</c:when>
 </c:choose>
 
-<c:if test="<%= user.getUserId() == user2.getUserId() %>">
-	<liferay-ui:icon
-		cssClass="edit-profile"
-		image="edit"
-		label="<%= true %>"
-		message="edit-profile"
-		method="get"
-		url="javascript:;"
-	/>
-</c:if>
-
 <portlet:resourceURL id="exportVCard" var="exportURL">
 	<portlet:param name="userId" value="<%= String.valueOf(user2.getUserId()) %>" />
 </portlet:resourceURL>

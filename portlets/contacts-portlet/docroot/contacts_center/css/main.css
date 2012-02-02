@@ -9,14 +9,24 @@ div.aui-editable {
 	z-index: 100;
 }
 
+.one-line {
+	display: block !important;
+	padding-bottom: 3px;
+	padding-top: 3px;
+}
+
 .quick-edit-field {
 	background: none;
+	display: inline;
 }
 
 .quick-edit-field:hover {
-	background: #EEE url(../images/edit.png) no-repeat scroll left top;
-	border: 1px solid #ECECEC;
-	padding-left: 20px;
+	background: #EEE url(../images/edit.png) no-repeat scroll right bottom;
+	border: 1px solid #C9C9C9;
+	cursor: pointer;
+	padding-bottom: 2px;
+	padding-top: 2px;
+	padding-right: 25px;
 }
 
 .contacts-portlet {
@@ -310,7 +320,7 @@ div.aui-editable {
 		}
 
 		ul {
-			margin: 0 0 0 105px;
+			margin: 0;
 			padding: 0;
 		}
 	}
@@ -405,17 +415,23 @@ div.aui-editable {
 			text-indent: 5px;
 		}
 
+		.project-date, .project-type {
+			display: inline;
+		}
+		
 		.project-description {
-			margin-left: 105px;
+			display: block !important;
 		}
 	}
 
 	.property-type {
 		font-weight: bold;
+		padding-right: 1em;
 	}
 
 	.property-list li {
 		list-style: none;
+		padding-bottom: 8px;
 	}
 
 	.lfr-app-column-view .user-information-column-1-content {
@@ -425,6 +441,7 @@ div.aui-editable {
 	.user-information-title {
 		color: #666;
 		font-size: 1.5em;
+		padding-top: 5px;
 		text-align: right;
 		width: 110px;
 	}
@@ -539,5 +556,82 @@ div.aui-editable {
 
 	.lfr-search-container {
 		margin-top: 1em;
+	}
+
+	.field-container {
+		display: table;
+		width: 100%;
+
+		.field-actions-toolbar {
+			float: left;
+			width: 25%;
+		}
+
+		.field-values {
+			float: right;
+			width: 75%;
+
+			.property-list {
+				padding: 5px;
+			}
+		}
+	}
+
+	.field-container:hover {
+		background: #DCE3EA
+	}
+
+	.profile-actions {
+		border-bottom: 1px solid #C7D0DA;
+		margin: 0 -10px;
+		padding: 0 10px 6px;	
+	}
+
+	.profile-actions-title {
+		color: #929292;
+		font-weight: bold;
+		padding: 6px 0 0;
+	}
+	
+	.profile-actions {
+		h3 {
+			color: #B4BEC8;
+			float: left;
+			font-size: 1em;
+			margin: 0;
+			text-align: right;
+			width: 100px;
+		}
+		
+		.field-actions-toolbar {
+			padding-top: 2px;
+			text-align: right;
+
+			.actions-conjunction {
+				display: inline-block;
+				font-weight: bold;
+				list-style: none;
+				padding: 10px 5px;
+			}
+
+			.settings-actions {
+				display: inline-block;
+				margin: 0px;
+			}
+
+			.settings-header-label {
+				font-weight: bold;
+				padding: 0 5px;
+			}
+
+			.action-field {
+				background-image: url(@theme_image_path@/common/add.png);
+				background-position: 5px 50%;
+				background-repeat: no-repeat;
+				float: left;
+				margin: 2px;
+				padding-left: 25px;
+			}
+		}
 	}
 }
