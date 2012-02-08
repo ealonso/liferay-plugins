@@ -16,28 +16,45 @@ package com.liferay.contacts.contactscenter.portlet;
 
 import com.liferay.contacts.util.ContactsUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.notifications.ChannelHubManagerUtil;
 import com.liferay.portal.kernel.notifications.NotificationEvent;
 import com.liferay.portal.kernel.notifications.NotificationEventFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
+import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.model.Contact;
+import com.liferay.portal.model.EmailAddress;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
+import com.liferay.portal.model.Phone;
 import com.liferay.portal.model.User;
+import com.liferay.portal.model.UserGroupRole;
+import com.liferay.portal.model.Website;
+import com.liferay.portal.service.EmailAddressServiceUtil;
+import com.liferay.portal.service.PhoneServiceUtil;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.service.UserServiceUtil;
+import com.liferay.portal.service.WebsiteServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.UserLastNameComparator;
+import com.liferay.portlet.announcements.model.AnnouncementsDelivery;
+import com.liferay.portlet.announcements.service.AnnouncementsDeliveryLocalServiceUtil;
 import com.liferay.portlet.social.NoSuchRelationException;
 import com.liferay.portlet.social.model.SocialRelationConstants;
 import com.liferay.portlet.social.model.SocialRequest;
@@ -46,10 +63,13 @@ import com.liferay.portlet.social.model.SocialRequestFeedEntry;
 import com.liferay.portlet.social.service.SocialRelationLocalServiceUtil;
 import com.liferay.portlet.social.service.SocialRequestInterpreterLocalServiceUtil;
 import com.liferay.portlet.social.service.SocialRequestLocalServiceUtil;
+import com.liferay.so.model.ProjectsEntry;
+import com.liferay.so.service.ProjectsEntryLocalServiceUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
 
 import java.io.IOException;
 
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -66,6 +86,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author Ryan Park
  * @author Jonathan Lee
+ * @author Manuel de la Peña
  */
 public class ContactsCenterPortlet extends MVCPortlet {
 
@@ -376,6 +397,9 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			else if (cmd.equals("requestSocialRelation")) {
 				requestSocialRelation(actionRequest, actionResponse);
 			}
+			else if (cmd.equals("saveMyProfileField")) {
+				saveMyProfileField(actionRequest, actionResponse);
+			}
 		}
 		catch (Exception e) {
 			throw new PortletException(e);
@@ -413,6 +437,176 @@ public class ContactsCenterPortlet extends MVCPortlet {
 					themeDisplay.getUserId(), type, StringPool.BLANK, userId);
 
 			sendNotificationEvent(socialRequest, themeDisplay);
+		}
+	}
+
+	public void saveMyProfileField(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		User user = themeDisplay.getUser();
+
+		long elementId = ParamUtil.getLong(actionRequest, "elementId");
+		String fieldName = ParamUtil.getString(actionRequest, "fieldName");
+		String newValue = ParamUtil.getString(actionRequest, "value");
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		Contact contact = user.getContact();
+
+		String aimSn = contact.getAimSn();
+		String facebookSn = contact.getFacebookSn();
+		String icqSn = contact.getIcqSn();
+		String jabberSn = contact.getJabberSn();
+		String msnSn = contact.getMsnSn();
+		String mySpaceSn = contact.getMySpaceSn();
+		String skypeSn = contact.getSkypeSn();
+		String smsSn = contact.getSmsSn();
+		String twitterSn = contact.getTwitterSn();
+		String ymSn= contact.getYmSn();
+
+		boolean saveUser = true;
+
+		try {
+			if (fieldName.equals("aimSn")) {
+				aimSn = newValue;
+			}
+			else if (fieldName.equals("comments")) {
+				user.setComments(newValue);
+			}
+			else if (fieldName.equals("facebookSn")) {
+				facebookSn = newValue;
+			}
+			else if (fieldName.equals("icqSn")) {
+				icqSn = newValue;
+			}
+			else if (fieldName.equals("jabberSn")) {
+				jabberSn = newValue;
+			}
+			else if (fieldName.equals("msnSn")) {
+				msnSn = newValue;
+			}
+			else if (fieldName.equals("skypeSn")) {
+				skypeSn = newValue;
+			}
+			else if (fieldName.equals("smsSn")) {
+				smsSn = newValue;
+			}
+			else if (fieldName.equals("twitterSn")) {
+				twitterSn = newValue;
+			}
+			else if (fieldName.equals("ymSn")) {
+				ymSn = newValue;
+			}
+			else if (fieldName.equals("emailAddress")) {
+				user.setEmailAddress(newValue);
+			}
+			else if (fieldName.equals("jobTitle")) {
+				user.setJobTitle(newValue);
+			}
+			else if (fieldName.startsWith("phone")) {
+				Phone phone = PhoneServiceUtil.getPhone(elementId);
+
+				phone.setNumber(newValue);
+
+				PhoneServiceUtil.updatePhone(
+					phone.getPhoneId(), phone.getNumber(),
+					phone.getExtension(), phone.getTypeId(),
+					phone.getPrimary());
+			}
+			else if (fieldName.startsWith("website")) {
+				Website website = WebsiteServiceUtil.getWebsite(elementId);
+
+				website.setUrl(newValue);
+
+				WebsiteServiceUtil.updateWebsite(
+					website.getWebsiteId(), website.getUrl(),
+					website.getTypeId(), website.getPrimary());
+			}
+			else if (fieldName.startsWith("additionEmailAddress")) {
+				EmailAddress emailAddress =
+					EmailAddressServiceUtil.getEmailAddress(elementId);
+
+				emailAddress.setAddress(newValue);
+
+				EmailAddressServiceUtil.updateEmailAddress(
+					emailAddress.getEmailAddressId(),
+					emailAddress.getAddress(), emailAddress.getTypeId(),
+					emailAddress.getPrimary());
+			}
+			else if (fieldName.startsWith("expertise")) {
+				ProjectsEntry projectsEntry =
+					ProjectsEntryLocalServiceUtil.getProjectsEntry(elementId);
+
+				if (fieldName.equals("expertiseType")) {
+					projectsEntry.setTitle(newValue);
+				}
+				else if (fieldName.equals("expertiseDescription")) {
+					projectsEntry.setDescription(newValue);
+				}
+
+				saveProjectEntry(projectsEntry);
+
+				saveUser = false;
+			}
+
+			if (saveUser) {
+				Calendar cal = CalendarFactoryUtil.getCalendar();
+				cal.setTime(user.getBirthday());
+
+				int birthdayDay = cal.get(Calendar.DATE);
+				int birthdayMonth = cal.get(Calendar.MONTH);
+				int birthdayYear = cal.get(Calendar.YEAR);
+
+				List<UserGroupRole> userGroupRoles =
+					UserGroupRoleLocalServiceUtil.getUserGroupRoles(
+						user.getUserId());
+
+				List<EmailAddress> emailAddresses =
+					EmailAddressServiceUtil.getEmailAddresses(
+						Contact.class.getName(), user.getContactId());
+
+				List<AnnouncementsDelivery> deliveries =
+					AnnouncementsDeliveryLocalServiceUtil.getUserDeliveries(
+						user.getUserId());
+
+				user = UserServiceUtil.updateUser(
+					user.getUserId(), user.getPasswordUnencrypted(),
+					user.getPasswordUnencrypted(), user.getPasswordUnencrypted(),
+					user.getPasswordReset(), user.getReminderQueryQuestion(),
+					user.getReminderQueryAnswer(), user.getScreenName(),
+					user.getEmailAddress(), user.getFacebookId(), user.getOpenId(),
+					user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
+					user.getComments(), user.getFirstName(), user.getMiddleName(),
+					user.getLastName(), contact.getPrefixId(),
+					contact.getSuffixId(), user.isMale(), birthdayMonth,
+					birthdayDay, birthdayYear, smsSn, aimSn, facebookSn, icqSn,
+					jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn, ymSn,
+					user.getJobTitle(), user.getGroupIds(),
+					user.getOrganizationIds(), user.getRoleIds(),
+					userGroupRoles, user.getUserGroupIds(), user.getAddresses(),
+					emailAddresses, user.getPhones(), user.getWebsites(),
+					deliveries, new ServiceContext());
+			}
+
+			jsonObject.put("success", true);
+
+			putMessage(
+				actionRequest, jsonObject,
+				"x-has-been-updated-successfully", fieldName);
+
+			writeJSON(actionRequest, actionResponse, jsonObject);
+
+		} catch (Exception e) {
+			jsonObject.put("success", false);
+
+			putMessage(
+				actionRequest, jsonObject, "your-request-failed-to-complete");
+
+			writeJSON(actionRequest, actionResponse, jsonObject);
 		}
 	}
 
@@ -490,6 +684,55 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		}
 
 		return userIds;
+	}
+
+	protected void putMessage(
+		ActionRequest request, JSONObject jsonObject, String key,
+		Object... arguments) {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		String message = LanguageUtil.format(
+			themeDisplay.getLocale(), key, arguments);
+
+		jsonObject.put("message", message);
+	}
+
+	protected void saveProjectEntry(ProjectsEntry projectsEntry)
+		throws PortalException, SystemException {
+
+		Calendar projectStartCal = CalendarFactoryUtil.getCalendar();
+		projectStartCal.setTime(projectsEntry.getStartDate());
+
+		int startDateDay = projectStartCal.get(Calendar.DATE);
+		int startDateMonth = projectStartCal.get(Calendar.MONTH);
+		int startDateYear = projectStartCal.get(Calendar.YEAR);
+
+		Calendar projectEndCal = CalendarFactoryUtil.getCalendar();
+		projectEndCal.setTime(projectsEntry.getStartDate());
+
+		int endDateDay = projectEndCal.get(Calendar.DATE);
+		int endDateMonth = projectEndCal.get(Calendar.MONTH);
+		int endDateYear = projectEndCal.get(Calendar.YEAR);
+
+		boolean current = true;
+
+		if (projectsEntry.getStartDate() != null) {
+			projectStartCal.setTime(projectsEntry.getStartDate());
+		}
+
+		if (projectsEntry.getEndDate() != null) {
+			projectEndCal.setTime(projectsEntry.getEndDate());
+
+			current = false;
+		}
+
+		ProjectsEntryLocalServiceUtil.updateProjectsEntry(
+			projectsEntry.getProjectsEntryId(),
+			projectsEntry.getTitle(), projectsEntry.getDescription(),
+			startDateMonth, startDateDay, startDateYear, endDateMonth,
+			endDateDay, endDateYear, current, projectsEntry.getData());
 	}
 
 	protected void sendNotificationEvent(
