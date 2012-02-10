@@ -42,15 +42,11 @@ if (user2.getUserId() == themeDisplay.getUser().getUserId()) {
 
 Contact contact2 = user2.getContact();
 
-List<Phone> phones = null;
-List<EmailAddress> emailAddresses = null;
-List<Address> addresses = null;
-List<Website> websites = null;
-
-phones = PhoneServiceUtil.getPhones(Contact.class.getName(), contact2.getContactId());
-emailAddresses = EmailAddressServiceUtil.getEmailAddresses(Contact.class.getName(), contact2.getContactId());
-addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contact2.getContactId());
-websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(), contact2.getContactId());
+List<Phone> phones = PhoneServiceUtil.getPhones(Contact.class.getName(), contact2.getContactId());
+List<EmailAddress> emailAddresses = EmailAddressServiceUtil.getEmailAddresses(Contact.class.getName(), contact2.getContactId());
+List<Address> addresses = AddressServiceUtil.getAddresses(Contact.class.getName(), contact2.getContactId());
+List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(), contact2.getContactId());
+List<ProjectsEntry> projectsEntries = ProjectsEntryLocalServiceUtil.getUserProjectsEntries(user.getUserId());
 
 String aimSn = contact2.getAimSn();
 String icqSn = contact2.getIcqSn();
@@ -104,7 +100,7 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 
 <c:if test="<%= user2 != null %>">
 	<div class="contacts-profile" id="<portlet:namespace />ContactsWrapper">
-		<c:if test="<%= (displayStyle == ContactsConstants.DISPLAY_STYLE_BASIC) || (displayStyle ==ContactsConstants.DISPLAY_STYLE_FULL) %>">
+		<c:if test="<%= (displayStyle == ContactsConstants.DISPLAY_STYLE_BASIC) || (displayStyle == ContactsConstants.DISPLAY_STYLE_FULL) %>">
 			<aui:layout cssClass="social-relations">
 
 				<%
@@ -233,182 +229,187 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 			</div>
 		</c:if>
 
-		<c:if test="<%= ((displayStyle == ContactsConstants.DISPLAY_STYLE_DETAIL) || (displayStyle ==ContactsConstants.DISPLAY_STYLE_FULL)) && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
-			<aui:layout cssClass="user-information">
-
-				<c:if test="<%= showUsersInformation %>">
-					<aui:column cssClass="user-information-column-1" columnWidth="<%= showSites ? 80 : 100 %>">
-						<div class="lfr-user-info-container">
-							<liferay-util:include page="/contacts_center/view_user_information.jsp" servletContext="<%= application %>" />
-						</div>
-
-						<%
-						Map<String, String> extensions = ContactsExtensionsUtil.getExtensions();
-
-						Set<String> servletContextNames = extensions.keySet();
-
-						for (String servletContextName : servletContextNames) {
-							String extensionPath = extensions.get(servletContextName);
-
-							ServletContext extensionServletContext = ServletContextPool.get(servletContextName);
-
-							String title = extensionPath.substring(extensionPath.lastIndexOf(StringPool.SLASH) + 1, extensionPath.lastIndexOf(StringPool.PERIOD));
-
-							title = title.replace(CharPool.UNDERLINE, CharPool.DASH);
-
-							String cssClass = "lfr-" + title + "-container";
-						%>
-
-							<div class="section field-container">
-								<div class="field-actions-toolbar yui3-widget-hd">
-									<div class="user-information-title">
-										<liferay-ui:message key="<%= title %>" />:
-									</div>
-								</div>
-
-								<div class="field-values">
-									<div class="property-list">
-										<div class="<%= cssClass %>">
-											<liferay-util:include page="<%= extensionPath %>" servletContext="<%= extensionServletContext %>" />
-										</div>
-									</div>
-								</div>
+		<c:if test="<%= ((displayStyle == ContactsConstants.DISPLAY_STYLE_DETAIL) || (displayStyle == ContactsConstants.DISPLAY_STYLE_FULL)) && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
+			<div class="user-information" id="<portlet:namespace />userInformation">
+				<aui:layout>
+					<c:if test="<%= showUsersInformation %>">
+						<aui:column cssClass="user-information-column-1" columnWidth="<%= showSites ? 80 : 100 %>">
+							<div class="lfr-user-info-container">
+								<liferay-util:include page="/contacts_center/view_user_information.jsp" servletContext="<%= application %>" />
 							</div>
 
-						<%
-						}
-						%>
-
-					</aui:column>
-				</c:if>
-
-				<c:if test="<%= showSites || showTags %>">
-					<aui:column cssClass="user-information-column-2" columnWidth="<%= showUsersInformation ? 20 : 100 %>">
-						<c:if test="<%= showSites %>">
-
-							<%
-							LinkedHashMap groupParams = new LinkedHashMap();
-
-							groupParams.put("site", Boolean.TRUE);
-
-							Group group = themeDisplay.getScopeGroup();
-
-							if (group.isUser()) {
-								groupParams.put("usersGroups", new Long(group.getClassPK()));
-							}
-							else {
-								groupParams.put("usersGroups", new Long(themeDisplay.getUserId()));
-							}
-
-							groupParams.put("active", Boolean.TRUE);
-
-							if (group.isUser() && (themeDisplay.getUserId() != group.getClassPK())) {
-								List<Integer> types = new ArrayList<Integer>();
-
-								types.add(GroupConstants.TYPE_SITE_OPEN);
-								types.add(GroupConstants.TYPE_SITE_RESTRICTED);
-
-								groupParams.put("types", types);
-							}
-
-							List<Group> results = GroupLocalServiceUtil.search(company.getCompanyId(), null, null, groupParams, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-							%>
-
-							<div class="user-sites-title">
-								<liferay-ui:message key="sites" />
-							</div>
-
-							<div class="user-sites">
-								<c:choose>
-									<c:when test="<%= !results.isEmpty() %>">
-
-										<%
-										for (Group currGroup : results) {
-											PortletURL groupURL = renderResponse.createActionURL();
-
-											groupURL.setWindowState(WindowState.NORMAL);
-
-											groupURL.setParameter("struts_action", "/sites_admin/page");
-											groupURL.setParameter("redirect", currentURL);
-											groupURL.setParameter("groupId", String.valueOf(group.getGroupId()));
-											groupURL.setParameter("privateLayout", Boolean.FALSE.toString());
-										%>
-
-											<a href="<%= groupURL %>"><%= currGroup.getDescriptiveName(locale) %></a>&nbsp;
-
-										<%
-										}
-										%>
-
-									</c:when>
-									<c:otherwise>
-										<div class="empty">
-											<liferay-ui:message arguments="<%= PortalUtil.getUserName((group.isUser() ? group.getClassPK() : themeDisplay.getUserId()), group.getDescriptiveName(locale)) %>" key="x-does-not-belong-to-any-sites" />
-										</div>
-									</c:otherwise>
-								</c:choose>
-							</div>
-						</c:if>
-
-						<c:if test="<%= showTags %>">
-							<div class="user-tags-title">
-								<liferay-ui:message key="tags" />
-							</div>
-
-							<ul class="user-tags">
-
+							<c:if test="<%= ValidatorUtil.isNotNull(projectsEntries) %>">
 								<%
-								StringBuilder sb = new StringBuilder();
+								Map<String, String> extensions = ContactsExtensionsUtil.getExtensions();
 
-								List<AssetTag> tags = AssetTagLocalServiceUtil.getTags(User.class.getName(), user2.getUserId());
+								Set<String> servletContextNames = extensions.keySet();
 
-								for (AssetTag tag : tags) {
-									PortletURL searchURL = ((LiferayPortletResponse)renderResponse).createRenderURL("3");
+								for (String servletContextName : servletContextNames) {
+									String extensionPath = extensions.get(servletContextName);
 
-									searchURL.setWindowState(WindowState.MAXIMIZED);
+									ServletContext extensionServletContext = ServletContextPool.get(servletContextName);
 
-									searchURL.setParameter("groupId", "0");
-									searchURL.setParameter("keywords", tag.getName());
-									searchURL.setParameter("struts_action", "/search/search");
+									String title = extensionPath.substring(extensionPath.lastIndexOf(StringPool.SLASH) + 1, extensionPath.lastIndexOf(StringPool.PERIOD));
 
-									sb.append("<li><a href=\"");
-									sb.append(searchURL);
-									sb.append("\">");
-									sb.append(tag.getName());
-									sb.append("</a></li>");
-								}
+									title = title.replace(CharPool.UNDERLINE, CharPool.DASH);
+
+									String cssClass = "lfr-" + title + "-container";
 								%>
 
-								<%= sb.toString() %>
-							</ul>
+									<div class="user-information-title">
+										<liferay-ui:message key="<%= title %>" />
+									</div>
+
+									<div class="section field-container" data-namespaceId="<portlet:namespace />expertise" data-title="expertise">
+										<div class="field-actions-toolbar yui3-widget-hd">
+											<h3><liferay-ui:message key="projects" />:</h3>
+										</div>
+
+										<div class="field-values">
+											<div class="property-list">
+												<div class="<%= cssClass %>">
+													<liferay-util:include page="<%= extensionPath %>" servletContext="<%= extensionServletContext %>" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+								<%
+								}
+								%>
+							</c:if>
+
+						</aui:column>
+					</c:if>
+
+					<aui:column cssClass="user-information-column-2" columnWidth="<%= showUsersInformation ? 20 : 100 %>">
+						<c:if test="<%= showSites || showTags %>">
+							<c:if test="<%= showSites %>">
+
+								<%
+								LinkedHashMap groupParams = new LinkedHashMap();
+
+								groupParams.put("site", Boolean.TRUE);
+
+								Group group = themeDisplay.getScopeGroup();
+
+								if (group.isUser()) {
+									groupParams.put("usersGroups", new Long(group.getClassPK()));
+								}
+								else {
+									groupParams.put("usersGroups", new Long(themeDisplay.getUserId()));
+								}
+
+								groupParams.put("active", Boolean.TRUE);
+
+								if (group.isUser() && (themeDisplay.getUserId() != group.getClassPK())) {
+									List<Integer> types = new ArrayList<Integer>();
+
+									types.add(GroupConstants.TYPE_SITE_OPEN);
+									types.add(GroupConstants.TYPE_SITE_RESTRICTED);
+
+									groupParams.put("types", types);
+								}
+
+								List<Group> results = GroupLocalServiceUtil.search(company.getCompanyId(), null, null, groupParams, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+								%>
+
+								<div class="user-sites-title">
+									<liferay-ui:message key="sites" />
+								</div>
+
+								<div class="user-sites">
+									<c:choose>
+										<c:when test="<%= !results.isEmpty() %>">
+
+											<%
+											for (Group currGroup : results) {
+												PortletURL groupURL = renderResponse.createActionURL();
+
+												groupURL.setWindowState(WindowState.NORMAL);
+
+												groupURL.setParameter("struts_action", "/sites_admin/page");
+												groupURL.setParameter("redirect", currentURL);
+												groupURL.setParameter("groupId", String.valueOf(group.getGroupId()));
+												groupURL.setParameter("privateLayout", Boolean.FALSE.toString());
+											%>
+
+												<a href="<%= groupURL %>"><%= currGroup.getDescriptiveName(locale) %></a>&nbsp;
+
+											<%
+											}
+											%>
+
+										</c:when>
+										<c:otherwise>
+											<div class="empty">
+												<liferay-ui:message arguments="<%= PortalUtil.getUserName((group.isUser() ? group.getClassPK() : themeDisplay.getUserId()), group.getDescriptiveName(locale)) %>" key="x-does-not-belong-to-any-sites" />
+											</div>
+										</c:otherwise>
+									</c:choose>
+								</div>
+							</c:if>
+
+							<c:if test="<%= showTags %>">
+								<div class="user-tags-title">
+									<liferay-ui:message key="tags" />
+								</div>
+
+								<ul class="user-tags">
+
+									<%
+									StringBuilder sb = new StringBuilder();
+
+									List<AssetTag> tags = AssetTagLocalServiceUtil.getTags(User.class.getName(), user2.getUserId());
+
+									for (AssetTag tag : tags) {
+										PortletURL searchURL = ((LiferayPortletResponse)renderResponse).createRenderURL("3");
+
+										searchURL.setWindowState(WindowState.MAXIMIZED);
+
+										searchURL.setParameter("groupId", "0");
+										searchURL.setParameter("keywords", tag.getName());
+										searchURL.setParameter("struts_action", "/search/search");
+
+										sb.append("<li><a href=\"");
+										sb.append(searchURL);
+										sb.append("\">");
+										sb.append(tag.getName());
+										sb.append("</a></li>");
+									}
+									%>
+
+									<%= sb.toString() %>
+								</ul>
+							</c:if>
 						</c:if>
 
-						<div class="profile-actions-title">
-							<liferay-ui:message key="complete-your-profile" />
-						</div>
+						<c:if test="<%= myProfile && showCompleteYourProfileButtons %>">
+							<div class="profile-actions-title">
+								<liferay-ui:message key="complete-your-profile" />
+							</div>
 
-						<div class="profile-actions">
-							<c:if test="<%= myProfile %>">
+							<div class="profile-actions" id="<portlet:namespace />profileActions">
 								<div class="field-actions-toolbar">
 									<ul class="settings-actions">
 										<c:if test="<%= Validator.isNull(user2.getComments()) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />comments" data-title="comments">
 												<div class="aui-settings-field-content">
-													<span class="settings-label" id=""><liferay-ui:message key="add-an-extract" /></span>
+													<span class="settings-label"><liferay-ui:message key="add-an-extract" /></span>
 												</div>
 											</li>
 										</c:if>
 
-										<c:if test="<%= phones == null || phones.isEmpty() %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+										<c:if test="<%= ValidatorUtil.isNull(phones) %>">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />phoneNumbers" data-title="phone-numbers">
 												<div class="aui-settings-field-content">
-													<span class="settings-label" id=""><liferay-ui:message key="add-a-phone" /></span>
+													<span class="settings-label"><liferay-ui:message key="add-a-phone" /></span>
 												</div>
 											</li>
 										</c:if>
 
-										<c:if test="<%= emailAddresses == null || emailAddresses.isEmpty() %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+										<c:if test="<%= ValidatorUtil.isNull(emailAddresses) %>">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />additionalEmailAddresses" data-title="additional-email-addresses">
 												<div class="aui-settings-field-content">
 													<span class="settings-label"><liferay-ui:message key="add-an-email-address" /></span>
 												</div>
@@ -416,23 +417,23 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 										</c:if>
 
 										<c:if test="<%= !hasInstantMessenger %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />instantMessenger" data-title="instant-messenger">
 												<div class="aui-settings-field-content">
-													<span class="settings-label" id=""><liferay-ui:message key="add-your-instant-messenger" /></span>
+													<span class="settings-label"><liferay-ui:message key="add-your-instant-messenger" /></span>
 												</div>
 											</li>
 										</c:if>
 
-										<c:if test="<%= addresses == null || addresses.isEmpty() %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+										<c:if test="<%= ValidatorUtil.isNull(addresses) %>">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />addresses" data-title="addresses">
 												<div class="aui-settings-field-content">
 													<span class="settings-label"><liferay-ui:message key="add-an-address" /></span>
 												</div>
 											</li>
 										</c:if>
 
-										<c:if test="<%= websites == null || websites.isEmpty() %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+										<c:if test="<%= ValidatorUtil.isNull(websites) %>">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />websites" data-title="websites">
 												<div class="aui-settings-field-content">
 													<span class="settings-label"><liferay-ui:message key="add-a-website" /></span>
 												</div>
@@ -440,33 +441,41 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 										</c:if>
 
 										<c:if test="<%= !hasSocialNetwork %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />socialNetwork" data-title="social-network">
 												<div class="aui-settings-field-content">
-													<span class="settings-label" id=""><liferay-ui:message key="add-your-social-network" /></span>
+													<span class="settings-label"><liferay-ui:message key="add-your-social-network" /></span>
 												</div>
 											</li>
 										</c:if>
 
 										<c:if test="<%= Validator.isNull(smsSn) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />sms" data-title="sms">
 												<div class="aui-settings-field-content">
-													<span class="settings-label" id=""><liferay-ui:message key="add-your-sms" /></span>
+													<span class="settings-label"><liferay-ui:message key="add-your-sms" /></span>
 												</div>
 											</li>
 										</c:if>
 
-										<li class="action-field aui-component aui-settings-field lfr-token">
-											<div class="aui-settings-field-content">
-												<span class="settings-label"><liferay-ui:message key="add-an-expertise" /></span>
-											</div>
-										</li>
+										<c:if test="<%= ValidatorUtil.isNull(projectsEntries) %>">
+											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />expertise" data-title="expertise">
+												<div class="aui-settings-field-content">
+													<span class="settings-label"><liferay-ui:message key="add-an-expertise" /></span>
+												</div>
+											</li>
+										</c:if>
 									</ul>
 								</div>
-							</c:if>
-						</div>
+							</div>
+						</c:if>
 					</aui:column>
-				</c:if>
-			</aui:layout>
+
+					<c:if test="<%= (myProfile && showCompleteYourProfileButtons) || showUsersInformation %>">
+						<div class="aui-helper-hidden">
+							<%@ include file="/contacts_center/edit_user_dialogs.jspf" %>
+						</div>
+					</c:if>
+				</aui:layout>
+			</div>
 
 			<c:if test="<%= showRecentActivity && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
 				<div class="user-information-title">
@@ -546,5 +555,43 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 				});
 			}
 		);
+
+		<c:if test="<%= (showCompleteYourProfileButtons || showUsersInformation) && ((displayStyle == ContactsConstants.DISPLAY_STYLE_DETAIL) || (displayStyle == ContactsConstants.DISPLAY_STYLE_FULL)) && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
+			var userInformation = A.one('#<portlet:namespace />userInformation');
+
+			userInformation.delegate(
+				'click',
+				function(event) {
+					<portlet:namespace />openDialog(event);
+				},
+				'.field-container, .action-field'
+			);
+
+			var <portlet:namespace />openDialog = function(event) {
+				var node = event.currentTarget;
+
+				var namespaceId = node.getAttribute('data-namespaceId');
+
+				var content = A.one('#' + namespaceId + 'Dialog');
+
+				if (content) {
+					Liferay.fire('formNavigator:reveal' + namespaceId);
+
+					var dialog = new A.Dialog(
+						{
+							bodyContent: content,
+							centered: true,
+							constrain2view: true,
+							cssClass: 'profile-dialog',
+							modal: true,
+							resizable: false,
+							title: Liferay.Language.get(node.getAttribute('data-title')),
+							width: 500
+						}
+					).render();
+				}
+			};
+		</c:if>
+
 	</aui:script>
 </c:if>

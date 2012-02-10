@@ -45,12 +45,12 @@ String twitterSn = (String)request.getAttribute("view_user.jsp-twitterSn");
 String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 %>
 
-<c:if test="<%= showComments && Validator.isNotNull(user2.getComments()) %>">
-	<div class="user-information-title">
-		<liferay-ui:message key="about" />
-	</div>
+<div class="user-information-title">
+	<liferay-ui:message key="about" />
+</div>
 
-	<div class="section field-container">
+<c:if test="<%= showComments && Validator.isNotNull(user2.getComments()) %>">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />comments" data-title="comments">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="Introduction" />:</h3>
 		</div>
@@ -74,8 +74,8 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 	</div>
 </c:if>
 
-<c:if test="<%= phones != null && !phones.isEmpty() %>">
-	<div class="section field-container">
+<c:if test="<%= ValidatorUtil.isNotNull(phones) %>">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />phoneNumbers" data-title="phone-numbers">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="phones" />:</h3>
 		</div>
@@ -104,8 +104,8 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 	</div>
 </c:if>
 
-<c:if test="<%= emailAddresses != null && !emailAddresses.isEmpty() %>">
-	<div class="section field-container">
+<c:if test="<%= ValidatorUtil.isNotNull(emailAddresses) %>">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />additionalEmailAddresses" data-title="additional-email-addresses">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="additional-email-addresses" />:</h3>
 		</div>
@@ -146,7 +146,7 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 </c:if>
 
 <c:if test="<%= showInstantMessenger && hasInstantMessenger %>">
-	<div class="section field-container">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />instantMessenger" data-title="instant-messenger">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="instant-messenger" />:</h3>
 		</div>
@@ -209,8 +209,8 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 	</div>
 </c:if>
 
-<c:if test="<%= addresses != null && !addresses.isEmpty() %>">
-	<div class="section field-container">
+<c:if test="<%= ValidatorUtil.isNotNull(addresses) %>">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />addresses" data-title="addresses">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="addresses" />:</h3>
 		</div>
@@ -296,8 +296,8 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 	</div>
 </c:if>
 
-<c:if test="<%= websites != null && !websites.isEmpty() %>">
-	<div class="section field-container">
+<c:if test="<%= ValidatorUtil.isNotNull(websites) %>">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />websites" data-title="websites">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="websites" />:</h3>
 		</div>
@@ -339,7 +339,7 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 </c:if>
 
 <c:if test="<%= showSocialNetwork && hasSocialNetwork %>">
-	<div class="section field-container">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />socialNetwork" data-title="social-network">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="social-network" />:</h3>
 		</div>
@@ -375,10 +375,7 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 </c:if>
 
 <c:if test="<%= showSMS && Validator.isNotNull(smsSn) %>">
-<%
-
-%>
-	<div class="section field-container">
+	<div class="section field-container" data-namespaceId="<portlet:namespace />sms" data-title="sms">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="sms" />:</h3>
 		</div>

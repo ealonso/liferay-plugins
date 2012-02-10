@@ -441,7 +441,8 @@ div.aui-editable {
 	.user-information-title {
 		color: #666;
 		font-size: 1.5em;
-		padding-top: 5px;
+		margin-bottom: 15px;
+		padding: 5px 0;
 		text-align: right;
 		width: 110px;
 	}
@@ -578,7 +579,8 @@ div.aui-editable {
 	}
 
 	.field-container:hover {
-		background: #DCE3EA
+		background: #DCE3EA;
+		cursor: pointer;
 	}
 
 	.profile-actions {
@@ -632,6 +634,48 @@ div.aui-editable {
 				margin: 2px;
 				padding-left: 25px;
 			}
+		}
+	}
+}
+
+.profile-dialog {
+	input[type="text"], select {
+		padding: 5px 1px;
+	}
+
+	.addresses .aui-field {
+		float: none;
+		width: auto;
+	}
+
+	.aui-field.primary-ctrl {
+		margin: 1.8em 0;
+	}
+
+	.aui-field-select .aui-field-content {
+		margin: 10px 0;
+	}
+
+	.form-section h3 {
+		display: none;
+	}
+
+	.lfr-textarea {
+		height: 60px !important;
+		width: 350px !important;
+	}
+
+	.social-network {
+		clear: both;
+		overflow: hidden;
+
+		.aui-field {
+			float: left;
+		}
+
+		img {
+			margin-left: 1.5em;
+			margin-top: 2.4em;
 		}
 	}
 }
