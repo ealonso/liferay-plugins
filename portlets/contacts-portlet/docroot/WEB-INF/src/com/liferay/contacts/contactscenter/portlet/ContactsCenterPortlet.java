@@ -24,8 +24,6 @@ import com.liferay.portal.NoSuchListTypeException;
 import com.liferay.portal.NoSuchRegionException;
 import com.liferay.portal.PhoneNumberException;
 import com.liferay.portal.WebsiteURLException;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -54,12 +52,10 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroupRole;
 import com.liferay.portal.model.Website;
 import com.liferay.portal.service.EmailAddressServiceUtil;
-import com.liferay.portal.service.PhoneServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.UserServiceUtil;
-import com.liferay.portal.service.WebsiteServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.comparator.UserLastNameComparator;
@@ -462,8 +458,38 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		}
 	}
 
+	@Override
+	public void serveResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws PortletException {
+
+		try {
+			String id = resourceRequest.getResourceID();
+
+			if (id.equals("exportVCard")) {
+				exportVCard(resourceRequest, resourceResponse);
+			}
+			else if (id.equals("exportVCards")) {
+				exportVCards(resourceRequest, resourceResponse);
+			}
+			else if (id.equals("getContact")) {
+				getContact(resourceRequest, resourceResponse);
+			}
+			else if (id.equals("getContacts")) {
+				getContacts(resourceRequest, resourceResponse);
+			}
+			else {
+				super.serveResource(resourceRequest, resourceResponse);
+			}
+		}
+		catch (Exception e) {
+			throw new PortletException(e);
+		}
+	}
+
+
 	public void updateFieldGroup(
-			ActionRequest actionRequest, ActionResponse actionResponse)
+		ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
@@ -490,9 +516,6 @@ public class ContactsCenterPortlet extends MVCPortlet {
 			}
 			else if (cmd.equals("updateInstantMessenger")) {
 				updateInstantMessenger(actionRequest);
-			}
-			else if (cmd.equals("updatedField")) {
-				//updatedField(resourceRequest, resourceResponse);
 			}
 			else if (cmd.equals("updateSMS")) {
 				updateSMS(actionRequest);
@@ -549,205 +572,6 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		writeJSON(actionRequest, actionResponse, jsonObject);
 	}
 
-	public void updatedField(
-			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws Exception {
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		User user = themeDisplay.getUser();
-
-		long elementId = ParamUtil.getLong(actionRequest, "elementId");
-		String fieldName = ParamUtil.getString(actionRequest, "fieldName");
-		String newValue = ParamUtil.getString(actionRequest, "value");
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
-
-		Contact contact = user.getContact();
-
-		String aimSn = contact.getAimSn();
-		String facebookSn = contact.getFacebookSn();
-		String icqSn = contact.getIcqSn();
-		String jabberSn = contact.getJabberSn();
-		String msnSn = contact.getMsnSn();
-		String mySpaceSn = contact.getMySpaceSn();
-		String skypeSn = contact.getSkypeSn();
-		String smsSn = contact.getSmsSn();
-		String twitterSn = contact.getTwitterSn();
-		String ymSn= contact.getYmSn();
-
-		boolean saveUser = true;
-
-		try {
-			if (fieldName.equals("aimSn")) {
-				aimSn = newValue;
-			}
-			else if (fieldName.equals("comments")) {
-				user.setComments(newValue);
-			}
-			else if (fieldName.equals("facebookSn")) {
-				facebookSn = newValue;
-			}
-			else if (fieldName.equals("icqSn")) {
-				icqSn = newValue;
-			}
-			else if (fieldName.equals("jabberSn")) {
-				jabberSn = newValue;
-			}
-			else if (fieldName.equals("msnSn")) {
-				msnSn = newValue;
-			}
-			else if (fieldName.equals("skypeSn")) {
-				skypeSn = newValue;
-			}
-			else if (fieldName.equals("smsSn")) {
-				smsSn = newValue;
-			}
-			else if (fieldName.equals("twitterSn")) {
-				twitterSn = newValue;
-			}
-			else if (fieldName.equals("ymSn")) {
-				ymSn = newValue;
-			}
-			else if (fieldName.equals("emailAddress")) {
-				user.setEmailAddress(newValue);
-			}
-			else if (fieldName.equals("jobTitle")) {
-				user.setJobTitle(newValue);
-			}
-			else if (fieldName.startsWith("phone")) {
-				Phone phone = PhoneServiceUtil.getPhone(elementId);
-
-				phone.setNumber(newValue);
-
-				PhoneServiceUtil.updatePhone(
-					phone.getPhoneId(), phone.getNumber(),
-					phone.getExtension(), phone.getTypeId(),
-					phone.getPrimary());
-			}
-			else if (fieldName.startsWith("website")) {
-				Website website = WebsiteServiceUtil.getWebsite(elementId);
-
-				website.setUrl(newValue);
-
-				WebsiteServiceUtil.updateWebsite(
-					website.getWebsiteId(), website.getUrl(),
-					website.getTypeId(), website.getPrimary());
-			}
-			else if (fieldName.startsWith("additionEmailAddress")) {
-				EmailAddress emailAddress =
-					EmailAddressServiceUtil.getEmailAddress(elementId);
-
-				emailAddress.setAddress(newValue);
-
-				EmailAddressServiceUtil.updateEmailAddress(
-					emailAddress.getEmailAddressId(),
-					emailAddress.getAddress(), emailAddress.getTypeId(),
-					emailAddress.getPrimary());
-			}
-			else if (fieldName.startsWith("expertise")) {
-				ProjectsEntry projectsEntry =
-					ProjectsEntryLocalServiceUtil.getProjectsEntry(elementId);
-
-				if (fieldName.equals("expertiseType")) {
-					projectsEntry.setTitle(newValue);
-				}
-				else if (fieldName.equals("expertiseDescription")) {
-					projectsEntry.setDescription(newValue);
-				}
-
-				saveProjectEntry(projectsEntry);
-
-				saveUser = false;
-			}
-
-			if (saveUser) {
-				Calendar cal = CalendarFactoryUtil.getCalendar();
-				cal.setTime(user.getBirthday());
-
-				int birthdayDay = cal.get(Calendar.DATE);
-				int birthdayMonth = cal.get(Calendar.MONTH);
-				int birthdayYear = cal.get(Calendar.YEAR);
-
-				List<UserGroupRole> userGroupRoles =
-					UserGroupRoleLocalServiceUtil.getUserGroupRoles(
-						user.getUserId());
-
-				List<EmailAddress> emailAddresses =
-					EmailAddressServiceUtil.getEmailAddresses(
-						Contact.class.getName(), user.getContactId());
-
-				List<AnnouncementsDelivery> deliveries =
-					AnnouncementsDeliveryLocalServiceUtil.getUserDeliveries(
-						user.getUserId());
-
-				user = UserServiceUtil.updateUser(
-					user.getUserId(), user.getPasswordUnencrypted(),
-					user.getPasswordUnencrypted(), user.getPasswordUnencrypted(),
-					user.getPasswordReset(), user.getReminderQueryQuestion(),
-					user.getReminderQueryAnswer(), user.getScreenName(),
-					user.getEmailAddress(), user.getFacebookId(), user.getOpenId(),
-					user.getLanguageId(), user.getTimeZoneId(), user.getGreeting(),
-					user.getComments(), user.getFirstName(), user.getMiddleName(),
-					user.getLastName(), contact.getPrefixId(),
-					contact.getSuffixId(), user.isMale(), birthdayMonth,
-					birthdayDay, birthdayYear, smsSn, aimSn, facebookSn, icqSn,
-					jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn, ymSn,
-					user.getJobTitle(), user.getGroupIds(),
-					user.getOrganizationIds(), user.getRoleIds(),
-					userGroupRoles, user.getUserGroupIds(), user.getAddresses(),
-					emailAddresses, user.getPhones(), user.getWebsites(),
-					deliveries, new ServiceContext());
-			}
-
-			jsonObject.put("success", true);
-
-			putMessage(
-				actionRequest, jsonObject,
-				"x-has-been-updated-successfully", fieldName);
-
-			writeJSON(actionRequest, actionResponse, jsonObject);
-
-		} catch (Exception e) {
-			jsonObject.put("success", false);
-
-			putMessage(
-				actionRequest, jsonObject, "your-request-failed-to-complete");
-
-			writeJSON(actionRequest, actionResponse, jsonObject);
-		}
-	}
-
-	@Override
-	public void serveResource(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
-		throws PortletException {
-
-		try {
-			String id = resourceRequest.getResourceID();
-
-			if (id.equals("exportVCard")) {
-				exportVCard(resourceRequest, resourceResponse);
-			}
-			else if (id.equals("exportVCards")) {
-				exportVCards(resourceRequest, resourceResponse);
-			}
-			else if (id.equals("getContact")) {
-				getContact(resourceRequest, resourceResponse);
-			}
-			else if (id.equals("getContacts")) {
-				getContacts(resourceRequest, resourceResponse);
-			}
-			else {
-				super.serveResource(resourceRequest, resourceResponse);
-			}
-		}
-		catch (Exception e) {
-			throw new PortletException(e);
-		}
-	}
-
 	public void updateSocialRequest(
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
@@ -793,55 +617,6 @@ public class ContactsCenterPortlet extends MVCPortlet {
 		}
 
 		return userIds;
-	}
-
-	protected void putMessage(
-		ActionRequest request, JSONObject jsonObject, String key,
-		Object... arguments) {
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		String message = LanguageUtil.format(
-			themeDisplay.getLocale(), key, arguments);
-
-		jsonObject.put("message", message);
-	}
-
-	protected void saveProjectEntry(ProjectsEntry projectsEntry)
-		throws PortalException, SystemException {
-
-		Calendar projectStartCal = CalendarFactoryUtil.getCalendar();
-		projectStartCal.setTime(projectsEntry.getStartDate());
-
-		int startDateDay = projectStartCal.get(Calendar.DATE);
-		int startDateMonth = projectStartCal.get(Calendar.MONTH);
-		int startDateYear = projectStartCal.get(Calendar.YEAR);
-
-		Calendar projectEndCal = CalendarFactoryUtil.getCalendar();
-		projectEndCal.setTime(projectsEntry.getStartDate());
-
-		int endDateDay = projectEndCal.get(Calendar.DATE);
-		int endDateMonth = projectEndCal.get(Calendar.MONTH);
-		int endDateYear = projectEndCal.get(Calendar.YEAR);
-
-		boolean current = true;
-
-		if (projectsEntry.getStartDate() != null) {
-			projectStartCal.setTime(projectsEntry.getStartDate());
-		}
-
-		if (projectsEntry.getEndDate() != null) {
-			projectEndCal.setTime(projectsEntry.getEndDate());
-
-			current = false;
-		}
-
-		ProjectsEntryLocalServiceUtil.updateProjectsEntry(
-			projectsEntry.getProjectsEntryId(),
-			projectsEntry.getTitle(), projectsEntry.getDescription(),
-			startDateMonth, startDateDay, startDateYear, endDateMonth,
-			endDateDay, endDateYear, current, projectsEntry.getData());
 	}
 
 	protected void sendNotificationEvent(

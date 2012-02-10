@@ -17,20 +17,18 @@
 <%
 themeDisplay.setIncludeServiceJs(true);
 
-Contact selContact = themeDisplay.getContact();
-
-request.setAttribute("user.selContact", selContact);
+request.setAttribute("user.selContact", contact2);
 request.setAttribute("user.selUser", themeDisplay.getUser());
 request.setAttribute("addresses.className", Contact.class.getName());
 request.setAttribute("emailAddresses.className", Contact.class.getName());
 request.setAttribute("phones.className", Contact.class.getName());
 request.setAttribute("websites.className", Contact.class.getName());
 
-if (selContact != null) {
-	request.setAttribute("addresses.classPK", selContact.getContactId());
-	request.setAttribute("emailAddresses.classPK", selContact.getContactId());
-	request.setAttribute("phones.classPK", selContact.getContactId());
-	request.setAttribute("websites.classPK", selContact.getContactId());
+if (contact2 != null) {
+	request.setAttribute("addresses.classPK", contact2.getContactId());
+	request.setAttribute("emailAddresses.classPK", contact2.getContactId());
+	request.setAttribute("phones.classPK", contact2.getContactId());
+	request.setAttribute("websites.classPK", contact2.getContactId());
 }
 else {
 	request.setAttribute("addresses.classPK", 0L);
@@ -51,7 +49,7 @@ else {
 		<aui:form method="post" name="additionalEmailAddressesForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateAdditionalEmailAddresses" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />additionalEmailAddresses">
 				<liferay-util:include page="/html/portlet/users_admin/common/additional_email_addresses.jsp" />
@@ -75,7 +73,7 @@ else {
 		<aui:form method="post" name="addressesForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateAddresses" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />addresses">
 				<liferay-util:include page="/html/portlet/users_admin/common/addresses.jsp" />
@@ -99,7 +97,7 @@ else {
 		<aui:form method="post" name="commentsForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateComments" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />sms">
 				<liferay-util:include page="/html/portlet/users_admin/user/comments.jsp" />
@@ -128,7 +126,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 			<aui:form method="post" name="expertiseForm" onSubmit="<%= onSubmit %>">
 				<aui:input type="hidden" name="type" value="updateExpertise" />
 
-				<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+				<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 				<div class="form-section selected" id="<portlet:namespace />expertise">
 					<liferay-util:include page="/expertise/edit_projects.jsp" servletContext='<%= servletContext %>' />
@@ -153,7 +151,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 		<aui:form method="post" name="instantMessengerForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateInstantMessenger" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />instantMessenger">
 				<liferay-util:include page="/html/portlet/users_admin/user/instant_messenger.jsp" />
@@ -166,7 +164,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 	</div>
 </c:if>
 
-<c:if test="<%= showSMS && (showUsersInformation && Validator.isNotNull(smsSn)) || (showCompleteYourProfileButtons && Validator.isNull(smsSn)) %>">
+<c:if test="<%= showSMS && (showUsersInformation && Validator.isNotNull(contact2.getSmsSn())) || (showCompleteYourProfileButtons && Validator.isNull(contact2.getSmsSn())) %>">
 	<div id="<portlet:namespace />smsDialog">
 		<div id="<portlet:namespace />smsMessage"></div>
 
@@ -177,7 +175,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 		<aui:form method="post" name="smsForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateSMS" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />sms">
 				<liferay-util:include page="/html/portlet/users_admin/user/sms.jsp" />
@@ -201,7 +199,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 		<aui:form method="post" name="socialNetworkForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateSocialNetwork" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />socialNetwork">
 				<liferay-util:include page="/html/portlet/users_admin/user/social_network.jsp" />
@@ -225,7 +223,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 		<aui:form method="post" name="phoneNumbersForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updatePhoneNumbers" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />phoneNumbers">
 				<liferay-util:include page="/html/portlet/users_admin/common/phone_numbers.jsp" />
@@ -249,7 +247,7 @@ ServletContext servletContext = ServletContextPool.get("so-portlet");
 		<aui:form method="post" name="websitesForm" onSubmit="<%= onSubmit %>">
 			<aui:input type="hidden" name="type" value="updateWebsites" />
 
-			<aui:model-context bean="<%= selContact %>" model="<%= Contact.class %>" />
+			<aui:model-context bean="<%= contact2 %>" model="<%= Contact.class %>" />
 
 			<div class="form-section selected" id="<portlet:namespace />websites">
 				<liferay-util:include page="/html/portlet/users_admin/common/websites.jsp" />

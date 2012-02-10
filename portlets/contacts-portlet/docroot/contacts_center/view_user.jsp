@@ -32,14 +32,6 @@ else {
 
 user2 = user2.toEscapedModel();
 
-boolean myProfile = false;
-String editableClass = StringPool.BLANK;
-
-if (user2.getUserId() == themeDisplay.getUser().getUserId()) {
-	editableClass = "quick-edit-field";
-	myProfile = true;
-}
-
 Contact contact2 = user2.getContact();
 
 List<Phone> phones = PhoneServiceUtil.getPhones(Contact.class.getName(), contact2.getContactId());
@@ -48,58 +40,41 @@ List<Address> addresses = AddressServiceUtil.getAddresses(Contact.class.getName(
 List<Website> websites = WebsiteServiceUtil.getWebsites(Contact.class.getName(), contact2.getContactId());
 List<ProjectsEntry> projectsEntries = ProjectsEntryLocalServiceUtil.getUserProjectsEntries(user.getUserId());
 
-String aimSn = contact2.getAimSn();
-String icqSn = contact2.getIcqSn();
-String jabberSn = contact2.getJabberSn();
-String msnSn = contact2.getMsnSn();
-String skypeSn = contact2.getSkypeSn();
-String ymSn = contact2.getYmSn();
+boolean myProfile = false;
+
+if (user2.getUserId() == themeDisplay.getUser().getUserId()) {
+	myProfile = true;
+}
 
 boolean hasInstantMessenger = false;
-if (Validator.isNotNull(aimSn) || Validator.isNotNull(icqSn) || Validator.isNotNull(jabberSn) || Validator.isNotNull(msnSn) || Validator.isNotNull(skypeSn) || Validator.isNotNull(ymSn)) {
+
+if (Validator.isNotNull(contact2.getAimSn()) || Validator.isNotNull(contact2.getIcqSn()) || Validator.isNotNull(contact2.getJabberSn()) || Validator.isNotNull(contact2.getMsnSn()) || Validator.isNotNull(contact2.getSkypeSn()) || Validator.isNotNull(contact2.getYmSn())) {
 	hasInstantMessenger = true;
 }
 
-String facebookSn = contact2.getFacebookSn();
-String mySpaceSn = contact2.getMySpaceSn();
-String twitterSn = contact2.getTwitterSn();
-
 boolean hasSocialNetwork = false;
-if (Validator.isNotNull(facebookSn) || Validator.isNotNull(mySpaceSn) || Validator.isNotNull(twitterSn)) {
+
+if (Validator.isNotNull(contact2.getFacebookSn()) || Validator.isNotNull(contact2.getMySpaceSn()) || Validator.isNotNull(contact2.getTwitterSn())) {
 	hasSocialNetwork = true;
 }
 
-String smsSn = contact2.getSmsSn();
-
 request.setAttribute("view_user.jsp-user", user2);
 request.setAttribute("view_user.jsp-myProfile", myProfile);
-request.setAttribute("view_user.jsp-editableClass", editableClass);
 
 request.setAttribute("view_user.jsp-addresses", addresses);
 request.setAttribute("view_user.jsp-phones", phones);
 request.setAttribute("view_user.jsp-emailAddresses", emailAddresses);
 request.setAttribute("view_user.jsp-websites", websites);
 
-request.setAttribute("view_user.jsp-aimSn", aimSn);
-request.setAttribute("view_user.jsp-icqSn", icqSn);
-request.setAttribute("view_user.jsp-jabberSn", jabberSn);
-request.setAttribute("view_user.jsp-msnSn", msnSn);
-request.setAttribute("view_user.jsp-skypeSn", skypeSn);
-request.setAttribute("view_user.jsp-ymSn", ymSn);
 request.setAttribute("view_user.jsp-hasInstantMessenger", hasInstantMessenger);
 
-request.setAttribute("view_user.jsp-facebookSn", facebookSn);
-request.setAttribute("view_user.jsp-mySpaceSn", mySpaceSn);
-request.setAttribute("view_user.jsp-twitterSn", twitterSn);
 request.setAttribute("view_user.jsp-hasSocialNetwork", hasSocialNetwork);
-
-request.setAttribute("view_user.jsp-smsSn", smsSn);
 %>
 
 <div id="<portlet:namespace/>saveMessages"></div>
 
 <c:if test="<%= user2 != null %>">
-	<div class="contacts-profile" id="<portlet:namespace />ContactsWrapper">
+	<div class="contacts-profile <%= myProfile ? "my-profile" : "" %>" id="<portlet:namespace />ContactsWrapper">
 		<c:if test="<%= (displayStyle == ContactsConstants.DISPLAY_STYLE_BASIC) || (displayStyle == ContactsConstants.DISPLAY_STYLE_FULL) %>">
 			<aui:layout cssClass="social-relations">
 
@@ -202,27 +177,10 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 						<a href="<%= user2.getDisplayURL(themeDisplay) %>"><%= HtmlUtil.escape(user2.getFullName()) %></a>
 					</div>
 
-					<c:choose>
-						<c:when test="<%= myProfile %>">
-							<div class="<%= editableClass %> one-line" data-fieldName="jobTitle">
-								<%= Validator.isNotNull(user2.getJobTitle()) ? HtmlUtil.escape(user2.getJobTitle()) : LanguageUtil.get(pageContext, "add-your-job-title-here") %>
-							</div>
-						</c:when>
-						<c:otherwise>
-								<%= HtmlUtil.escape(user2.getJobTitle()) %>
-						</c:otherwise>
-					</c:choose>
-
-					<c:choose>
-						<c:when test="<%= myProfile %>">
-							<div class="<%= editableClass %> one-line" data-fieldName="emailAddress">
-								<%= Validator.isNotNull(user2.getEmailAddress()) ? HtmlUtil.escape(user2.getEmailAddress()) : LanguageUtil.get(pageContext, "add-your-email-here") %>
-							</div>
-						</c:when>
-						<c:otherwise>
-								<%= HtmlUtil.escape(user2.getEmailAddress()) %>
-						</c:otherwise>
-					</c:choose>
+					<div>
+						<span><%= HtmlUtil.escape(user2.getJobTitle()) %></span>
+						<span><%= HtmlUtil.escape(user2.getEmailAddress()) %></span>
+					</div>
 				</div>
 
 				<div class="clear"><!-- --></div>
@@ -282,8 +240,8 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 						</aui:column>
 					</c:if>
 
-					<aui:column cssClass="user-information-column-2" columnWidth="<%= showUsersInformation ? 20 : 100 %>">
-						<c:if test="<%= showSites || showTags %>">
+					<c:if test="<%= showSites || showTags || (myProfile && showCompleteYourProfileButtons) %>">
+						<aui:column cssClass="user-information-column-2" columnWidth="<%= showUsersInformation ? 20 : 100 %>">
 							<c:if test="<%= showSites %>">
 
 								<%
@@ -382,93 +340,92 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 									<%= sb.toString() %>
 								</ul>
 							</c:if>
-						</c:if>
 
-						<c:if test="<%= myProfile && showCompleteYourProfileButtons %>">
-							<div class="profile-actions-title">
-								<liferay-ui:message key="complete-your-profile" />
-							</div>
-
-							<div class="profile-actions" id="<portlet:namespace />profileActions">
-								<div class="field-actions-toolbar">
-									<ul class="settings-actions">
-										<c:if test="<%= Validator.isNull(user2.getComments()) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />comments" data-title="comments">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-an-extract" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= ValidatorUtil.isNull(phones) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />phoneNumbers" data-title="phone-numbers">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-a-phone" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= ValidatorUtil.isNull(emailAddresses) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />additionalEmailAddresses" data-title="additional-email-addresses">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-an-email-address" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= !hasInstantMessenger %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />instantMessenger" data-title="instant-messenger">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-your-instant-messenger" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= ValidatorUtil.isNull(addresses) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />addresses" data-title="addresses">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-an-address" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= ValidatorUtil.isNull(websites) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />websites" data-title="websites">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-a-website" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= !hasSocialNetwork %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />socialNetwork" data-title="social-network">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-your-social-network" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= Validator.isNull(smsSn) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />sms" data-title="sms">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-your-sms" /></span>
-												</div>
-											</li>
-										</c:if>
-
-										<c:if test="<%= ValidatorUtil.isNull(projectsEntries) %>">
-											<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />expertise" data-title="expertise">
-												<div class="aui-settings-field-content">
-													<span class="settings-label"><liferay-ui:message key="add-an-expertise" /></span>
-												</div>
-											</li>
-										</c:if>
-									</ul>
+							<c:if test="<%= myProfile && showCompleteYourProfileButtons %>">
+								<div class="profile-actions-title">
+									<liferay-ui:message key="complete-your-profile" />
 								</div>
-							</div>
-						</c:if>
-					</aui:column>
 
+								<div class="profile-actions" id="<portlet:namespace />profileActions">
+									<div class="field-actions-toolbar">
+										<ul class="settings-actions">
+											<c:if test="<%= Validator.isNull(user2.getComments()) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />comments" data-title="comments">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-an-extract" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= ValidatorUtil.isNull(phones) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />phoneNumbers" data-title="phone-numbers">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-a-phone" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= ValidatorUtil.isNull(emailAddresses) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />additionalEmailAddresses" data-title="additional-email-addresses">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-an-email-address" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= !hasInstantMessenger %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />instantMessenger" data-title="instant-messenger">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-your-instant-messenger" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= ValidatorUtil.isNull(addresses) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />addresses" data-title="addresses">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-an-address" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= ValidatorUtil.isNull(websites) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />websites" data-title="websites">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-a-website" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= !hasSocialNetwork %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />socialNetwork" data-title="social-network">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-your-social-network" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= Validator.isNull(contact2.getSmsSn()) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />sms" data-title="sms">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-your-sms" /></span>
+													</div>
+												</li>
+											</c:if>
+
+											<c:if test="<%= ValidatorUtil.isNull(projectsEntries) %>">
+												<li class="action-field aui-component aui-settings-field lfr-token" data-namespaceId="<portlet:namespace />expertise" data-title="expertise">
+													<div class="aui-settings-field-content">
+														<span class="settings-label"><liferay-ui:message key="add-an-expertise" /></span>
+													</div>
+												</li>
+											</c:if>
+										</ul>
+									</div>
+								</div>
+							</c:if>
+						</aui:column>
+					</c:if>
 					<c:if test="<%= (myProfile && showCompleteYourProfileButtons) || showUsersInformation %>">
 						<div class="aui-helper-hidden">
 							<%@ include file="/contacts_center/edit_user_dialogs.jspf" %>
@@ -491,72 +448,8 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 	</div>
 </c:if>
 
-<c:if test="<%= myProfile %>">
-	<aui:script use="aui-editable,aui-io-request">
-		var saveMessages = A.one('#<portlet:namespace/>saveMessages');
-
-		var updateMessage = function(message, type) {
-			saveMessages.html('<span class="portlet-msg-' + type + '">' + message + '</span>');
-		};
-
-		A.all('#p_p_id<portlet:namespace /> .quick-edit-field').each(
-			function(node) {
-				var fieldName = node.attr('data-fieldName');
-				var elementId = node.attr('data-elementId');
-
-				var inputType = node.attr('data-fieldType');
-
-				if (!inputType) {
-					inputType = 'text';
-				}
-
-				new A.Editable(
-				{
-					after: {
-						contentTextChange: function(event) {
-							var prevValue = event.prevVal;
-
-							if (!event.initial) {
-								A.io.request(
-									'<portlet:actionURL name="saveMyProfileField"><portlet:param name="<%= Constants.CMD %>" value="saveMyProfileField" /></portlet:actionURL>()',
-									{
-										after: {
-											failure: function(e, id, obj) {
-												node.html(prevValue);
-
-												updateMessage('<%= LanguageUtil.get(pageContext, "your-request-failed-to-complete") %>', 'error');
-											},
-											success: function(e, id, obj) {
-												var responseData = this.get('responseData');
-
-												if (!responseData.success) {
-													node.html(prevValue);
-
-													updateMessage(responseData.message, 'error');
-												}
-												else {
-													updateMessage(responseData.message, 'success');
-												}
-											}
-										},
-										data: {
-											fieldName: fieldName,
-											value: event.newVal,
-											elementId: elementId
-										},
-										dataType: 'json'
-									}
-								);
-							}
-						}
-					},
-					inputType: inputType,
-					node: node
-				});
-			}
-		);
-
-		<c:if test="<%= (showCompleteYourProfileButtons || showUsersInformation) && ((displayStyle == ContactsConstants.DISPLAY_STYLE_DETAIL) || (displayStyle == ContactsConstants.DISPLAY_STYLE_FULL)) && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
+<c:if test="<%= myProfile && (showCompleteYourProfileButtons || showUsersInformation) && ((displayStyle == ContactsConstants.DISPLAY_STYLE_DETAIL) || (displayStyle == ContactsConstants.DISPLAY_STYLE_FULL)) && UserPermissionUtil.contains(permissionChecker, user2.getUserId(), ActionKeys.VIEW) %>">
+	<aui:script use="aui-base">
 			var userInformation = A.one('#<portlet:namespace />userInformation');
 
 			userInformation.delegate(
@@ -591,7 +484,5 @@ request.setAttribute("view_user.jsp-smsSn", smsSn);
 					).render();
 				}
 			};
-		</c:if>
-
 	</aui:script>
 </c:if>

@@ -21,28 +21,14 @@ User user2 = (User)request.getAttribute("view_user.jsp-user");
 
 Contact contact2 = user2.getContact();
 
-String editableClass = (String)request.getAttribute("view_user.jsp-editableClass");
-boolean myProfile = (Boolean)request.getAttribute("view_user.jsp-myProfile");
-
 List<Phone> phones = (List<Phone>)request.getAttribute("view_user.jsp-phones");
 List<EmailAddress> emailAddresses = (List<EmailAddress>)request.getAttribute("view_user.jsp-emailAddresses");
 List<Address> addresses = (List<Address>)request.getAttribute("view_user.jsp-addresses");
 List<Website> websites = (List<Website>)request.getAttribute("view_user.jsp-websites");
 
 boolean hasInstantMessenger = (Boolean)request.getAttribute("view_user.jsp-hasInstantMessenger");
-String aimSn = (String)request.getAttribute("view_user.jsp-aimSn");
-String icqSn = (String)request.getAttribute("view_user.jsp-icqSn");
-String jabberSn = (String)request.getAttribute("view_user.jsp-jabberSn");
-String msnSn = (String)request.getAttribute("view_user.jsp-msnSn");
-String skypeSn = (String)request.getAttribute("view_user.jsp-skypeSn");
-String ymSn = (String)request.getAttribute("view_user.jsp-ymSn");
 
 boolean hasSocialNetwork = (Boolean)request.getAttribute("view_user.jsp-hasSocialNetwork");
-String facebookSn = (String)request.getAttribute("view_user.jsp-facebookSn");
-String mySpaceSn = (String)request.getAttribute("view_user.jsp-mySpaceSn");
-String twitterSn = (String)request.getAttribute("view_user.jsp-twitterSn");
-
-String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 %>
 
 <div class="user-information-title">
@@ -58,23 +44,14 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 		<div class="field-values">
 			<ul class="property-list">
 				<li>
-					<c:choose>
-						<c:when test="<%= myProfile %>">
-							<div class="<%= editableClass %>" data-fieldName="comments" data-fieldType="textarea">
-								<span class="property"><%= HtmlUtil.escape(user2.getComments()) %></span>
-							</div>
-						</c:when>
-						<c:otherwise>
-							<span class="property"><%= HtmlUtil.escape(user2.getComments()) %></span>
-						</c:otherwise>
-					</c:choose>
+					<span class="property"><%= HtmlUtil.escape(user2.getComments()) %></span>
 				</li>
 			</ul>
 		</div>
 	</div>
 </c:if>
 
-<c:if test="<%= ValidatorUtil.isNotNull(phones) %>">
+<c:if test="<%= showPhones && ValidatorUtil.isNotNull(phones) %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />phoneNumbers" data-title="phone-numbers">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="phones" />:</h3>
@@ -90,9 +67,7 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 
 					<li class="<%= phone.isPrimary() ? "primary" : "" %>">
 						<span class="property-type"><%= LanguageUtil.get(pageContext, phone.getType().getName()) %></span>
-						<div class="<%= editableClass %>" data-fieldName="phone" data-elementId="<%= phone.getPhoneId() %>">
-							<span class="property"><%= phone.getNumber() %> <%= phone.getExtension() %></span>
-						</div>
+						<span class="property"><%= phone.getNumber() %> <%= phone.getExtension() %></span>
 					</li>
 
 				<%
@@ -104,15 +79,14 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 	</div>
 </c:if>
 
-<c:if test="<%= ValidatorUtil.isNotNull(emailAddresses) %>">
+<c:if test="<%= showAdditionalEmailAddresses && ValidatorUtil.isNotNull(emailAddresses) %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />additionalEmailAddresses" data-title="additional-email-addresses">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="additional-email-addresses" />:</h3>
 		</div>
 
 		<div class="field-values">
-
-			<ul class="property-list" id="email-addresses-list">
+			<ul class="property-list">
 
 				<%
 				for (EmailAddress emailAddress : emailAddresses) {
@@ -121,19 +95,7 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 
 					<li class="<%= emailAddress.isPrimary() ? "primary" : "" %>">
 						<span class="property-type"><%= LanguageUtil.get(pageContext, emailAddress.getType().getName()) %></span>
-
-						<span class="property">
-							<div class="<%= editableClass %>" data-fieldName="additionalEmailAddress" data-elementId="<%= emailAddress.getEmailAddressId() %>">
-								<c:choose>
-									<c:when test="<%= myProfile %>">
-										<%= emailAddress.getAddress() %>
-									</c:when>
-									<c:otherwise>
-										<a href="mailto:<%= emailAddress.getAddress() %>"><%= emailAddress.getAddress() %></a>
-									</c:otherwise>
-								</c:choose>
-							</div>
-						</span>
+						<span class="property"><a href="mailto:<%= emailAddress.getAddress() %>"><%= emailAddress.getAddress() %></a></span>
 					</li>
 
 				<%
@@ -144,6 +106,15 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 		</div>
 	</div>
 </c:if>
+
+<%
+String aim = contact2.getAimSn();
+String icq = contact2.getIcqSn();
+String jabber = contact2.getJabberSn();
+String msn = contact2.getMsnSn();
+String skype = contact2.getSkypeSn();
+String ym = contact2.getYmSn();
+%>
 
 <c:if test="<%= showInstantMessenger && hasInstantMessenger %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />instantMessenger" data-title="instant-messenger">
@@ -153,71 +124,70 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 
 		<div class="field-values">
 			<ul class="property-list">
-				<li>
-					<span class="property-type"><liferay-ui:message key="aim" /></span>
+				<c:if test="<%= Validator.isNotNull(aim) %>">
+					<li>
+						<span class="property-type"><liferay-ui:message key="aim" /></span>
 
-					<span class="<%= editableClass %>" data-fieldName="aimSn">
-						<%= HtmlUtil.escape(aimSn) %>
-					</span>
-				</li>
+						<span class="property"><%= HtmlUtil.escape(aim) %></span>
+					</li>
+				</c:if>
 
-				<li>
-					<span class="property-type"><liferay-ui:message key="icq" /></span>
+				<c:if test="<%= Validator.isNotNull(icq) %>">
+					<li>
+						<span class="property-type"><liferay-ui:message key="icq" /></span>
 
-					<span class="<%= editableClass %>" data-fieldName="icqSn">
-						<%= HtmlUtil.escape(icqSn) %>
-					</span>
+						<span class="property"><%= HtmlUtil.escape(icq) %></span>
 
-					<img alt="" class="instant-messenger-logo" src="http://web.icq.com/whitepages/online?icq=<%= HtmlUtil.escapeAttribute(icqSn) %>&img=5" />
-				</li>
+						<img alt="" class="instant-messenger-logo" src="http://web.icq.com/whitepages/online?icq=<%= HtmlUtil.escapeAttribute(icq) %>&img=5" />
+					</li>
+				</c:if>
 
-				<li>
-					<span class="property-type"><liferay-ui:message key="jabber" /></span>
+				<c:if test="<%= Validator.isNotNull(jabber) %>">
+					<li>
+						<span class="property-type"><liferay-ui:message key="jabber" /></span>
 
-					<span class="<%= editableClass %>" data-fieldName="jabberSn">
-						<%= HtmlUtil.escape(jabberSn) %>
-					</span>
-				</li>
+						<span class="property"><%= HtmlUtil.escape(jabber) %></span>
+					</li>
+				</c:if>
 
-				<li>
-					<span class="property-type"><liferay-ui:message key="msn" /></span>
+				<c:if test="<%= Validator.isNotNull(msn) %>">
+					<li>
+						<span class="property-type"><liferay-ui:message key="msn" /></span>
 
-					<span class="<%= editableClass %>" data-fieldName="msnSn">
-						<%= HtmlUtil.escape(msnSn) %>
-					</span>
-				</li>
+						<span class="property"><%= HtmlUtil.escape(msn) %></span>
+					</li>
+				</c:if>
 
-				<li>
-					<span class="property-type"><liferay-ui:message key="skype" /></span>
+				<c:if test="<%= Validator.isNotNull(skype) %>">
+					<li>
+						<span class="property-type"><liferay-ui:message key="skype" /></span>
 
-					<span class="<%= editableClass %>" data-fieldName="skypeSn">
-						<%= HtmlUtil.escape(skypeSn) %>
-					</span>
-				</li>
+						<span class="property"><%= HtmlUtil.escape(skype) %></span>
+					</li>
+				</c:if>
 
-				<li>
-					<span class="property-type"><liferay-ui:message key="ym" /></span>
+				<c:if test="<%= Validator.isNotNull(ym) %>">
+					<li>
+						<span class="property-type"><liferay-ui:message key="ym" /></span>
 
-					<span class="<%= editableClass %>" data-fieldName="ymSn">
-						<%= HtmlUtil.escape(ymSn) %>
-					</span>
+						<span class="property"><%= HtmlUtil.escape(ym) %></span>
 
-					<img alt="" class="instant-messenger-logo" src="http://opi.yahoo.com/online?u=<%= HtmlUtil.escapeAttribute(ymSn) %>&m=g&t=0" />
-				</li>
+						<img alt="" class="instant-messenger-logo" src="http://opi.yahoo.com/online?u=<%= HtmlUtil.escapeAttribute(ym) %>&m=g&t=0" />
+					</li>
+				</c:if>
 			</ul>
 		</div>
 	</div>
 </c:if>
 
-<c:if test="<%= ValidatorUtil.isNotNull(addresses) %>">
+<c:if test="<%= showAddresses && ValidatorUtil.isNotNull(addresses) %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />addresses" data-title="addresses">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="addresses" />:</h3>
 		</div>
 
 		<div class="field-values">
-
-			<ul class="property-list" id="addresses-list">
+			<ul class="property-list">
 
 				<%
 				for (Address address: addresses) {
@@ -296,37 +266,24 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 	</div>
 </c:if>
 
-<c:if test="<%= ValidatorUtil.isNotNull(websites) %>">
+<c:if test="<%= showWebsites && ValidatorUtil.isNotNull(websites) %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />websites" data-title="websites">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="websites" />:</h3>
 		</div>
 
 		<div class="field-values">
-
-			<ul class="property-list" id="websites-list">
+			<ul class="property-list">
 
 				<%
 				for (Website website : websites) {
 					website = website.toEscapedModel();
 				%>
 
-
 					<li class="<%= website.isPrimary() ? "primary" : "" %>">
 						<span class="property-type"><%= LanguageUtil.get(pageContext, website.getType().getName()) %></span>
 
-						<span class="property">
-							<div class="<%= editableClass %>" data-fieldName="website" data-elementId="<%= website.getWebsiteId() %>">
-								<c:choose>
-									<c:when test="<%= myProfile %>">
-										<%= website.getUrl() %>
-									</c:when>
-									<c:otherwise>
-										<a href="<%= website.getUrl() %>"><%= website.getUrl() %></a>
-									</c:otherwise>
-								</c:choose>
-							</div>
-						</span>
+						<span class="property"><a href="<%= website.getUrl() %>"><%= website.getUrl() %></a></span>
 					</li>
 
 				<%
@@ -337,6 +294,12 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 		</div>
 	</div>
 </c:if>
+
+<%
+String facebook = contact2.getFacebookSn();
+String mySpace = contact2.getMySpaceSn();
+String twitter = contact2.getTwitterSn();
+%>
 
 <c:if test="<%= showSocialNetwork && hasSocialNetwork %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />socialNetwork" data-title="social-network">
@@ -349,32 +312,24 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 				<li>
 					<span class="property-type"><liferay-ui:message key="facebook" /></span>
 
-					<div class="<%= editableClass %>" data-fieldName="facebookSn">
-						<%= HtmlUtil.escape(facebookSn) %>
-					</div>
+					<%= HtmlUtil.escape(facebook) %>
 				</li>
 
 				<li>
 					<span class="property-type"><liferay-ui:message key="myspace" /></span>
-
-					<div class="<%= editableClass %>" data-fieldName="myspaceSn">
-						<%= HtmlUtil.escape(mySpaceSn) %>
-					</div>
+					<%= HtmlUtil.escape(mySpace) %>
 				</li>
 
 				<li>
 					<span class="property-type"><liferay-ui:message key="twitter" /></span>
-
-					<div class="<%= editableClass %>" data-fieldName="twitterSn">
-						<%= HtmlUtil.escape(twitterSn) %>
-					</div>
+					<%= HtmlUtil.escape(twitter) %>
 				</li>
 			</ul>
 		</div>
 	</div>
 </c:if>
 
-<c:if test="<%= showSMS && Validator.isNotNull(smsSn) %>">
+<c:if test="<%= showSMS && Validator.isNotNull(contact2.getSmsSn()) %>">
 	<div class="section field-container" data-namespaceId="<portlet:namespace />sms" data-title="sms">
 		<div class="field-actions-toolbar yui3-widget-hd">
 			<h3><liferay-ui:message key="sms" />:</h3>
@@ -383,9 +338,7 @@ String smsSn = (String)request.getAttribute("view_user.jsp-smsSn");
 		<div class="field-values">
 			<ul class="property-list">
 				<li class="property">
-					<div class="<%= editableClass %>" data-fieldName="smsSn">
-						<%= HtmlUtil.escape(smsSn) %>
-					</div>
+				<%= HtmlUtil.escape(contact2.getSmsSn()) %>
 				</li>
 			</ul>
 		</div>

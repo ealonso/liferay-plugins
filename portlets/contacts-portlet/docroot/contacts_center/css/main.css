@@ -5,30 +5,6 @@ $section-header-bg: #CCE6F7;
 	padding: 0;
 }
 
-div.aui-editable {
-	z-index: 100;
-}
-
-.one-line {
-	display: block !important;
-	padding-bottom: 3px;
-	padding-top: 3px;
-}
-
-.quick-edit-field {
-	background: none;
-	display: inline;
-}
-
-.quick-edit-field:hover {
-	background: #EEE url(../images/edit.png) no-repeat scroll right bottom;
-	border: 1px solid #C9C9C9;
-	cursor: pointer;
-	padding-bottom: 2px;
-	padding-top: 2px;
-	padding-right: 25px;
-}
-
 .contacts-portlet {
 	.clear {
 		clear: both;
@@ -232,18 +208,6 @@ div.aui-editable {
 
 		.lfr-contact-name a {
 			font-size: 2em;
-		}
-
-		.lfr-contact-label {
-			color: #777;
-			font-size: 1.25em;
-			font-weight: bold;
-			padding: 2px;
-		}
-		
-		.lfr-contact-value {
-			color: #777;
-			padding: 2px;
 		}
 
 		.aui-column-content {
@@ -578,24 +542,16 @@ div.aui-editable {
 		}
 	}
 
-	.field-container:hover {
+	.my-profile .field-container:hover {
 		background: #DCE3EA;
 		cursor: pointer;
 	}
-
+	
 	.profile-actions {
 		border-bottom: 1px solid #C7D0DA;
 		margin: 0 -10px;
-		padding: 0 10px 6px;	
-	}
+		padding: 0 10px 6px;
 
-	.profile-actions-title {
-		color: #929292;
-		font-weight: bold;
-		padding: 6px 0 0;
-	}
-	
-	.profile-actions {
 		h3 {
 			color: #B4BEC8;
 			float: left;
@@ -635,6 +591,12 @@ div.aui-editable {
 				padding-left: 25px;
 			}
 		}
+	}
+
+	.profile-actions-title {
+		color: #929292;
+		font-weight: bold;
+		padding: 6px 0 0;
 	}
 }
 
