@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.io.ByteArrayFileInputStream;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.notifications.Channel;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -70,6 +72,7 @@ import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
@@ -354,8 +357,8 @@ public class PrivateMessagingPortlet extends MVCPortlet {
 				fileMaxSize);
 		}
 		else if (key instanceof UserScreenNameException) {
-			message = themeDisplay.translate(
-				"the-following-users-were-not-found");
+			message = translate(
+				portletRequest, "the-following-users-were-not-found");
 
 			message += CharPool.SPACE + key.getMessage();
 		}
@@ -442,6 +445,17 @@ public class PrivateMessagingPortlet extends MVCPortlet {
 					companyId, userId, notificationEvent.getUuid());
 			}
 		}
+	}
+
+	protected String translate(PortletRequest portletRequest, String key) {
+		PortletConfig portletConfig =
+			(PortletConfig)portletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_CONFIG);
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		return LanguageUtil.get(portletConfig, themeDisplay.getLocale(), key);
 	}
 
 	protected void validateAttachment(String fileName, InputStream inputStream)
