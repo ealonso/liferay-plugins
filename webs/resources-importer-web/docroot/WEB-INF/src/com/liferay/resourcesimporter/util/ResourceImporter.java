@@ -14,7 +14,10 @@
 
 package com.liferay.resourcesimporter.util;
 
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringPool;
+
+import java.io.InputStream;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -44,23 +47,15 @@ public class ResourceImporter extends FileSystemImporter {
 		}
 
 		for (String resourcePath : resourcePaths) {
-			URL resourceURL = servletContext.getResource(resourcePath);
-
-			String path = resourceURL.getPath();
-
-			if (path.endsWith(StringPool.SLASH)) {
+			if (resourcePath.endsWith(StringPool.SLASH)) {
 				continue;
 			}
 
-			URLConnection urlConnection = resourceURL.openConnection();
+			String name = FileUtil.getShortFileName(resourcePath);
 
-			String name = resourceURL.getFile();
+			URL url = servletContext.getResource(resourcePath);
 
-			int pos = name.lastIndexOf(StringPool.SLASH);
-
-			if (pos != -1) {
-				name = name.substring(pos + 1);
-			}
+			URLConnection urlConnection = url.openConnection();
 
 			doAddDLFileEntries(
 				name, urlConnection.getInputStream(),
@@ -83,23 +78,15 @@ public class ResourceImporter extends FileSystemImporter {
 		}
 
 		for (String resourcePath : resourcePaths) {
-			URL resourceURL = servletContext.getResource(resourcePath);
-
-			String path = resourceURL.getPath();
-
-			if (path.endsWith(StringPool.SLASH)) {
+			if (resourcePath.endsWith(StringPool.SLASH)) {
 				continue;
 			}
 
-			URLConnection urlConnection = resourceURL.openConnection();
+			String name = FileUtil.getShortFileName(resourcePath);
 
-			String name = resourceURL.getFile();
+			URL url = servletContext.getResource(resourcePath);
 
-			int pos = name.lastIndexOf(StringPool.SLASH);
-
-			if (pos != -1) {
-				name = name.substring(pos + 1);
-			}
+			URLConnection urlConnection = url.openConnection();
 
 			doAddJournalArticles(
 				journalStructureId, journalTemplateId, name,
@@ -109,7 +96,8 @@ public class ResourceImporter extends FileSystemImporter {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void addJournalStructures(String structuresDirName)
+	protected void addJournalStructures(
+			String parentStructureId, String structuresDirName)
 		throws Exception {
 
 		Set<String> resourcePaths = servletContext.getResourcePaths(
@@ -120,25 +108,18 @@ public class ResourceImporter extends FileSystemImporter {
 		}
 
 		for (String resourcePath : resourcePaths) {
-			URL resourceURL = servletContext.getResource(resourcePath);
-
-			String path = resourceURL.getPath();
-
-			if (path.endsWith(StringPool.SLASH)) {
+			if (resourcePath.endsWith(StringPool.SLASH)) {
 				continue;
 			}
 
-			URLConnection urlConnection = resourceURL.openConnection();
+			String name = FileUtil.getShortFileName(resourcePath);
 
-			String name = resourceURL.getFile();
+			URL url = servletContext.getResource(resourcePath);
 
-			int pos = name.lastIndexOf(StringPool.SLASH);
+			URLConnection urlConnection = url.openConnection();
 
-			if (pos != -1) {
-				name = name.substring(pos + 1);
-			}
-
-			doAddJournalStructures(name, urlConnection.getInputStream());
+			doAddJournalStructures(
+				parentStructureId, name, urlConnection.getInputStream());
 		}
 	}
 
@@ -156,23 +137,15 @@ public class ResourceImporter extends FileSystemImporter {
 		}
 
 		for (String resourcePath : resourcePaths) {
-			URL resourceURL = servletContext.getResource(resourcePath);
-
-			String path = resourceURL.getPath();
-
-			if (path.endsWith(StringPool.SLASH)) {
+			if (resourcePath.endsWith(StringPool.SLASH)) {
 				continue;
 			}
 
-			URLConnection urlConnection = resourceURL.openConnection();
+			String name = FileUtil.getShortFileName(resourcePath);
 
-			String name = resourceURL.getFile();
+			URL url = servletContext.getResource(resourcePath);
 
-			int pos = name.lastIndexOf(StringPool.SLASH);
-
-			if (pos != -1) {
-				name = name.substring(pos + 1);
-			}
+			URLConnection urlConnection = url.openConnection();
 
 			doAddJournalTemplates(
 				journalStructureId, name, urlConnection.getInputStream());
@@ -180,31 +153,16 @@ public class ResourceImporter extends FileSystemImporter {
 	}
 
 	@Override
-	protected void setupSettings(String settingsName) throws Exception {
-		URL settingsJSONURL = servletContext.getResource(
-			resourcesDir.concat(settingsName));
+	protected InputStream getInputStream(String fileName) throws Exception {
+		URL url = servletContext.getResource(resourcesDir.concat(fileName));
 
-		if (settingsJSONURL == null) {
-			return;
+		if (url == null) {
+			return null;
 		}
 
-		URLConnection urlConnection = settingsJSONURL.openConnection();
+		URLConnection urlConnection = url.openConnection();
 
-		setupSettings(urlConnection.getInputStream());
-	}
-
-	@Override
-	protected void setupSitemap(String sitemapName) throws Exception {
-		URL sitemapJSONURL = servletContext.getResource(
-			resourcesDir.concat(sitemapName));
-
-		if (sitemapJSONURL == null) {
-			return;
-		}
-
-		URLConnection urlConnection = sitemapJSONURL.openConnection();
-
-		setupSitemap(urlConnection.getInputStream());
+		return urlConnection.getInputStream();
 	}
 
 }

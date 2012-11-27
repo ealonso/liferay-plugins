@@ -63,6 +63,8 @@ import java.util.Map;
 public class InstanceUtil {
 
 	public static void initInstance(long companyId) {
+		boolean strict = PortletPreferencesThreadLocal.isStrict();
+
 		try {
 			PortletPreferencesThreadLocal.setStrict(false);
 
@@ -72,13 +74,13 @@ public class InstanceUtil {
 
 			initLayoutSetPrototype(companyId);
 
-			setInitialized(companyId);
+			setInitialized(companyId, true);
 		}
 		catch (Exception e) {
 			_log.error(e, e);
 		}
 		finally {
-			PortletPreferencesThreadLocal.setStrict(true);
+			PortletPreferencesThreadLocal.setStrict(strict);
 		}
 	}
 
@@ -124,6 +126,21 @@ public class InstanceUtil {
 		}
 	}
 
+	public static void setInitialized(long companyId, boolean initialized)
+		throws Exception {
+
+		Group group = GroupLocalServiceUtil.getCompanyGroup(companyId);
+
+		UnicodeProperties typeSettingsProperties =
+			group.getTypeSettingsProperties();
+
+		typeSettingsProperties.setProperty(
+			"social-office-initialized", String.valueOf(initialized));
+
+		GroupLocalServiceUtil.updateGroup(
+			group.getGroupId(), typeSettingsProperties.toString());
+	}
+
 	protected static LayoutSetPrototype addLayoutSetPrototype(
 			long companyId, String name)
 		throws Exception {
@@ -161,19 +178,6 @@ public class InstanceUtil {
 		return LocalizationUtil.getLocalizationMap(
 			"content.Language", InstanceUtil.class.getClassLoader(), key,
 			false);
-	}
-
-	protected static void setInitialized(long companyId) throws Exception {
-		Group group = GroupLocalServiceUtil.getCompanyGroup(companyId);
-
-		UnicodeProperties typeSettingsProperties =
-			group.getTypeSettingsProperties();
-
-		typeSettingsProperties.setProperty(
-			"social-office-initialized", Boolean.TRUE.toString());
-
-		GroupLocalServiceUtil.updateGroup(
-			group.getGroupId(), typeSettingsProperties.toString());
 	}
 
 	protected static void setupExpando(long companyId) throws Exception {

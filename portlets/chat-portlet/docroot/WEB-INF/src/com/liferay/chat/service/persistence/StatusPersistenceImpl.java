@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -76,73 +75,6 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
-	public static final FinderPath FINDER_PATH_FETCH_BY_USERID = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByUserId",
-			new String[] { Long.class.getName() },
-			StatusModelImpl.USERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_USERID = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_MODIFIEDDATE =
-		new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByModifiedDate",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE =
-		new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByModifiedDate",
-			new String[] { Long.class.getName() },
-			StatusModelImpl.MODIFIEDDATE_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_MODIFIEDDATE = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByModifiedDate",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_ONLINE = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByOnline",
-			new String[] {
-				Boolean.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE =
-		new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByOnline",
-			new String[] { Boolean.class.getName() },
-			StatusModelImpl.ONLINE_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_ONLINE = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByOnline",
-			new String[] { Boolean.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_M_O = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByM_O",
-			new String[] {
-				Long.class.getName(), Boolean.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByM_O",
-			new String[] { Long.class.getName(), Boolean.class.getName() },
-			StatusModelImpl.MODIFIEDDATE_COLUMN_BITMASK |
-			StatusModelImpl.ONLINE_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_M_O = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByM_O",
-			new String[] { Long.class.getName(), Boolean.class.getName() });
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
 			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
@@ -152,424 +84,15 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
 			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the status in the entity cache if it is enabled.
-	 *
-	 * @param status the status
-	 */
-	public void cacheResult(Status status) {
-		EntityCacheUtil.putResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusImpl.class, status.getPrimaryKey(), status);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_USERID,
-			new Object[] { Long.valueOf(status.getUserId()) }, status);
-
-		status.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the statuses in the entity cache if it is enabled.
-	 *
-	 * @param statuses the statuses
-	 */
-	public void cacheResult(List<Status> statuses) {
-		for (Status status : statuses) {
-			if (EntityCacheUtil.getResult(
-						StatusModelImpl.ENTITY_CACHE_ENABLED, StatusImpl.class,
-						status.getPrimaryKey()) == null) {
-				cacheResult(status);
-			}
-			else {
-				status.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all statuses.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(StatusImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(StatusImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the status.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(Status status) {
-		EntityCacheUtil.removeResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusImpl.class, status.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(status);
-	}
-
-	@Override
-	public void clearCache(List<Status> statuses) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (Status status : statuses) {
-			EntityCacheUtil.removeResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
-				StatusImpl.class, status.getPrimaryKey());
-
-			clearUniqueFindersCache(status);
-		}
-	}
-
-	protected void clearUniqueFindersCache(Status status) {
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_USERID,
-			new Object[] { Long.valueOf(status.getUserId()) });
-	}
-
-	/**
-	 * Creates a new status with the primary key. Does not add the status to the database.
-	 *
-	 * @param statusId the primary key for the new status
-	 * @return the new status
-	 */
-	public Status create(long statusId) {
-		Status status = new StatusImpl();
-
-		status.setNew(true);
-		status.setPrimaryKey(statusId);
-
-		return status;
-	}
-
-	/**
-	 * Removes the status with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param statusId the primary key of the status
-	 * @return the status that was removed
-	 * @throws com.liferay.chat.NoSuchStatusException if a status with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Status remove(long statusId)
-		throws NoSuchStatusException, SystemException {
-		return remove(Long.valueOf(statusId));
-	}
-
-	/**
-	 * Removes the status with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the status
-	 * @return the status that was removed
-	 * @throws com.liferay.chat.NoSuchStatusException if a status with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Status remove(Serializable primaryKey)
-		throws NoSuchStatusException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Status status = (Status)session.get(StatusImpl.class, primaryKey);
-
-			if (status == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchStatusException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(status);
-		}
-		catch (NoSuchStatusException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected Status removeImpl(Status status) throws SystemException {
-		status = toUnwrappedModel(status);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, status);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(status);
-
-		return status;
-	}
-
-	@Override
-	public Status updateImpl(com.liferay.chat.model.Status status, boolean merge)
-		throws SystemException {
-		status = toUnwrappedModel(status);
-
-		boolean isNew = status.isNew();
-
-		StatusModelImpl statusModelImpl = (StatusModelImpl)status;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, status, merge);
-
-			status.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !StatusModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((statusModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(statusModelImpl.getOriginalModifiedDate())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(statusModelImpl.getModifiedDate())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE,
-					args);
-			}
-
-			if ((statusModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Boolean.valueOf(statusModelImpl.getOriginalOnline())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ONLINE, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE,
-					args);
-
-				args = new Object[] { Boolean.valueOf(statusModelImpl.getOnline()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ONLINE, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE,
-					args);
-			}
-
-			if ((statusModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(statusModelImpl.getOriginalModifiedDate()),
-						Boolean.valueOf(statusModelImpl.getOriginalOnline())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_M_O, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(statusModelImpl.getModifiedDate()),
-						Boolean.valueOf(statusModelImpl.getOnline())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_M_O, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
-			StatusImpl.class, status.getPrimaryKey(), status);
-
-		if (isNew) {
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_USERID,
-				new Object[] { Long.valueOf(status.getUserId()) }, status);
-		}
-		else {
-			if ((statusModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_USERID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(statusModelImpl.getOriginalUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_USERID, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_USERID,
-					new Object[] { Long.valueOf(status.getUserId()) }, status);
-			}
-		}
-
-		return status;
-	}
-
-	protected Status toUnwrappedModel(Status status) {
-		if (status instanceof StatusImpl) {
-			return status;
-		}
-
-		StatusImpl statusImpl = new StatusImpl();
-
-		statusImpl.setNew(status.isNew());
-		statusImpl.setPrimaryKey(status.getPrimaryKey());
-
-		statusImpl.setStatusId(status.getStatusId());
-		statusImpl.setUserId(status.getUserId());
-		statusImpl.setModifiedDate(status.getModifiedDate());
-		statusImpl.setOnline(status.isOnline());
-		statusImpl.setAwake(status.isAwake());
-		statusImpl.setActivePanelId(status.getActivePanelId());
-		statusImpl.setMessage(status.getMessage());
-		statusImpl.setPlaySound(status.isPlaySound());
-
-		return statusImpl;
-	}
-
-	/**
-	 * Returns the status with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the status
-	 * @return the status
-	 * @throws com.liferay.portal.NoSuchModelException if a status with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Status findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the status with the primary key or throws a {@link com.liferay.chat.NoSuchStatusException} if it could not be found.
-	 *
-	 * @param statusId the primary key of the status
-	 * @return the status
-	 * @throws com.liferay.chat.NoSuchStatusException if a status with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Status findByPrimaryKey(long statusId)
-		throws NoSuchStatusException, SystemException {
-		Status status = fetchByPrimaryKey(statusId);
-
-		if (status == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + statusId);
-			}
-
-			throw new NoSuchStatusException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				statusId);
-		}
-
-		return status;
-	}
-
-	/**
-	 * Returns the status with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the status
-	 * @return the status, or <code>null</code> if a status with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Status fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the status with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param statusId the primary key of the status
-	 * @return the status, or <code>null</code> if a status with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Status fetchByPrimaryKey(long statusId) throws SystemException {
-		Status status = (Status)EntityCacheUtil.getResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
-				StatusImpl.class, statusId);
-
-		if (status == _nullStatus) {
-			return null;
-		}
-
-		if (status == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				status = (Status)session.get(StatusImpl.class,
-						Long.valueOf(statusId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (status != null) {
-					cacheResult(status);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
-						StatusImpl.class, statusId, _nullStatus);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return status;
-	}
+	public static final FinderPath FINDER_PATH_FETCH_BY_USERID = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByUserId",
+			new String[] { Long.class.getName() },
+			StatusModelImpl.USERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_USERID = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
+			new String[] { Long.class.getName() });
 
 	/**
 	 * Returns the status where userId = &#63; or throws a {@link com.liferay.chat.NoSuchStatusException} if it could not be found.
@@ -705,6 +228,95 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 			}
 		}
 	}
+
+	/**
+	 * Removes the status where userId = &#63; from the database.
+	 *
+	 * @param userId the user ID
+	 * @return the status that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Status removeByUserId(long userId)
+		throws NoSuchStatusException, SystemException {
+		Status status = findByUserId(userId);
+
+		return remove(status);
+	}
+
+	/**
+	 * Returns the number of statuses where userId = &#63;.
+	 *
+	 * @param userId the user ID
+	 * @return the number of matching statuses
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByUserId(long userId) throws SystemException {
+		Object[] finderArgs = new Object[] { userId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_USERID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_STATUS_WHERE);
+
+			query.append(_FINDER_COLUMN_USERID_USERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(userId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_USERID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_USERID_USERID_2 = "status.userId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_MODIFIEDDATE =
+		new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByModifiedDate",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE =
+		new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByModifiedDate",
+			new String[] { Long.class.getName() },
+			StatusModelImpl.MODIFIEDDATE_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_MODIFIEDDATE = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByModifiedDate",
+			new String[] { Long.class.getName() });
 
 	/**
 	 * Returns all the statuses where modifiedDate = &#63;.
@@ -1084,6 +696,93 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 	}
 
 	/**
+	 * Removes all the statuses where modifiedDate = &#63; from the database.
+	 *
+	 * @param modifiedDate the modified date
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByModifiedDate(long modifiedDate)
+		throws SystemException {
+		for (Status status : findByModifiedDate(modifiedDate)) {
+			remove(status);
+		}
+	}
+
+	/**
+	 * Returns the number of statuses where modifiedDate = &#63;.
+	 *
+	 * @param modifiedDate the modified date
+	 * @return the number of matching statuses
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByModifiedDate(long modifiedDate) throws SystemException {
+		Object[] finderArgs = new Object[] { modifiedDate };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_STATUS_WHERE);
+
+			query.append(_FINDER_COLUMN_MODIFIEDDATE_MODIFIEDDATE_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(modifiedDate);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_MODIFIEDDATE_MODIFIEDDATE_2 = "status.modifiedDate = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_ONLINE = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByOnline",
+			new String[] {
+				Boolean.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE =
+		new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByOnline",
+			new String[] { Boolean.class.getName() },
+			StatusModelImpl.ONLINE_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_ONLINE = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByOnline",
+			new String[] { Boolean.class.getName() });
+
+	/**
 	 * Returns all the statuses where online = &#63;.
 	 *
 	 * @param online the online
@@ -1450,6 +1149,92 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the statuses where online = &#63; from the database.
+	 *
+	 * @param online the online
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByOnline(boolean online) throws SystemException {
+		for (Status status : findByOnline(online)) {
+			remove(status);
+		}
+	}
+
+	/**
+	 * Returns the number of statuses where online = &#63;.
+	 *
+	 * @param online the online
+	 * @return the number of matching statuses
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByOnline(boolean online) throws SystemException {
+		Object[] finderArgs = new Object[] { online };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_ONLINE,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_STATUS_WHERE);
+
+			query.append(_FINDER_COLUMN_ONLINE_ONLINE_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(online);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_ONLINE,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_ONLINE_ONLINE_2 = "status.online = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_M_O = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByM_O",
+			new String[] {
+				Long.class.getName(), Boolean.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, StatusImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByM_O",
+			new String[] { Long.class.getName(), Boolean.class.getName() },
+			StatusModelImpl.MODIFIEDDATE_COLUMN_BITMASK |
+			StatusModelImpl.ONLINE_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_M_O = new FinderPath(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByM_O",
+			new String[] { Long.class.getName(), Boolean.class.getName() });
 
 	/**
 	 * Returns all the statuses where modifiedDate = &#63; and online = &#63;.
@@ -1851,6 +1636,514 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 	}
 
 	/**
+	 * Removes all the statuses where modifiedDate = &#63; and online = &#63; from the database.
+	 *
+	 * @param modifiedDate the modified date
+	 * @param online the online
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByM_O(long modifiedDate, boolean online)
+		throws SystemException {
+		for (Status status : findByM_O(modifiedDate, online)) {
+			remove(status);
+		}
+	}
+
+	/**
+	 * Returns the number of statuses where modifiedDate = &#63; and online = &#63;.
+	 *
+	 * @param modifiedDate the modified date
+	 * @param online the online
+	 * @return the number of matching statuses
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByM_O(long modifiedDate, boolean online)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { modifiedDate, online };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_M_O,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_STATUS_WHERE);
+
+			query.append(_FINDER_COLUMN_M_O_MODIFIEDDATE_2);
+
+			query.append(_FINDER_COLUMN_M_O_ONLINE_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(modifiedDate);
+
+				qPos.add(online);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_M_O, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_M_O_MODIFIEDDATE_2 = "status.modifiedDate = ? AND ";
+	private static final String _FINDER_COLUMN_M_O_ONLINE_2 = "status.online = ?";
+
+	/**
+	 * Caches the status in the entity cache if it is enabled.
+	 *
+	 * @param status the status
+	 */
+	public void cacheResult(Status status) {
+		EntityCacheUtil.putResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusImpl.class, status.getPrimaryKey(), status);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_USERID,
+			new Object[] { Long.valueOf(status.getUserId()) }, status);
+
+		status.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the statuses in the entity cache if it is enabled.
+	 *
+	 * @param statuses the statuses
+	 */
+	public void cacheResult(List<Status> statuses) {
+		for (Status status : statuses) {
+			if (EntityCacheUtil.getResult(
+						StatusModelImpl.ENTITY_CACHE_ENABLED, StatusImpl.class,
+						status.getPrimaryKey()) == null) {
+				cacheResult(status);
+			}
+			else {
+				status.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all statuses.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(StatusImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(StatusImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the status.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(Status status) {
+		EntityCacheUtil.removeResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusImpl.class, status.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		clearUniqueFindersCache(status);
+	}
+
+	@Override
+	public void clearCache(List<Status> statuses) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (Status status : statuses) {
+			EntityCacheUtil.removeResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
+				StatusImpl.class, status.getPrimaryKey());
+
+			clearUniqueFindersCache(status);
+		}
+	}
+
+	protected void clearUniqueFindersCache(Status status) {
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_USERID,
+			new Object[] { Long.valueOf(status.getUserId()) });
+	}
+
+	/**
+	 * Creates a new status with the primary key. Does not add the status to the database.
+	 *
+	 * @param statusId the primary key for the new status
+	 * @return the new status
+	 */
+	public Status create(long statusId) {
+		Status status = new StatusImpl();
+
+		status.setNew(true);
+		status.setPrimaryKey(statusId);
+
+		return status;
+	}
+
+	/**
+	 * Removes the status with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param statusId the primary key of the status
+	 * @return the status that was removed
+	 * @throws com.liferay.chat.NoSuchStatusException if a status with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Status remove(long statusId)
+		throws NoSuchStatusException, SystemException {
+		return remove(Long.valueOf(statusId));
+	}
+
+	/**
+	 * Removes the status with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the status
+	 * @return the status that was removed
+	 * @throws com.liferay.chat.NoSuchStatusException if a status with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Status remove(Serializable primaryKey)
+		throws NoSuchStatusException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Status status = (Status)session.get(StatusImpl.class, primaryKey);
+
+			if (status == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchStatusException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(status);
+		}
+		catch (NoSuchStatusException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected Status removeImpl(Status status) throws SystemException {
+		status = toUnwrappedModel(status);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(status)) {
+				status = (Status)session.get(StatusImpl.class,
+						status.getPrimaryKeyObj());
+			}
+
+			if (status != null) {
+				session.delete(status);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (status != null) {
+			clearCache(status);
+		}
+
+		return status;
+	}
+
+	@Override
+	public Status updateImpl(com.liferay.chat.model.Status status)
+		throws SystemException {
+		status = toUnwrappedModel(status);
+
+		boolean isNew = status.isNew();
+
+		StatusModelImpl statusModelImpl = (StatusModelImpl)status;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (status.isNew()) {
+				session.save(status);
+
+				status.setNew(false);
+			}
+			else {
+				session.merge(status);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !StatusModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((statusModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(statusModelImpl.getOriginalModifiedDate())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(statusModelImpl.getModifiedDate())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MODIFIEDDATE,
+					args);
+			}
+
+			if ((statusModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Boolean.valueOf(statusModelImpl.getOriginalOnline())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ONLINE, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE,
+					args);
+
+				args = new Object[] { Boolean.valueOf(statusModelImpl.getOnline()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ONLINE, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ONLINE,
+					args);
+			}
+
+			if ((statusModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(statusModelImpl.getOriginalModifiedDate()),
+						Boolean.valueOf(statusModelImpl.getOriginalOnline())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_M_O, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(statusModelImpl.getModifiedDate()),
+						Boolean.valueOf(statusModelImpl.getOnline())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_M_O, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_M_O,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
+			StatusImpl.class, status.getPrimaryKey(), status);
+
+		if (isNew) {
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_USERID,
+				new Object[] { Long.valueOf(status.getUserId()) }, status);
+		}
+		else {
+			if ((statusModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_USERID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(statusModelImpl.getOriginalUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_USERID, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_USERID,
+					new Object[] { Long.valueOf(status.getUserId()) }, status);
+			}
+		}
+
+		return status;
+	}
+
+	protected Status toUnwrappedModel(Status status) {
+		if (status instanceof StatusImpl) {
+			return status;
+		}
+
+		StatusImpl statusImpl = new StatusImpl();
+
+		statusImpl.setNew(status.isNew());
+		statusImpl.setPrimaryKey(status.getPrimaryKey());
+
+		statusImpl.setStatusId(status.getStatusId());
+		statusImpl.setUserId(status.getUserId());
+		statusImpl.setModifiedDate(status.getModifiedDate());
+		statusImpl.setOnline(status.isOnline());
+		statusImpl.setAwake(status.isAwake());
+		statusImpl.setActivePanelId(status.getActivePanelId());
+		statusImpl.setMessage(status.getMessage());
+		statusImpl.setPlaySound(status.isPlaySound());
+
+		return statusImpl;
+	}
+
+	/**
+	 * Returns the status with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the status
+	 * @return the status
+	 * @throws com.liferay.portal.NoSuchModelException if a status with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Status findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the status with the primary key or throws a {@link com.liferay.chat.NoSuchStatusException} if it could not be found.
+	 *
+	 * @param statusId the primary key of the status
+	 * @return the status
+	 * @throws com.liferay.chat.NoSuchStatusException if a status with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Status findByPrimaryKey(long statusId)
+		throws NoSuchStatusException, SystemException {
+		Status status = fetchByPrimaryKey(statusId);
+
+		if (status == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + statusId);
+			}
+
+			throw new NoSuchStatusException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				statusId);
+		}
+
+		return status;
+	}
+
+	/**
+	 * Returns the status with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the status
+	 * @return the status, or <code>null</code> if a status with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Status fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the status with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param statusId the primary key of the status
+	 * @return the status, or <code>null</code> if a status with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Status fetchByPrimaryKey(long statusId) throws SystemException {
+		Status status = (Status)EntityCacheUtil.getResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
+				StatusImpl.class, statusId);
+
+		if (status == _nullStatus) {
+			return null;
+		}
+
+		if (status == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				status = (Status)session.get(StatusImpl.class,
+						Long.valueOf(statusId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (status != null) {
+					cacheResult(status);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(StatusModelImpl.ENTITY_CACHE_ENABLED,
+						StatusImpl.class, statusId, _nullStatus);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return status;
+	}
+
+	/**
 	 * Returns all the statuses.
 	 *
 	 * @return the statuses
@@ -1965,59 +2258,6 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 	}
 
 	/**
-	 * Removes the status where userId = &#63; from the database.
-	 *
-	 * @param userId the user ID
-	 * @return the status that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Status removeByUserId(long userId)
-		throws NoSuchStatusException, SystemException {
-		Status status = findByUserId(userId);
-
-		return remove(status);
-	}
-
-	/**
-	 * Removes all the statuses where modifiedDate = &#63; from the database.
-	 *
-	 * @param modifiedDate the modified date
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByModifiedDate(long modifiedDate)
-		throws SystemException {
-		for (Status status : findByModifiedDate(modifiedDate)) {
-			remove(status);
-		}
-	}
-
-	/**
-	 * Removes all the statuses where online = &#63; from the database.
-	 *
-	 * @param online the online
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByOnline(boolean online) throws SystemException {
-		for (Status status : findByOnline(online)) {
-			remove(status);
-		}
-	}
-
-	/**
-	 * Removes all the statuses where modifiedDate = &#63; and online = &#63; from the database.
-	 *
-	 * @param modifiedDate the modified date
-	 * @param online the online
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByM_O(long modifiedDate, boolean online)
-		throws SystemException {
-		for (Status status : findByM_O(modifiedDate, online)) {
-			remove(status);
-		}
-	}
-
-	/**
 	 * Removes all the statuses from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -2026,224 +2266,6 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 		for (Status status : findAll()) {
 			remove(status);
 		}
-	}
-
-	/**
-	 * Returns the number of statuses where userId = &#63;.
-	 *
-	 * @param userId the user ID
-	 * @return the number of matching statuses
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByUserId(long userId) throws SystemException {
-		Object[] finderArgs = new Object[] { userId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_USERID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_STATUS_WHERE);
-
-			query.append(_FINDER_COLUMN_USERID_USERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(userId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_USERID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of statuses where modifiedDate = &#63;.
-	 *
-	 * @param modifiedDate the modified date
-	 * @return the number of matching statuses
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByModifiedDate(long modifiedDate) throws SystemException {
-		Object[] finderArgs = new Object[] { modifiedDate };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_STATUS_WHERE);
-
-			query.append(_FINDER_COLUMN_MODIFIEDDATE_MODIFIEDDATE_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(modifiedDate);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_MODIFIEDDATE,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of statuses where online = &#63;.
-	 *
-	 * @param online the online
-	 * @return the number of matching statuses
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByOnline(boolean online) throws SystemException {
-		Object[] finderArgs = new Object[] { online };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_ONLINE,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_STATUS_WHERE);
-
-			query.append(_FINDER_COLUMN_ONLINE_ONLINE_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(online);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_ONLINE,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of statuses where modifiedDate = &#63; and online = &#63;.
-	 *
-	 * @param modifiedDate the modified date
-	 * @param online the online
-	 * @return the number of matching statuses
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByM_O(long modifiedDate, boolean online)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { modifiedDate, online };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_M_O,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_STATUS_WHERE);
-
-			query.append(_FINDER_COLUMN_M_O_MODIFIEDDATE_2);
-
-			query.append(_FINDER_COLUMN_M_O_ONLINE_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(modifiedDate);
-
-				qPos.add(online);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_M_O, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -2325,11 +2347,6 @@ public class StatusPersistenceImpl extends BasePersistenceImpl<Status>
 	private static final String _SQL_SELECT_STATUS_WHERE = "SELECT status FROM Status status WHERE ";
 	private static final String _SQL_COUNT_STATUS = "SELECT COUNT(status) FROM Status status";
 	private static final String _SQL_COUNT_STATUS_WHERE = "SELECT COUNT(status) FROM Status status WHERE ";
-	private static final String _FINDER_COLUMN_USERID_USERID_2 = "status.userId = ?";
-	private static final String _FINDER_COLUMN_MODIFIEDDATE_MODIFIEDDATE_2 = "status.modifiedDate = ?";
-	private static final String _FINDER_COLUMN_ONLINE_ONLINE_2 = "status.online = ?";
-	private static final String _FINDER_COLUMN_M_O_MODIFIEDDATE_2 = "status.modifiedDate = ? AND ";
-	private static final String _FINDER_COLUMN_M_O_ONLINE_2 = "status.online = ?";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "status.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Status exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Status exists with the key {";

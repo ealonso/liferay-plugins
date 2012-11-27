@@ -189,7 +189,7 @@ if (comment) {
 				<span class="microblogs-countdown">150</span>
 			</c:if>
 
-			<aui:button inputCssClass="microblogs-button-input" name="submit" type="submit" value="post" />
+			<aui:button disabled="<%= !repost ? true : false %>" inputCssClass="microblogs-button-input" name="submit" type="submit" value="post" />
 
 			<c:if test="<%= repost %>">
 				<aui:button onClick="Liferay.Microblogs.closePopup();" type="cancel" />
@@ -230,18 +230,21 @@ if (comment) {
 			var contentInput = event.currentTarget;
 
 			var countdown = form.one('.microblogs-countdown');
-			var submitButton = form.one('.aui-button-input-submit');
+			var submitButton = form.one('.aui-button-submit');
 
 			var remaining = (150 - contentInput.val().length);
 
-			var disabled = ((remaining < 0) || (remaining == 150));
+			var error = (remaining < 0);
+
+			var disabled = ((remaining == 150) || (contentInput.get('value') == "") || error);
 
 			countdown.html(remaining);
 
-			submitButton.attr('disabled', disabled);
-			submitButton.toggleClass('microblogs-button-input-disabled', disabled);
+			submitButton.one('.microblogs-button-input').attr('disabled', disabled);
+			submitButton.toggleClass('aui-button-disabled', disabled);
 
-			countdown.toggleClass('microblogs-countdown-warned', (remaining < 0));
+			submitButton.toggleClass('microblogs-button-input-disabled', error);
+			countdown.toggleClass('microblogs-countdown-warned', error);
 		};
 
 		var createTextarea = function(divId) {
@@ -249,7 +252,7 @@ if (comment) {
 			var autocompleteContent = A.one('#<portlet:namespace />autocompleteContent<%= microblogsEntryId %>');
 			var highlighterContent = A.one('#<portlet:namespace/>highlighterContent<%= microblogsEntryId %>');
 
-			var inputValue = '<%= ((microblogsEntry != null) && (edit)) ? StringUtil.replace(HtmlUtil.escape(microblogsEntry.getContent()), "\'", "\\'") : StringPool.BLANK %>';
+			var inputValue = '<%= ((microblogsEntry != null) && (edit)) ? StringUtil.replace(HtmlUtil.escapeJS(microblogsEntry.getContent()), "\'", "\\'") : StringPool.BLANK %>';
 
 			if ((autocomplete.height() < 45) || (highlighterContent.height() < 45)) {
 				autocomplete.height(45);
@@ -282,8 +285,14 @@ if (comment) {
 				}
 			);
 
+			var contextCountEvent = 'input';
+
+			if (A.UA.ie >= 9) {
+				contextCountEvent = ['input', 'keydown'];
+			}
+
 			contentTextarea.on(
-				'input',
+				contextCountEvent,
 				function(contentTextarea) {
 					updateHighlightDivSize(contentTextarea);
 

@@ -38,67 +38,6 @@ public interface FeedPersistence extends BasePersistence<Feed> {
 	 */
 
 	/**
-	* Caches the feed in the entity cache if it is enabled.
-	*
-	* @param feed the feed
-	*/
-	public void cacheResult(com.liferay.twitter.model.Feed feed);
-
-	/**
-	* Caches the feeds in the entity cache if it is enabled.
-	*
-	* @param feeds the feeds
-	*/
-	public void cacheResult(
-		java.util.List<com.liferay.twitter.model.Feed> feeds);
-
-	/**
-	* Creates a new feed with the primary key. Does not add the feed to the database.
-	*
-	* @param feedId the primary key for the new feed
-	* @return the new feed
-	*/
-	public com.liferay.twitter.model.Feed create(long feedId);
-
-	/**
-	* Removes the feed with the primary key from the database. Also notifies the appropriate model listeners.
-	*
-	* @param feedId the primary key of the feed
-	* @return the feed that was removed
-	* @throws com.liferay.twitter.NoSuchFeedException if a feed with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.twitter.model.Feed remove(long feedId)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.twitter.NoSuchFeedException;
-
-	public com.liferay.twitter.model.Feed updateImpl(
-		com.liferay.twitter.model.Feed feed, boolean merge)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the feed with the primary key or throws a {@link com.liferay.twitter.NoSuchFeedException} if it could not be found.
-	*
-	* @param feedId the primary key of the feed
-	* @return the feed
-	* @throws com.liferay.twitter.NoSuchFeedException if a feed with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.twitter.model.Feed findByPrimaryKey(long feedId)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.twitter.NoSuchFeedException;
-
-	/**
-	* Returns the feed with the primary key or returns <code>null</code> if it could not be found.
-	*
-	* @param feedId the primary key of the feed
-	* @return the feed, or <code>null</code> if a feed with the primary key could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.twitter.model.Feed fetchByPrimaryKey(long feedId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
 	* Returns the feed where companyId = &#63; and twitterUserId = &#63; or throws a {@link com.liferay.twitter.NoSuchFeedException} if it could not be found.
 	*
 	* @param companyId the company ID
@@ -138,6 +77,30 @@ public interface FeedPersistence extends BasePersistence<Feed> {
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
+	* Removes the feed where companyId = &#63; and twitterUserId = &#63; from the database.
+	*
+	* @param companyId the company ID
+	* @param twitterUserId the twitter user ID
+	* @return the feed that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.twitter.model.Feed removeByC_TWUI(long companyId,
+		long twitterUserId)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.twitter.NoSuchFeedException;
+
+	/**
+	* Returns the number of feeds where companyId = &#63; and twitterUserId = &#63;.
+	*
+	* @param companyId the company ID
+	* @param twitterUserId the twitter user ID
+	* @return the number of matching feeds
+	* @throws SystemException if a system exception occurred
+	*/
+	public int countByC_TWUI(long companyId, long twitterUserId)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
 	* Returns the feed where companyId = &#63; and twitterScreenName = &#63; or throws a {@link com.liferay.twitter.NoSuchFeedException} if it could not be found.
 	*
 	* @param companyId the company ID
@@ -174,6 +137,91 @@ public interface FeedPersistence extends BasePersistence<Feed> {
 	*/
 	public com.liferay.twitter.model.Feed fetchByC_TSN(long companyId,
 		java.lang.String twitterScreenName, boolean retrieveFromCache)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Removes the feed where companyId = &#63; and twitterScreenName = &#63; from the database.
+	*
+	* @param companyId the company ID
+	* @param twitterScreenName the twitter screen name
+	* @return the feed that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.twitter.model.Feed removeByC_TSN(long companyId,
+		java.lang.String twitterScreenName)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.twitter.NoSuchFeedException;
+
+	/**
+	* Returns the number of feeds where companyId = &#63; and twitterScreenName = &#63;.
+	*
+	* @param companyId the company ID
+	* @param twitterScreenName the twitter screen name
+	* @return the number of matching feeds
+	* @throws SystemException if a system exception occurred
+	*/
+	public int countByC_TSN(long companyId, java.lang.String twitterScreenName)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Caches the feed in the entity cache if it is enabled.
+	*
+	* @param feed the feed
+	*/
+	public void cacheResult(com.liferay.twitter.model.Feed feed);
+
+	/**
+	* Caches the feeds in the entity cache if it is enabled.
+	*
+	* @param feeds the feeds
+	*/
+	public void cacheResult(
+		java.util.List<com.liferay.twitter.model.Feed> feeds);
+
+	/**
+	* Creates a new feed with the primary key. Does not add the feed to the database.
+	*
+	* @param feedId the primary key for the new feed
+	* @return the new feed
+	*/
+	public com.liferay.twitter.model.Feed create(long feedId);
+
+	/**
+	* Removes the feed with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param feedId the primary key of the feed
+	* @return the feed that was removed
+	* @throws com.liferay.twitter.NoSuchFeedException if a feed with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.twitter.model.Feed remove(long feedId)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.twitter.NoSuchFeedException;
+
+	public com.liferay.twitter.model.Feed updateImpl(
+		com.liferay.twitter.model.Feed feed)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	/**
+	* Returns the feed with the primary key or throws a {@link com.liferay.twitter.NoSuchFeedException} if it could not be found.
+	*
+	* @param feedId the primary key of the feed
+	* @return the feed
+	* @throws com.liferay.twitter.NoSuchFeedException if a feed with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.twitter.model.Feed findByPrimaryKey(long feedId)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.twitter.NoSuchFeedException;
+
+	/**
+	* Returns the feed with the primary key or returns <code>null</code> if it could not be found.
+	*
+	* @param feedId the primary key of the feed
+	* @return the feed, or <code>null</code> if a feed with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public com.liferay.twitter.model.Feed fetchByPrimaryKey(long feedId)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
@@ -219,59 +267,11 @@ public interface FeedPersistence extends BasePersistence<Feed> {
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
-	* Removes the feed where companyId = &#63; and twitterUserId = &#63; from the database.
-	*
-	* @param companyId the company ID
-	* @param twitterUserId the twitter user ID
-	* @return the feed that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.twitter.model.Feed removeByC_TWUI(long companyId,
-		long twitterUserId)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.twitter.NoSuchFeedException;
-
-	/**
-	* Removes the feed where companyId = &#63; and twitterScreenName = &#63; from the database.
-	*
-	* @param companyId the company ID
-	* @param twitterScreenName the twitter screen name
-	* @return the feed that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public com.liferay.twitter.model.Feed removeByC_TSN(long companyId,
-		java.lang.String twitterScreenName)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.twitter.NoSuchFeedException;
-
-	/**
 	* Removes all the feeds from the database.
 	*
 	* @throws SystemException if a system exception occurred
 	*/
 	public void removeAll()
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the number of feeds where companyId = &#63; and twitterUserId = &#63;.
-	*
-	* @param companyId the company ID
-	* @param twitterUserId the twitter user ID
-	* @return the number of matching feeds
-	* @throws SystemException if a system exception occurred
-	*/
-	public int countByC_TWUI(long companyId, long twitterUserId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Returns the number of feeds where companyId = &#63; and twitterScreenName = &#63;.
-	*
-	* @param companyId the company ID
-	* @param twitterScreenName the twitter screen name
-	* @return the number of matching feeds
-	* @throws SystemException if a system exception occurred
-	*/
-	public int countByC_TSN(long companyId, java.lang.String twitterScreenName)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**

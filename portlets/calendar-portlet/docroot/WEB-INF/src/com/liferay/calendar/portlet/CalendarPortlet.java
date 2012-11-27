@@ -53,6 +53,7 @@ import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -247,14 +248,17 @@ public class CalendarPortlet extends MVCPortlet {
 			CalendarBooking.class.getName(), actionRequest);
 
 		if (calendarBookingId <= 0) {
-			CalendarBookingServiceUtil.addCalendarBooking(
-				calendarId, childCalendarIds,
-				CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT,
-				titleMap, descriptionMap, location,
-				startDateJCalendar.getTimeInMillis(),
-				endDateJCalendar.getTimeInMillis(), allDay, recurrence,
-				reminders[0], remindersType[0], reminders[1], remindersType[1],
-				serviceContext);
+			CalendarBooking calendarBooking =
+				CalendarBookingServiceUtil.addCalendarBooking(
+					calendarId, childCalendarIds,
+					CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT,
+					titleMap, descriptionMap, location,
+					startDateJCalendar.getTimeInMillis(),
+					endDateJCalendar.getTimeInMillis(), allDay, recurrence,
+					reminders[0], remindersType[0], reminders[1],
+					remindersType[1], serviceContext);
+
+			calendarBookingId = calendarBooking.getCalendarBookingId();
 		}
 		else {
 			boolean updateCalendarBookingInstance = ParamUtil.getBoolean(
@@ -292,6 +296,24 @@ public class CalendarPortlet extends MVCPortlet {
 					reminders[1], remindersType[1], status, serviceContext);
 			}
 		}
+
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		redirect = HttpUtil.setParameter(
+			redirect, actionResponse.getNamespace() + "calendarBookingId",
+			calendarBookingId);
+		redirect = HttpUtil.setParameter(
+			redirect, actionResponse.getNamespace() + "calendarId", calendarId);
+		redirect = HttpUtil.removeParameter(
+			redirect, actionResponse.getNamespace() + "startDate");
+		redirect = HttpUtil.removeParameter(
+			redirect, actionResponse.getNamespace() + "endDate");
+		redirect = HttpUtil.removeParameter(
+			redirect, actionResponse.getNamespace() + "allDay");
+		redirect = HttpUtil.removeParameter(
+			redirect, actionResponse.getNamespace() + "repeat");
+
+		actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
 	}
 
 	public void updateCalendarResource(
@@ -723,7 +745,7 @@ public class CalendarPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		long calendarId = ParamUtil.getLong(resourceRequest, "calendarId");
+		long calendarId = ParamUtil.getLong(uploadPortletRequest, "calendarId");
 
 		File file = uploadPortletRequest.getFile("file");
 

@@ -44,7 +44,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -78,6 +77,15 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_UUID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
 			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid",
@@ -96,497 +104,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUuid",
 			new String[] { String.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_APPID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByAppId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByAppId",
-			new String[] { Long.class.getName() },
-			ModuleModelImpl.APPID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_APPID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByAppId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_CONTEXTNAME =
-		new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByContextName",
-			new String[] {
-				String.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME =
-		new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByContextName",
-			new String[] { String.class.getName() },
-			ModuleModelImpl.CONTEXTNAME_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_CONTEXTNAME = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByContextName",
-			new String[] { String.class.getName() });
-	public static final FinderPath FINDER_PATH_FETCH_BY_A_C = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByA_C",
-			new String[] { Long.class.getName(), String.class.getName() },
-			ModuleModelImpl.APPID_COLUMN_BITMASK |
-			ModuleModelImpl.CONTEXTNAME_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_A_C = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByA_C",
-			new String[] { Long.class.getName(), String.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the module in the entity cache if it is enabled.
-	 *
-	 * @param module the module
-	 */
-	public void cacheResult(Module module) {
-		EntityCacheUtil.putResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleImpl.class, module.getPrimaryKey(), module);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_C,
-			new Object[] {
-				Long.valueOf(module.getAppId()),
-				
-			module.getContextName()
-			}, module);
-
-		module.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the modules in the entity cache if it is enabled.
-	 *
-	 * @param modules the modules
-	 */
-	public void cacheResult(List<Module> modules) {
-		for (Module module : modules) {
-			if (EntityCacheUtil.getResult(
-						ModuleModelImpl.ENTITY_CACHE_ENABLED, ModuleImpl.class,
-						module.getPrimaryKey()) == null) {
-				cacheResult(module);
-			}
-			else {
-				module.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all modules.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(ModuleImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(ModuleImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the module.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(Module module) {
-		EntityCacheUtil.removeResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleImpl.class, module.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(module);
-	}
-
-	@Override
-	public void clearCache(List<Module> modules) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (Module module : modules) {
-			EntityCacheUtil.removeResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-				ModuleImpl.class, module.getPrimaryKey());
-
-			clearUniqueFindersCache(module);
-		}
-	}
-
-	protected void clearUniqueFindersCache(Module module) {
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_C,
-			new Object[] {
-				Long.valueOf(module.getAppId()),
-				
-			module.getContextName()
-			});
-	}
-
-	/**
-	 * Creates a new module with the primary key. Does not add the module to the database.
-	 *
-	 * @param moduleId the primary key for the new module
-	 * @return the new module
-	 */
-	public Module create(long moduleId) {
-		Module module = new ModuleImpl();
-
-		module.setNew(true);
-		module.setPrimaryKey(moduleId);
-
-		String uuid = PortalUUIDUtil.generate();
-
-		module.setUuid(uuid);
-
-		return module;
-	}
-
-	/**
-	 * Removes the module with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param moduleId the primary key of the module
-	 * @return the module that was removed
-	 * @throws com.liferay.marketplace.NoSuchModuleException if a module with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Module remove(long moduleId)
-		throws NoSuchModuleException, SystemException {
-		return remove(Long.valueOf(moduleId));
-	}
-
-	/**
-	 * Removes the module with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the module
-	 * @return the module that was removed
-	 * @throws com.liferay.marketplace.NoSuchModuleException if a module with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Module remove(Serializable primaryKey)
-		throws NoSuchModuleException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Module module = (Module)session.get(ModuleImpl.class, primaryKey);
-
-			if (module == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchModuleException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(module);
-		}
-		catch (NoSuchModuleException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected Module removeImpl(Module module) throws SystemException {
-		module = toUnwrappedModel(module);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, module);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(module);
-
-		return module;
-	}
-
-	@Override
-	public Module updateImpl(com.liferay.marketplace.model.Module module,
-		boolean merge) throws SystemException {
-		module = toUnwrappedModel(module);
-
-		boolean isNew = module.isNew();
-
-		ModuleModelImpl moduleModelImpl = (ModuleModelImpl)module;
-
-		if (Validator.isNull(module.getUuid())) {
-			String uuid = PortalUUIDUtil.generate();
-
-			module.setUuid(uuid);
-		}
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, module, merge);
-
-			module.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !ModuleModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((moduleModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] { moduleModelImpl.getOriginalUuid() };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
-					args);
-
-				args = new Object[] { moduleModelImpl.getUuid() };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
-					args);
-			}
-
-			if ((moduleModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(moduleModelImpl.getOriginalAppId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_APPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID,
-					args);
-
-				args = new Object[] { Long.valueOf(moduleModelImpl.getAppId()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_APPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID,
-					args);
-			}
-
-			if ((moduleModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						moduleModelImpl.getOriginalContextName()
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME,
-					args);
-
-				args = new Object[] { moduleModelImpl.getContextName() };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-			ModuleImpl.class, module.getPrimaryKey(), module);
-
-		if (isNew) {
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_C,
-				new Object[] {
-					Long.valueOf(module.getAppId()),
-					
-				module.getContextName()
-				}, module);
-		}
-		else {
-			if ((moduleModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_A_C.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(moduleModelImpl.getOriginalAppId()),
-						
-						moduleModelImpl.getOriginalContextName()
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_A_C, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_C, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_C,
-					new Object[] {
-						Long.valueOf(module.getAppId()),
-						
-					module.getContextName()
-					}, module);
-			}
-		}
-
-		return module;
-	}
-
-	protected Module toUnwrappedModel(Module module) {
-		if (module instanceof ModuleImpl) {
-			return module;
-		}
-
-		ModuleImpl moduleImpl = new ModuleImpl();
-
-		moduleImpl.setNew(module.isNew());
-		moduleImpl.setPrimaryKey(module.getPrimaryKey());
-
-		moduleImpl.setUuid(module.getUuid());
-		moduleImpl.setModuleId(module.getModuleId());
-		moduleImpl.setAppId(module.getAppId());
-		moduleImpl.setContextName(module.getContextName());
-
-		return moduleImpl;
-	}
-
-	/**
-	 * Returns the module with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the module
-	 * @return the module
-	 * @throws com.liferay.portal.NoSuchModelException if a module with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Module findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the module with the primary key or throws a {@link com.liferay.marketplace.NoSuchModuleException} if it could not be found.
-	 *
-	 * @param moduleId the primary key of the module
-	 * @return the module
-	 * @throws com.liferay.marketplace.NoSuchModuleException if a module with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Module findByPrimaryKey(long moduleId)
-		throws NoSuchModuleException, SystemException {
-		Module module = fetchByPrimaryKey(moduleId);
-
-		if (module == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + moduleId);
-			}
-
-			throw new NoSuchModuleException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				moduleId);
-		}
-
-		return module;
-	}
-
-	/**
-	 * Returns the module with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the module
-	 * @return the module, or <code>null</code> if a module with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Module fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the module with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param moduleId the primary key of the module
-	 * @return the module, or <code>null</code> if a module with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Module fetchByPrimaryKey(long moduleId) throws SystemException {
-		Module module = (Module)EntityCacheUtil.getResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-				ModuleImpl.class, moduleId);
-
-		if (module == _nullModule) {
-			return null;
-		}
-
-		if (module == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				module = (Module)session.get(ModuleImpl.class,
-						Long.valueOf(moduleId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (module != null) {
-					cacheResult(module);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
-						ModuleImpl.class, moduleId, _nullModule);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return module;
-	}
 
 	/**
 	 * Returns all the modules where uuid = &#63;.
@@ -980,6 +497,105 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 	}
 
 	/**
+	 * Removes all the modules where uuid = &#63; from the database.
+	 *
+	 * @param uuid the uuid
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByUuid(String uuid) throws SystemException {
+		for (Module module : findByUuid(uuid)) {
+			remove(module);
+		}
+	}
+
+	/**
+	 * Returns the number of modules where uuid = &#63;.
+	 *
+	 * @param uuid the uuid
+	 * @return the number of matching modules
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByUuid(String uuid) throws SystemException {
+		Object[] finderArgs = new Object[] { uuid };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_UUID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MODULE_WHERE);
+
+			if (uuid == null) {
+				query.append(_FINDER_COLUMN_UUID_UUID_1);
+			}
+			else {
+				if (uuid.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				if (uuid != null) {
+					qPos.add(uuid);
+				}
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_UUID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_UUID_UUID_1 = "module.uuid IS NULL";
+	private static final String _FINDER_COLUMN_UUID_UUID_2 = "module.uuid = ?";
+	private static final String _FINDER_COLUMN_UUID_UUID_3 = "(module.uuid IS NULL OR module.uuid = ?)";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_APPID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByAppId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByAppId",
+			new String[] { Long.class.getName() },
+			ModuleModelImpl.APPID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_APPID = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByAppId",
+			new String[] { Long.class.getName() });
+
+	/**
 	 * Returns all the modules where appId = &#63;.
 	 *
 	 * @param appId the app ID
@@ -1346,6 +962,93 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the modules where appId = &#63; from the database.
+	 *
+	 * @param appId the app ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByAppId(long appId) throws SystemException {
+		for (Module module : findByAppId(appId)) {
+			remove(module);
+		}
+	}
+
+	/**
+	 * Returns the number of modules where appId = &#63;.
+	 *
+	 * @param appId the app ID
+	 * @return the number of matching modules
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByAppId(long appId) throws SystemException {
+		Object[] finderArgs = new Object[] { appId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_APPID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MODULE_WHERE);
+
+			query.append(_FINDER_COLUMN_APPID_APPID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(appId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_APPID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_APPID_APPID_2 = "module.appId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_CONTEXTNAME =
+		new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByContextName",
+			new String[] {
+				String.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME =
+		new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByContextName",
+			new String[] { String.class.getName() },
+			ModuleModelImpl.CONTEXTNAME_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_CONTEXTNAME = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByContextName",
+			new String[] { String.class.getName() });
 
 	/**
 	 * Returns all the modules where contextName = &#63;.
@@ -1744,6 +1447,98 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 	}
 
 	/**
+	 * Removes all the modules where contextName = &#63; from the database.
+	 *
+	 * @param contextName the context name
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByContextName(String contextName)
+		throws SystemException {
+		for (Module module : findByContextName(contextName)) {
+			remove(module);
+		}
+	}
+
+	/**
+	 * Returns the number of modules where contextName = &#63;.
+	 *
+	 * @param contextName the context name
+	 * @return the number of matching modules
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByContextName(String contextName) throws SystemException {
+		Object[] finderArgs = new Object[] { contextName };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MODULE_WHERE);
+
+			if (contextName == null) {
+				query.append(_FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_1);
+			}
+			else {
+				if (contextName.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				if (contextName != null) {
+					qPos.add(contextName);
+				}
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_1 = "module.contextName IS NULL";
+	private static final String _FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_2 = "module.contextName = ?";
+	private static final String _FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_3 = "(module.contextName IS NULL OR module.contextName = ?)";
+	public static final FinderPath FINDER_PATH_FETCH_BY_A_C = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, ModuleImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByA_C",
+			new String[] { Long.class.getName(), String.class.getName() },
+			ModuleModelImpl.APPID_COLUMN_BITMASK |
+			ModuleModelImpl.CONTEXTNAME_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_A_C = new FinderPath(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByA_C",
+			new String[] { Long.class.getName(), String.class.getName() });
+
+	/**
 	 * Returns the module where appId = &#63; and contextName = &#63; or throws a {@link com.liferay.marketplace.NoSuchModuleException} if it could not be found.
 	 *
 	 * @param appId the app ID
@@ -1905,6 +1700,545 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 	}
 
 	/**
+	 * Removes the module where appId = &#63; and contextName = &#63; from the database.
+	 *
+	 * @param appId the app ID
+	 * @param contextName the context name
+	 * @return the module that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Module removeByA_C(long appId, String contextName)
+		throws NoSuchModuleException, SystemException {
+		Module module = findByA_C(appId, contextName);
+
+		return remove(module);
+	}
+
+	/**
+	 * Returns the number of modules where appId = &#63; and contextName = &#63;.
+	 *
+	 * @param appId the app ID
+	 * @param contextName the context name
+	 * @return the number of matching modules
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByA_C(long appId, String contextName)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { appId, contextName };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_A_C,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_MODULE_WHERE);
+
+			query.append(_FINDER_COLUMN_A_C_APPID_2);
+
+			if (contextName == null) {
+				query.append(_FINDER_COLUMN_A_C_CONTEXTNAME_1);
+			}
+			else {
+				if (contextName.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_A_C_CONTEXTNAME_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_A_C_CONTEXTNAME_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(appId);
+
+				if (contextName != null) {
+					qPos.add(contextName);
+				}
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_A_C, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_A_C_APPID_2 = "module.appId = ? AND ";
+	private static final String _FINDER_COLUMN_A_C_CONTEXTNAME_1 = "module.contextName IS NULL";
+	private static final String _FINDER_COLUMN_A_C_CONTEXTNAME_2 = "module.contextName = ?";
+	private static final String _FINDER_COLUMN_A_C_CONTEXTNAME_3 = "(module.contextName IS NULL OR module.contextName = ?)";
+
+	/**
+	 * Caches the module in the entity cache if it is enabled.
+	 *
+	 * @param module the module
+	 */
+	public void cacheResult(Module module) {
+		EntityCacheUtil.putResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleImpl.class, module.getPrimaryKey(), module);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_C,
+			new Object[] {
+				Long.valueOf(module.getAppId()),
+				
+			module.getContextName()
+			}, module);
+
+		module.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the modules in the entity cache if it is enabled.
+	 *
+	 * @param modules the modules
+	 */
+	public void cacheResult(List<Module> modules) {
+		for (Module module : modules) {
+			if (EntityCacheUtil.getResult(
+						ModuleModelImpl.ENTITY_CACHE_ENABLED, ModuleImpl.class,
+						module.getPrimaryKey()) == null) {
+				cacheResult(module);
+			}
+			else {
+				module.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all modules.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(ModuleImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(ModuleImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the module.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(Module module) {
+		EntityCacheUtil.removeResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleImpl.class, module.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		clearUniqueFindersCache(module);
+	}
+
+	@Override
+	public void clearCache(List<Module> modules) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (Module module : modules) {
+			EntityCacheUtil.removeResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+				ModuleImpl.class, module.getPrimaryKey());
+
+			clearUniqueFindersCache(module);
+		}
+	}
+
+	protected void clearUniqueFindersCache(Module module) {
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_C,
+			new Object[] {
+				Long.valueOf(module.getAppId()),
+				
+			module.getContextName()
+			});
+	}
+
+	/**
+	 * Creates a new module with the primary key. Does not add the module to the database.
+	 *
+	 * @param moduleId the primary key for the new module
+	 * @return the new module
+	 */
+	public Module create(long moduleId) {
+		Module module = new ModuleImpl();
+
+		module.setNew(true);
+		module.setPrimaryKey(moduleId);
+
+		String uuid = PortalUUIDUtil.generate();
+
+		module.setUuid(uuid);
+
+		return module;
+	}
+
+	/**
+	 * Removes the module with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param moduleId the primary key of the module
+	 * @return the module that was removed
+	 * @throws com.liferay.marketplace.NoSuchModuleException if a module with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Module remove(long moduleId)
+		throws NoSuchModuleException, SystemException {
+		return remove(Long.valueOf(moduleId));
+	}
+
+	/**
+	 * Removes the module with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the module
+	 * @return the module that was removed
+	 * @throws com.liferay.marketplace.NoSuchModuleException if a module with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Module remove(Serializable primaryKey)
+		throws NoSuchModuleException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Module module = (Module)session.get(ModuleImpl.class, primaryKey);
+
+			if (module == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchModuleException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(module);
+		}
+		catch (NoSuchModuleException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected Module removeImpl(Module module) throws SystemException {
+		module = toUnwrappedModel(module);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(module)) {
+				module = (Module)session.get(ModuleImpl.class,
+						module.getPrimaryKeyObj());
+			}
+
+			if (module != null) {
+				session.delete(module);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (module != null) {
+			clearCache(module);
+		}
+
+		return module;
+	}
+
+	@Override
+	public Module updateImpl(com.liferay.marketplace.model.Module module)
+		throws SystemException {
+		module = toUnwrappedModel(module);
+
+		boolean isNew = module.isNew();
+
+		ModuleModelImpl moduleModelImpl = (ModuleModelImpl)module;
+
+		if (Validator.isNull(module.getUuid())) {
+			String uuid = PortalUUIDUtil.generate();
+
+			module.setUuid(uuid);
+		}
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (module.isNew()) {
+				session.save(module);
+
+				module.setNew(false);
+			}
+			else {
+				session.merge(module);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !ModuleModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((moduleModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] { moduleModelImpl.getOriginalUuid() };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+					args);
+
+				args = new Object[] { moduleModelImpl.getUuid() };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+					args);
+			}
+
+			if ((moduleModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(moduleModelImpl.getOriginalAppId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_APPID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID,
+					args);
+
+				args = new Object[] { Long.valueOf(moduleModelImpl.getAppId()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_APPID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_APPID,
+					args);
+			}
+
+			if ((moduleModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						moduleModelImpl.getOriginalContextName()
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME,
+					args);
+
+				args = new Object[] { moduleModelImpl.getContextName() };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CONTEXTNAME,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+			ModuleImpl.class, module.getPrimaryKey(), module);
+
+		if (isNew) {
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_C,
+				new Object[] {
+					Long.valueOf(module.getAppId()),
+					
+				module.getContextName()
+				}, module);
+		}
+		else {
+			if ((moduleModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_A_C.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(moduleModelImpl.getOriginalAppId()),
+						
+						moduleModelImpl.getOriginalContextName()
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_A_C, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_C, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_C,
+					new Object[] {
+						Long.valueOf(module.getAppId()),
+						
+					module.getContextName()
+					}, module);
+			}
+		}
+
+		return module;
+	}
+
+	protected Module toUnwrappedModel(Module module) {
+		if (module instanceof ModuleImpl) {
+			return module;
+		}
+
+		ModuleImpl moduleImpl = new ModuleImpl();
+
+		moduleImpl.setNew(module.isNew());
+		moduleImpl.setPrimaryKey(module.getPrimaryKey());
+
+		moduleImpl.setUuid(module.getUuid());
+		moduleImpl.setModuleId(module.getModuleId());
+		moduleImpl.setAppId(module.getAppId());
+		moduleImpl.setContextName(module.getContextName());
+
+		return moduleImpl;
+	}
+
+	/**
+	 * Returns the module with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the module
+	 * @return the module
+	 * @throws com.liferay.portal.NoSuchModelException if a module with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Module findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the module with the primary key or throws a {@link com.liferay.marketplace.NoSuchModuleException} if it could not be found.
+	 *
+	 * @param moduleId the primary key of the module
+	 * @return the module
+	 * @throws com.liferay.marketplace.NoSuchModuleException if a module with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Module findByPrimaryKey(long moduleId)
+		throws NoSuchModuleException, SystemException {
+		Module module = fetchByPrimaryKey(moduleId);
+
+		if (module == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + moduleId);
+			}
+
+			throw new NoSuchModuleException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				moduleId);
+		}
+
+		return module;
+	}
+
+	/**
+	 * Returns the module with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the module
+	 * @return the module, or <code>null</code> if a module with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Module fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the module with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param moduleId the primary key of the module
+	 * @return the module, or <code>null</code> if a module with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Module fetchByPrimaryKey(long moduleId) throws SystemException {
+		Module module = (Module)EntityCacheUtil.getResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+				ModuleImpl.class, moduleId);
+
+		if (module == _nullModule) {
+			return null;
+		}
+
+		if (module == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				module = (Module)session.get(ModuleImpl.class,
+						Long.valueOf(moduleId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (module != null) {
+					cacheResult(module);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(ModuleModelImpl.ENTITY_CACHE_ENABLED,
+						ModuleImpl.class, moduleId, _nullModule);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return module;
+	}
+
+	/**
 	 * Returns all the modules.
 	 *
 	 * @return the modules
@@ -2019,58 +2353,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 	}
 
 	/**
-	 * Removes all the modules where uuid = &#63; from the database.
-	 *
-	 * @param uuid the uuid
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByUuid(String uuid) throws SystemException {
-		for (Module module : findByUuid(uuid)) {
-			remove(module);
-		}
-	}
-
-	/**
-	 * Removes all the modules where appId = &#63; from the database.
-	 *
-	 * @param appId the app ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByAppId(long appId) throws SystemException {
-		for (Module module : findByAppId(appId)) {
-			remove(module);
-		}
-	}
-
-	/**
-	 * Removes all the modules where contextName = &#63; from the database.
-	 *
-	 * @param contextName the context name
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByContextName(String contextName)
-		throws SystemException {
-		for (Module module : findByContextName(contextName)) {
-			remove(module);
-		}
-	}
-
-	/**
-	 * Removes the module where appId = &#63; and contextName = &#63; from the database.
-	 *
-	 * @param appId the app ID
-	 * @param contextName the context name
-	 * @return the module that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Module removeByA_C(long appId, String contextName)
-		throws NoSuchModuleException, SystemException {
-		Module module = findByA_C(appId, contextName);
-
-		return remove(module);
-	}
-
-	/**
 	 * Removes all the modules from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -2079,260 +2361,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 		for (Module module : findAll()) {
 			remove(module);
 		}
-	}
-
-	/**
-	 * Returns the number of modules where uuid = &#63;.
-	 *
-	 * @param uuid the uuid
-	 * @return the number of matching modules
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByUuid(String uuid) throws SystemException {
-		Object[] finderArgs = new Object[] { uuid };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_UUID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MODULE_WHERE);
-
-			if (uuid == null) {
-				query.append(_FINDER_COLUMN_UUID_UUID_1);
-			}
-			else {
-				if (uuid.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_UUID_UUID_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_UUID_UUID_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				if (uuid != null) {
-					qPos.add(uuid);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_UUID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of modules where appId = &#63;.
-	 *
-	 * @param appId the app ID
-	 * @return the number of matching modules
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByAppId(long appId) throws SystemException {
-		Object[] finderArgs = new Object[] { appId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_APPID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MODULE_WHERE);
-
-			query.append(_FINDER_COLUMN_APPID_APPID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(appId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_APPID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of modules where contextName = &#63;.
-	 *
-	 * @param contextName the context name
-	 * @return the number of matching modules
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByContextName(String contextName) throws SystemException {
-		Object[] finderArgs = new Object[] { contextName };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MODULE_WHERE);
-
-			if (contextName == null) {
-				query.append(_FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_1);
-			}
-			else {
-				if (contextName.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				if (contextName != null) {
-					qPos.add(contextName);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_CONTEXTNAME,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of modules where appId = &#63; and contextName = &#63;.
-	 *
-	 * @param appId the app ID
-	 * @param contextName the context name
-	 * @return the number of matching modules
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByA_C(long appId, String contextName)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { appId, contextName };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_A_C,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_MODULE_WHERE);
-
-			query.append(_FINDER_COLUMN_A_C_APPID_2);
-
-			if (contextName == null) {
-				query.append(_FINDER_COLUMN_A_C_CONTEXTNAME_1);
-			}
-			else {
-				if (contextName.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_A_C_CONTEXTNAME_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_A_C_CONTEXTNAME_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(appId);
-
-				if (contextName != null) {
-					qPos.add(contextName);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_A_C, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -2414,17 +2442,6 @@ public class ModulePersistenceImpl extends BasePersistenceImpl<Module>
 	private static final String _SQL_SELECT_MODULE_WHERE = "SELECT module FROM Module module WHERE ";
 	private static final String _SQL_COUNT_MODULE = "SELECT COUNT(module) FROM Module module";
 	private static final String _SQL_COUNT_MODULE_WHERE = "SELECT COUNT(module) FROM Module module WHERE ";
-	private static final String _FINDER_COLUMN_UUID_UUID_1 = "module.uuid IS NULL";
-	private static final String _FINDER_COLUMN_UUID_UUID_2 = "module.uuid = ?";
-	private static final String _FINDER_COLUMN_UUID_UUID_3 = "(module.uuid IS NULL OR module.uuid = ?)";
-	private static final String _FINDER_COLUMN_APPID_APPID_2 = "module.appId = ?";
-	private static final String _FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_1 = "module.contextName IS NULL";
-	private static final String _FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_2 = "module.contextName = ?";
-	private static final String _FINDER_COLUMN_CONTEXTNAME_CONTEXTNAME_3 = "(module.contextName IS NULL OR module.contextName = ?)";
-	private static final String _FINDER_COLUMN_A_C_APPID_2 = "module.appId = ? AND ";
-	private static final String _FINDER_COLUMN_A_C_CONTEXTNAME_1 = "module.contextName IS NULL";
-	private static final String _FINDER_COLUMN_A_C_CONTEXTNAME_2 = "module.contextName = ?";
-	private static final String _FINDER_COLUMN_A_C_CONTEXTNAME_3 = "(module.contextName IS NULL OR module.contextName = ?)";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "module.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Module exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Module exists with the key {";

@@ -41,7 +41,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.workflow.kaleo.NoSuchNodeException;
@@ -79,6 +78,15 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID =
 		new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
 			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
@@ -99,454 +107,6 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
 			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_KALEODEFINITIONID =
-		new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByKaleoDefinitionId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID =
-		new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"findByKaleoDefinitionId", new String[] { Long.class.getName() },
-			KaleoNodeModelImpl.KALEODEFINITIONID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_KALEODEFINITIONID = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
-			"countByKaleoDefinitionId", new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_KDI = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_KDI",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_KDI",
-			new String[] { Long.class.getName(), Long.class.getName() },
-			KaleoNodeModelImpl.COMPANYID_COLUMN_BITMASK |
-			KaleoNodeModelImpl.KALEODEFINITIONID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_C_KDI = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_KDI",
-			new String[] { Long.class.getName(), Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the kaleo node in the entity cache if it is enabled.
-	 *
-	 * @param kaleoNode the kaleo node
-	 */
-	public void cacheResult(KaleoNode kaleoNode) {
-		EntityCacheUtil.putResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeImpl.class, kaleoNode.getPrimaryKey(), kaleoNode);
-
-		kaleoNode.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the kaleo nodes in the entity cache if it is enabled.
-	 *
-	 * @param kaleoNodes the kaleo nodes
-	 */
-	public void cacheResult(List<KaleoNode> kaleoNodes) {
-		for (KaleoNode kaleoNode : kaleoNodes) {
-			if (EntityCacheUtil.getResult(
-						KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-						KaleoNodeImpl.class, kaleoNode.getPrimaryKey()) == null) {
-				cacheResult(kaleoNode);
-			}
-			else {
-				kaleoNode.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all kaleo nodes.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(KaleoNodeImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(KaleoNodeImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the kaleo node.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(KaleoNode kaleoNode) {
-		EntityCacheUtil.removeResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeImpl.class, kaleoNode.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	@Override
-	public void clearCache(List<KaleoNode> kaleoNodes) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (KaleoNode kaleoNode : kaleoNodes) {
-			EntityCacheUtil.removeResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoNodeImpl.class, kaleoNode.getPrimaryKey());
-		}
-	}
-
-	/**
-	 * Creates a new kaleo node with the primary key. Does not add the kaleo node to the database.
-	 *
-	 * @param kaleoNodeId the primary key for the new kaleo node
-	 * @return the new kaleo node
-	 */
-	public KaleoNode create(long kaleoNodeId) {
-		KaleoNode kaleoNode = new KaleoNodeImpl();
-
-		kaleoNode.setNew(true);
-		kaleoNode.setPrimaryKey(kaleoNodeId);
-
-		return kaleoNode;
-	}
-
-	/**
-	 * Removes the kaleo node with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param kaleoNodeId the primary key of the kaleo node
-	 * @return the kaleo node that was removed
-	 * @throws com.liferay.portal.workflow.kaleo.NoSuchNodeException if a kaleo node with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public KaleoNode remove(long kaleoNodeId)
-		throws NoSuchNodeException, SystemException {
-		return remove(Long.valueOf(kaleoNodeId));
-	}
-
-	/**
-	 * Removes the kaleo node with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the kaleo node
-	 * @return the kaleo node that was removed
-	 * @throws com.liferay.portal.workflow.kaleo.NoSuchNodeException if a kaleo node with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public KaleoNode remove(Serializable primaryKey)
-		throws NoSuchNodeException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			KaleoNode kaleoNode = (KaleoNode)session.get(KaleoNodeImpl.class,
-					primaryKey);
-
-			if (kaleoNode == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchNodeException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(kaleoNode);
-		}
-		catch (NoSuchNodeException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected KaleoNode removeImpl(KaleoNode kaleoNode)
-		throws SystemException {
-		kaleoNode = toUnwrappedModel(kaleoNode);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, kaleoNode);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(kaleoNode);
-
-		return kaleoNode;
-	}
-
-	@Override
-	public KaleoNode updateImpl(
-		com.liferay.portal.workflow.kaleo.model.KaleoNode kaleoNode,
-		boolean merge) throws SystemException {
-		kaleoNode = toUnwrappedModel(kaleoNode);
-
-		boolean isNew = kaleoNode.isNew();
-
-		KaleoNodeModelImpl kaleoNodeModelImpl = (KaleoNodeModelImpl)kaleoNode;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, kaleoNode, merge);
-
-			kaleoNode.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !KaleoNodeModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((kaleoNodeModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(kaleoNodeModelImpl.getOriginalCompanyId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(kaleoNodeModelImpl.getCompanyId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-			}
-
-			if ((kaleoNodeModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(kaleoNodeModelImpl.getOriginalKaleoDefinitionId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(kaleoNodeModelImpl.getKaleoDefinitionId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID,
-					args);
-			}
-
-			if ((kaleoNodeModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(kaleoNodeModelImpl.getOriginalCompanyId()),
-						Long.valueOf(kaleoNodeModelImpl.getOriginalKaleoDefinitionId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_KDI, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(kaleoNodeModelImpl.getCompanyId()),
-						Long.valueOf(kaleoNodeModelImpl.getKaleoDefinitionId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_KDI, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-			KaleoNodeImpl.class, kaleoNode.getPrimaryKey(), kaleoNode);
-
-		return kaleoNode;
-	}
-
-	protected KaleoNode toUnwrappedModel(KaleoNode kaleoNode) {
-		if (kaleoNode instanceof KaleoNodeImpl) {
-			return kaleoNode;
-		}
-
-		KaleoNodeImpl kaleoNodeImpl = new KaleoNodeImpl();
-
-		kaleoNodeImpl.setNew(kaleoNode.isNew());
-		kaleoNodeImpl.setPrimaryKey(kaleoNode.getPrimaryKey());
-
-		kaleoNodeImpl.setKaleoNodeId(kaleoNode.getKaleoNodeId());
-		kaleoNodeImpl.setGroupId(kaleoNode.getGroupId());
-		kaleoNodeImpl.setCompanyId(kaleoNode.getCompanyId());
-		kaleoNodeImpl.setUserId(kaleoNode.getUserId());
-		kaleoNodeImpl.setUserName(kaleoNode.getUserName());
-		kaleoNodeImpl.setCreateDate(kaleoNode.getCreateDate());
-		kaleoNodeImpl.setModifiedDate(kaleoNode.getModifiedDate());
-		kaleoNodeImpl.setKaleoDefinitionId(kaleoNode.getKaleoDefinitionId());
-		kaleoNodeImpl.setName(kaleoNode.getName());
-		kaleoNodeImpl.setMetadata(kaleoNode.getMetadata());
-		kaleoNodeImpl.setDescription(kaleoNode.getDescription());
-		kaleoNodeImpl.setType(kaleoNode.getType());
-		kaleoNodeImpl.setInitial(kaleoNode.isInitial());
-		kaleoNodeImpl.setTerminal(kaleoNode.isTerminal());
-
-		return kaleoNodeImpl;
-	}
-
-	/**
-	 * Returns the kaleo node with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the kaleo node
-	 * @return the kaleo node
-	 * @throws com.liferay.portal.NoSuchModelException if a kaleo node with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public KaleoNode findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the kaleo node with the primary key or throws a {@link com.liferay.portal.workflow.kaleo.NoSuchNodeException} if it could not be found.
-	 *
-	 * @param kaleoNodeId the primary key of the kaleo node
-	 * @return the kaleo node
-	 * @throws com.liferay.portal.workflow.kaleo.NoSuchNodeException if a kaleo node with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public KaleoNode findByPrimaryKey(long kaleoNodeId)
-		throws NoSuchNodeException, SystemException {
-		KaleoNode kaleoNode = fetchByPrimaryKey(kaleoNodeId);
-
-		if (kaleoNode == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + kaleoNodeId);
-			}
-
-			throw new NoSuchNodeException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				kaleoNodeId);
-		}
-
-		return kaleoNode;
-	}
-
-	/**
-	 * Returns the kaleo node with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the kaleo node
-	 * @return the kaleo node, or <code>null</code> if a kaleo node with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public KaleoNode fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the kaleo node with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param kaleoNodeId the primary key of the kaleo node
-	 * @return the kaleo node, or <code>null</code> if a kaleo node with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public KaleoNode fetchByPrimaryKey(long kaleoNodeId)
-		throws SystemException {
-		KaleoNode kaleoNode = (KaleoNode)EntityCacheUtil.getResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-				KaleoNodeImpl.class, kaleoNodeId);
-
-		if (kaleoNode == _nullKaleoNode) {
-			return null;
-		}
-
-		if (kaleoNode == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				kaleoNode = (KaleoNode)session.get(KaleoNodeImpl.class,
-						Long.valueOf(kaleoNodeId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (kaleoNode != null) {
-					cacheResult(kaleoNode);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
-						KaleoNodeImpl.class, kaleoNodeId, _nullKaleoNode);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return kaleoNode;
-	}
 
 	/**
 	 * Returns all the kaleo nodes where companyId = &#63;.
@@ -929,6 +489,93 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the kaleo nodes where companyId = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByCompanyId(long companyId) throws SystemException {
+		for (KaleoNode kaleoNode : findByCompanyId(companyId)) {
+			remove(kaleoNode);
+		}
+	}
+
+	/**
+	 * Returns the number of kaleo nodes where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @return the number of matching kaleo nodes
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByCompanyId(long companyId) throws SystemException {
+		Object[] finderArgs = new Object[] { companyId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_COMPANYID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_KALEONODE_WHERE);
+
+			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "kaleoNode.companyId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_KALEODEFINITIONID =
+		new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByKaleoDefinitionId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID =
+		new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+			"findByKaleoDefinitionId", new String[] { Long.class.getName() },
+			KaleoNodeModelImpl.KALEODEFINITIONID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_KALEODEFINITIONID = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
+			"countByKaleoDefinitionId", new String[] { Long.class.getName() });
 
 	/**
 	 * Returns all the kaleo nodes where kaleoDefinitionId = &#63;.
@@ -1317,6 +964,95 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the kaleo nodes where kaleoDefinitionId = &#63; from the database.
+	 *
+	 * @param kaleoDefinitionId the kaleo definition ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByKaleoDefinitionId(long kaleoDefinitionId)
+		throws SystemException {
+		for (KaleoNode kaleoNode : findByKaleoDefinitionId(kaleoDefinitionId)) {
+			remove(kaleoNode);
+		}
+	}
+
+	/**
+	 * Returns the number of kaleo nodes where kaleoDefinitionId = &#63;.
+	 *
+	 * @param kaleoDefinitionId the kaleo definition ID
+	 * @return the number of matching kaleo nodes
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByKaleoDefinitionId(long kaleoDefinitionId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { kaleoDefinitionId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_KALEONODE_WHERE);
+
+			query.append(_FINDER_COLUMN_KALEODEFINITIONID_KALEODEFINITIONID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(kaleoDefinitionId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_KALEODEFINITIONID_KALEODEFINITIONID_2 =
+		"kaleoNode.kaleoDefinitionId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_KDI = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_KDI",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, KaleoNodeImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_KDI",
+			new String[] { Long.class.getName(), Long.class.getName() },
+			KaleoNodeModelImpl.COMPANYID_COLUMN_BITMASK |
+			KaleoNodeModelImpl.KALEODEFINITIONID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_C_KDI = new FinderPath(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_KDI",
+			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
 	 * Returns all the kaleo nodes where companyId = &#63; and kaleoDefinitionId = &#63;.
@@ -1731,6 +1467,496 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 	}
 
 	/**
+	 * Removes all the kaleo nodes where companyId = &#63; and kaleoDefinitionId = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @param kaleoDefinitionId the kaleo definition ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByC_KDI(long companyId, long kaleoDefinitionId)
+		throws SystemException {
+		for (KaleoNode kaleoNode : findByC_KDI(companyId, kaleoDefinitionId)) {
+			remove(kaleoNode);
+		}
+	}
+
+	/**
+	 * Returns the number of kaleo nodes where companyId = &#63; and kaleoDefinitionId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param kaleoDefinitionId the kaleo definition ID
+	 * @return the number of matching kaleo nodes
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByC_KDI(long companyId, long kaleoDefinitionId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { companyId, kaleoDefinitionId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_KDI,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_KALEONODE_WHERE);
+
+			query.append(_FINDER_COLUMN_C_KDI_COMPANYID_2);
+
+			query.append(_FINDER_COLUMN_C_KDI_KALEODEFINITIONID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				qPos.add(kaleoDefinitionId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_KDI,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_C_KDI_COMPANYID_2 = "kaleoNode.companyId = ? AND ";
+	private static final String _FINDER_COLUMN_C_KDI_KALEODEFINITIONID_2 = "kaleoNode.kaleoDefinitionId = ?";
+
+	/**
+	 * Caches the kaleo node in the entity cache if it is enabled.
+	 *
+	 * @param kaleoNode the kaleo node
+	 */
+	public void cacheResult(KaleoNode kaleoNode) {
+		EntityCacheUtil.putResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeImpl.class, kaleoNode.getPrimaryKey(), kaleoNode);
+
+		kaleoNode.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the kaleo nodes in the entity cache if it is enabled.
+	 *
+	 * @param kaleoNodes the kaleo nodes
+	 */
+	public void cacheResult(List<KaleoNode> kaleoNodes) {
+		for (KaleoNode kaleoNode : kaleoNodes) {
+			if (EntityCacheUtil.getResult(
+						KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+						KaleoNodeImpl.class, kaleoNode.getPrimaryKey()) == null) {
+				cacheResult(kaleoNode);
+			}
+			else {
+				kaleoNode.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all kaleo nodes.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(KaleoNodeImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(KaleoNodeImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the kaleo node.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(KaleoNode kaleoNode) {
+		EntityCacheUtil.removeResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeImpl.class, kaleoNode.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	@Override
+	public void clearCache(List<KaleoNode> kaleoNodes) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (KaleoNode kaleoNode : kaleoNodes) {
+			EntityCacheUtil.removeResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+				KaleoNodeImpl.class, kaleoNode.getPrimaryKey());
+		}
+	}
+
+	/**
+	 * Creates a new kaleo node with the primary key. Does not add the kaleo node to the database.
+	 *
+	 * @param kaleoNodeId the primary key for the new kaleo node
+	 * @return the new kaleo node
+	 */
+	public KaleoNode create(long kaleoNodeId) {
+		KaleoNode kaleoNode = new KaleoNodeImpl();
+
+		kaleoNode.setNew(true);
+		kaleoNode.setPrimaryKey(kaleoNodeId);
+
+		return kaleoNode;
+	}
+
+	/**
+	 * Removes the kaleo node with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param kaleoNodeId the primary key of the kaleo node
+	 * @return the kaleo node that was removed
+	 * @throws com.liferay.portal.workflow.kaleo.NoSuchNodeException if a kaleo node with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public KaleoNode remove(long kaleoNodeId)
+		throws NoSuchNodeException, SystemException {
+		return remove(Long.valueOf(kaleoNodeId));
+	}
+
+	/**
+	 * Removes the kaleo node with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the kaleo node
+	 * @return the kaleo node that was removed
+	 * @throws com.liferay.portal.workflow.kaleo.NoSuchNodeException if a kaleo node with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public KaleoNode remove(Serializable primaryKey)
+		throws NoSuchNodeException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			KaleoNode kaleoNode = (KaleoNode)session.get(KaleoNodeImpl.class,
+					primaryKey);
+
+			if (kaleoNode == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchNodeException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(kaleoNode);
+		}
+		catch (NoSuchNodeException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected KaleoNode removeImpl(KaleoNode kaleoNode)
+		throws SystemException {
+		kaleoNode = toUnwrappedModel(kaleoNode);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(kaleoNode)) {
+				kaleoNode = (KaleoNode)session.get(KaleoNodeImpl.class,
+						kaleoNode.getPrimaryKeyObj());
+			}
+
+			if (kaleoNode != null) {
+				session.delete(kaleoNode);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (kaleoNode != null) {
+			clearCache(kaleoNode);
+		}
+
+		return kaleoNode;
+	}
+
+	@Override
+	public KaleoNode updateImpl(
+		com.liferay.portal.workflow.kaleo.model.KaleoNode kaleoNode)
+		throws SystemException {
+		kaleoNode = toUnwrappedModel(kaleoNode);
+
+		boolean isNew = kaleoNode.isNew();
+
+		KaleoNodeModelImpl kaleoNodeModelImpl = (KaleoNodeModelImpl)kaleoNode;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (kaleoNode.isNew()) {
+				session.save(kaleoNode);
+
+				kaleoNode.setNew(false);
+			}
+			else {
+				session.merge(kaleoNode);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !KaleoNodeModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((kaleoNodeModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(kaleoNodeModelImpl.getOriginalCompanyId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(kaleoNodeModelImpl.getCompanyId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+					args);
+			}
+
+			if ((kaleoNodeModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(kaleoNodeModelImpl.getOriginalKaleoDefinitionId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(kaleoNodeModelImpl.getKaleoDefinitionId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_KALEODEFINITIONID,
+					args);
+			}
+
+			if ((kaleoNodeModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(kaleoNodeModelImpl.getOriginalCompanyId()),
+						Long.valueOf(kaleoNodeModelImpl.getOriginalKaleoDefinitionId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_KDI, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(kaleoNodeModelImpl.getCompanyId()),
+						Long.valueOf(kaleoNodeModelImpl.getKaleoDefinitionId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_KDI, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_KDI,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+			KaleoNodeImpl.class, kaleoNode.getPrimaryKey(), kaleoNode);
+
+		return kaleoNode;
+	}
+
+	protected KaleoNode toUnwrappedModel(KaleoNode kaleoNode) {
+		if (kaleoNode instanceof KaleoNodeImpl) {
+			return kaleoNode;
+		}
+
+		KaleoNodeImpl kaleoNodeImpl = new KaleoNodeImpl();
+
+		kaleoNodeImpl.setNew(kaleoNode.isNew());
+		kaleoNodeImpl.setPrimaryKey(kaleoNode.getPrimaryKey());
+
+		kaleoNodeImpl.setKaleoNodeId(kaleoNode.getKaleoNodeId());
+		kaleoNodeImpl.setGroupId(kaleoNode.getGroupId());
+		kaleoNodeImpl.setCompanyId(kaleoNode.getCompanyId());
+		kaleoNodeImpl.setUserId(kaleoNode.getUserId());
+		kaleoNodeImpl.setUserName(kaleoNode.getUserName());
+		kaleoNodeImpl.setCreateDate(kaleoNode.getCreateDate());
+		kaleoNodeImpl.setModifiedDate(kaleoNode.getModifiedDate());
+		kaleoNodeImpl.setKaleoDefinitionId(kaleoNode.getKaleoDefinitionId());
+		kaleoNodeImpl.setName(kaleoNode.getName());
+		kaleoNodeImpl.setMetadata(kaleoNode.getMetadata());
+		kaleoNodeImpl.setDescription(kaleoNode.getDescription());
+		kaleoNodeImpl.setType(kaleoNode.getType());
+		kaleoNodeImpl.setInitial(kaleoNode.isInitial());
+		kaleoNodeImpl.setTerminal(kaleoNode.isTerminal());
+
+		return kaleoNodeImpl;
+	}
+
+	/**
+	 * Returns the kaleo node with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the kaleo node
+	 * @return the kaleo node
+	 * @throws com.liferay.portal.NoSuchModelException if a kaleo node with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public KaleoNode findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the kaleo node with the primary key or throws a {@link com.liferay.portal.workflow.kaleo.NoSuchNodeException} if it could not be found.
+	 *
+	 * @param kaleoNodeId the primary key of the kaleo node
+	 * @return the kaleo node
+	 * @throws com.liferay.portal.workflow.kaleo.NoSuchNodeException if a kaleo node with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public KaleoNode findByPrimaryKey(long kaleoNodeId)
+		throws NoSuchNodeException, SystemException {
+		KaleoNode kaleoNode = fetchByPrimaryKey(kaleoNodeId);
+
+		if (kaleoNode == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + kaleoNodeId);
+			}
+
+			throw new NoSuchNodeException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				kaleoNodeId);
+		}
+
+		return kaleoNode;
+	}
+
+	/**
+	 * Returns the kaleo node with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the kaleo node
+	 * @return the kaleo node, or <code>null</code> if a kaleo node with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public KaleoNode fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the kaleo node with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param kaleoNodeId the primary key of the kaleo node
+	 * @return the kaleo node, or <code>null</code> if a kaleo node with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public KaleoNode fetchByPrimaryKey(long kaleoNodeId)
+		throws SystemException {
+		KaleoNode kaleoNode = (KaleoNode)EntityCacheUtil.getResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+				KaleoNodeImpl.class, kaleoNodeId);
+
+		if (kaleoNode == _nullKaleoNode) {
+			return null;
+		}
+
+		if (kaleoNode == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				kaleoNode = (KaleoNode)session.get(KaleoNodeImpl.class,
+						Long.valueOf(kaleoNodeId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (kaleoNode != null) {
+					cacheResult(kaleoNode);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(KaleoNodeModelImpl.ENTITY_CACHE_ENABLED,
+						KaleoNodeImpl.class, kaleoNodeId, _nullKaleoNode);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return kaleoNode;
+	}
+
+	/**
 	 * Returns all the kaleo nodes.
 	 *
 	 * @return the kaleo nodes
@@ -1846,45 +2072,6 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 	}
 
 	/**
-	 * Removes all the kaleo nodes where companyId = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByCompanyId(long companyId) throws SystemException {
-		for (KaleoNode kaleoNode : findByCompanyId(companyId)) {
-			remove(kaleoNode);
-		}
-	}
-
-	/**
-	 * Removes all the kaleo nodes where kaleoDefinitionId = &#63; from the database.
-	 *
-	 * @param kaleoDefinitionId the kaleo definition ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByKaleoDefinitionId(long kaleoDefinitionId)
-		throws SystemException {
-		for (KaleoNode kaleoNode : findByKaleoDefinitionId(kaleoDefinitionId)) {
-			remove(kaleoNode);
-		}
-	}
-
-	/**
-	 * Removes all the kaleo nodes where companyId = &#63; and kaleoDefinitionId = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @param kaleoDefinitionId the kaleo definition ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByC_KDI(long companyId, long kaleoDefinitionId)
-		throws SystemException {
-		for (KaleoNode kaleoNode : findByC_KDI(companyId, kaleoDefinitionId)) {
-			remove(kaleoNode);
-		}
-	}
-
-	/**
 	 * Removes all the kaleo nodes from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -1893,172 +2080,6 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 		for (KaleoNode kaleoNode : findAll()) {
 			remove(kaleoNode);
 		}
-	}
-
-	/**
-	 * Returns the number of kaleo nodes where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the number of matching kaleo nodes
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByCompanyId(long companyId) throws SystemException {
-		Object[] finderArgs = new Object[] { companyId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_COMPANYID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_KALEONODE_WHERE);
-
-			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of kaleo nodes where kaleoDefinitionId = &#63;.
-	 *
-	 * @param kaleoDefinitionId the kaleo definition ID
-	 * @return the number of matching kaleo nodes
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByKaleoDefinitionId(long kaleoDefinitionId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { kaleoDefinitionId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_KALEONODE_WHERE);
-
-			query.append(_FINDER_COLUMN_KALEODEFINITIONID_KALEODEFINITIONID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(kaleoDefinitionId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_KALEODEFINITIONID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of kaleo nodes where companyId = &#63; and kaleoDefinitionId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param kaleoDefinitionId the kaleo definition ID
-	 * @return the number of matching kaleo nodes
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByC_KDI(long companyId, long kaleoDefinitionId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { companyId, kaleoDefinitionId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_KDI,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_KALEONODE_WHERE);
-
-			query.append(_FINDER_COLUMN_C_KDI_COMPANYID_2);
-
-			query.append(_FINDER_COLUMN_C_KDI_KALEODEFINITIONID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				qPos.add(kaleoDefinitionId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_KDI,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -2701,11 +2722,6 @@ public class KaleoNodePersistenceImpl extends BasePersistenceImpl<KaleoNode>
 	private static final String _SQL_GETKALEOTRANSITIONS = "SELECT {KaleoTransition.*} FROM KaleoTransition INNER JOIN KaleoNode ON (KaleoNode.kaleoNodeId = KaleoTransition.kaleoNodeId) WHERE (KaleoNode.kaleoNodeId = ?)";
 	private static final String _SQL_GETKALEOTRANSITIONSSIZE = "SELECT COUNT(*) AS COUNT_VALUE FROM KaleoTransition WHERE kaleoNodeId = ?";
 	private static final String _SQL_CONTAINSKALEOTRANSITION = "SELECT COUNT(*) AS COUNT_VALUE FROM KaleoTransition WHERE kaleoNodeId = ? AND kaleoTransitionId = ?";
-	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "kaleoNode.companyId = ?";
-	private static final String _FINDER_COLUMN_KALEODEFINITIONID_KALEODEFINITIONID_2 =
-		"kaleoNode.kaleoDefinitionId = ?";
-	private static final String _FINDER_COLUMN_C_KDI_COMPANYID_2 = "kaleoNode.companyId = ? AND ";
-	private static final String _FINDER_COLUMN_C_KDI_KALEODEFINITIONID_2 = "kaleoNode.kaleoDefinitionId = ?";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "kaleoNode.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No KaleoNode exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No KaleoNode exists with the key {";

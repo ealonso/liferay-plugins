@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -77,6 +76,15 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_ACCOUNTID =
 		new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
 			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
@@ -97,423 +105,6 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 			FolderModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByAccountId",
 			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_FETCH_BY_A_F = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByA_F",
-			new String[] { Long.class.getName(), String.class.getName() },
-			FolderModelImpl.ACCOUNTID_COLUMN_BITMASK |
-			FolderModelImpl.FULLNAME_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_A_F = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByA_F",
-			new String[] { Long.class.getName(), String.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the folder in the entity cache if it is enabled.
-	 *
-	 * @param folder the folder
-	 */
-	public void cacheResult(Folder folder) {
-		EntityCacheUtil.putResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderImpl.class, folder.getPrimaryKey(), folder);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_F,
-			new Object[] {
-				Long.valueOf(folder.getAccountId()),
-				
-			folder.getFullName()
-			}, folder);
-
-		folder.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the folders in the entity cache if it is enabled.
-	 *
-	 * @param folders the folders
-	 */
-	public void cacheResult(List<Folder> folders) {
-		for (Folder folder : folders) {
-			if (EntityCacheUtil.getResult(
-						FolderModelImpl.ENTITY_CACHE_ENABLED, FolderImpl.class,
-						folder.getPrimaryKey()) == null) {
-				cacheResult(folder);
-			}
-			else {
-				folder.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all folders.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(FolderImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(FolderImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the folder.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(Folder folder) {
-		EntityCacheUtil.removeResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderImpl.class, folder.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(folder);
-	}
-
-	@Override
-	public void clearCache(List<Folder> folders) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (Folder folder : folders) {
-			EntityCacheUtil.removeResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
-				FolderImpl.class, folder.getPrimaryKey());
-
-			clearUniqueFindersCache(folder);
-		}
-	}
-
-	protected void clearUniqueFindersCache(Folder folder) {
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_F,
-			new Object[] {
-				Long.valueOf(folder.getAccountId()),
-				
-			folder.getFullName()
-			});
-	}
-
-	/**
-	 * Creates a new folder with the primary key. Does not add the folder to the database.
-	 *
-	 * @param folderId the primary key for the new folder
-	 * @return the new folder
-	 */
-	public Folder create(long folderId) {
-		Folder folder = new FolderImpl();
-
-		folder.setNew(true);
-		folder.setPrimaryKey(folderId);
-
-		return folder;
-	}
-
-	/**
-	 * Removes the folder with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param folderId the primary key of the folder
-	 * @return the folder that was removed
-	 * @throws com.liferay.mail.NoSuchFolderException if a folder with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Folder remove(long folderId)
-		throws NoSuchFolderException, SystemException {
-		return remove(Long.valueOf(folderId));
-	}
-
-	/**
-	 * Removes the folder with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the folder
-	 * @return the folder that was removed
-	 * @throws com.liferay.mail.NoSuchFolderException if a folder with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Folder remove(Serializable primaryKey)
-		throws NoSuchFolderException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Folder folder = (Folder)session.get(FolderImpl.class, primaryKey);
-
-			if (folder == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchFolderException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(folder);
-		}
-		catch (NoSuchFolderException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected Folder removeImpl(Folder folder) throws SystemException {
-		folder = toUnwrappedModel(folder);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, folder);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(folder);
-
-		return folder;
-	}
-
-	@Override
-	public Folder updateImpl(com.liferay.mail.model.Folder folder, boolean merge)
-		throws SystemException {
-		folder = toUnwrappedModel(folder);
-
-		boolean isNew = folder.isNew();
-
-		FolderModelImpl folderModelImpl = (FolderModelImpl)folder;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, folder, merge);
-
-			folder.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !FolderModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((folderModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACCOUNTID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(folderModelImpl.getOriginalAccountId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACCOUNTID,
-					args);
-
-				args = new Object[] { Long.valueOf(folderModelImpl.getAccountId()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACCOUNTID,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
-			FolderImpl.class, folder.getPrimaryKey(), folder);
-
-		if (isNew) {
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_F,
-				new Object[] {
-					Long.valueOf(folder.getAccountId()),
-					
-				folder.getFullName()
-				}, folder);
-		}
-		else {
-			if ((folderModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_A_F.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(folderModelImpl.getOriginalAccountId()),
-						
-						folderModelImpl.getOriginalFullName()
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_A_F, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_F, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_F,
-					new Object[] {
-						Long.valueOf(folder.getAccountId()),
-						
-					folder.getFullName()
-					}, folder);
-			}
-		}
-
-		return folder;
-	}
-
-	protected Folder toUnwrappedModel(Folder folder) {
-		if (folder instanceof FolderImpl) {
-			return folder;
-		}
-
-		FolderImpl folderImpl = new FolderImpl();
-
-		folderImpl.setNew(folder.isNew());
-		folderImpl.setPrimaryKey(folder.getPrimaryKey());
-
-		folderImpl.setFolderId(folder.getFolderId());
-		folderImpl.setCompanyId(folder.getCompanyId());
-		folderImpl.setUserId(folder.getUserId());
-		folderImpl.setUserName(folder.getUserName());
-		folderImpl.setCreateDate(folder.getCreateDate());
-		folderImpl.setModifiedDate(folder.getModifiedDate());
-		folderImpl.setAccountId(folder.getAccountId());
-		folderImpl.setFullName(folder.getFullName());
-		folderImpl.setDisplayName(folder.getDisplayName());
-		folderImpl.setRemoteMessageCount(folder.getRemoteMessageCount());
-
-		return folderImpl;
-	}
-
-	/**
-	 * Returns the folder with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the folder
-	 * @return the folder
-	 * @throws com.liferay.portal.NoSuchModelException if a folder with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Folder findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the folder with the primary key or throws a {@link com.liferay.mail.NoSuchFolderException} if it could not be found.
-	 *
-	 * @param folderId the primary key of the folder
-	 * @return the folder
-	 * @throws com.liferay.mail.NoSuchFolderException if a folder with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Folder findByPrimaryKey(long folderId)
-		throws NoSuchFolderException, SystemException {
-		Folder folder = fetchByPrimaryKey(folderId);
-
-		if (folder == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + folderId);
-			}
-
-			throw new NoSuchFolderException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				folderId);
-		}
-
-		return folder;
-	}
-
-	/**
-	 * Returns the folder with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the folder
-	 * @return the folder, or <code>null</code> if a folder with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Folder fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the folder with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param folderId the primary key of the folder
-	 * @return the folder, or <code>null</code> if a folder with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Folder fetchByPrimaryKey(long folderId) throws SystemException {
-		Folder folder = (Folder)EntityCacheUtil.getResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
-				FolderImpl.class, folderId);
-
-		if (folder == _nullFolder) {
-			return null;
-		}
-
-		if (folder == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				folder = (Folder)session.get(FolderImpl.class,
-						Long.valueOf(folderId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (folder != null) {
-					cacheResult(folder);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
-						FolderImpl.class, folderId, _nullFolder);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return folder;
-	}
 
 	/**
 	 * Returns all the folders where accountId = &#63;.
@@ -894,6 +485,83 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 	}
 
 	/**
+	 * Removes all the folders where accountId = &#63; from the database.
+	 *
+	 * @param accountId the account ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByAccountId(long accountId) throws SystemException {
+		for (Folder folder : findByAccountId(accountId)) {
+			remove(folder);
+		}
+	}
+
+	/**
+	 * Returns the number of folders where accountId = &#63;.
+	 *
+	 * @param accountId the account ID
+	 * @return the number of matching folders
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByAccountId(long accountId) throws SystemException {
+		Object[] finderArgs = new Object[] { accountId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_FOLDER_WHERE);
+
+			query.append(_FINDER_COLUMN_ACCOUNTID_ACCOUNTID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(accountId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_ACCOUNTID_ACCOUNTID_2 = "folder.accountId = ?";
+	public static final FinderPath FINDER_PATH_FETCH_BY_A_F = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderModelImpl.FINDER_CACHE_ENABLED, FolderImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByA_F",
+			new String[] { Long.class.getName(), String.class.getName() },
+			FolderModelImpl.ACCOUNTID_COLUMN_BITMASK |
+			FolderModelImpl.FULLNAME_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_A_F = new FinderPath(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByA_F",
+			new String[] { Long.class.getName(), String.class.getName() });
+
+	/**
 	 * Returns the folder where accountId = &#63; and fullName = &#63; or throws a {@link com.liferay.mail.NoSuchFolderException} if it could not be found.
 	 *
 	 * @param accountId the account ID
@@ -1057,6 +725,509 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 	}
 
 	/**
+	 * Removes the folder where accountId = &#63; and fullName = &#63; from the database.
+	 *
+	 * @param accountId the account ID
+	 * @param fullName the full name
+	 * @return the folder that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Folder removeByA_F(long accountId, String fullName)
+		throws NoSuchFolderException, SystemException {
+		Folder folder = findByA_F(accountId, fullName);
+
+		return remove(folder);
+	}
+
+	/**
+	 * Returns the number of folders where accountId = &#63; and fullName = &#63;.
+	 *
+	 * @param accountId the account ID
+	 * @param fullName the full name
+	 * @return the number of matching folders
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByA_F(long accountId, String fullName)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { accountId, fullName };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_A_F,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_FOLDER_WHERE);
+
+			query.append(_FINDER_COLUMN_A_F_ACCOUNTID_2);
+
+			if (fullName == null) {
+				query.append(_FINDER_COLUMN_A_F_FULLNAME_1);
+			}
+			else {
+				if (fullName.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_A_F_FULLNAME_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_A_F_FULLNAME_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(accountId);
+
+				if (fullName != null) {
+					qPos.add(fullName);
+				}
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_A_F, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_A_F_ACCOUNTID_2 = "folder.accountId = ? AND ";
+	private static final String _FINDER_COLUMN_A_F_FULLNAME_1 = "folder.fullName IS NULL";
+	private static final String _FINDER_COLUMN_A_F_FULLNAME_2 = "folder.fullName = ?";
+	private static final String _FINDER_COLUMN_A_F_FULLNAME_3 = "(folder.fullName IS NULL OR folder.fullName = ?)";
+
+	/**
+	 * Caches the folder in the entity cache if it is enabled.
+	 *
+	 * @param folder the folder
+	 */
+	public void cacheResult(Folder folder) {
+		EntityCacheUtil.putResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderImpl.class, folder.getPrimaryKey(), folder);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_F,
+			new Object[] {
+				Long.valueOf(folder.getAccountId()),
+				
+			folder.getFullName()
+			}, folder);
+
+		folder.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the folders in the entity cache if it is enabled.
+	 *
+	 * @param folders the folders
+	 */
+	public void cacheResult(List<Folder> folders) {
+		for (Folder folder : folders) {
+			if (EntityCacheUtil.getResult(
+						FolderModelImpl.ENTITY_CACHE_ENABLED, FolderImpl.class,
+						folder.getPrimaryKey()) == null) {
+				cacheResult(folder);
+			}
+			else {
+				folder.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all folders.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(FolderImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(FolderImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the folder.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(Folder folder) {
+		EntityCacheUtil.removeResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderImpl.class, folder.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		clearUniqueFindersCache(folder);
+	}
+
+	@Override
+	public void clearCache(List<Folder> folders) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (Folder folder : folders) {
+			EntityCacheUtil.removeResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
+				FolderImpl.class, folder.getPrimaryKey());
+
+			clearUniqueFindersCache(folder);
+		}
+	}
+
+	protected void clearUniqueFindersCache(Folder folder) {
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_F,
+			new Object[] {
+				Long.valueOf(folder.getAccountId()),
+				
+			folder.getFullName()
+			});
+	}
+
+	/**
+	 * Creates a new folder with the primary key. Does not add the folder to the database.
+	 *
+	 * @param folderId the primary key for the new folder
+	 * @return the new folder
+	 */
+	public Folder create(long folderId) {
+		Folder folder = new FolderImpl();
+
+		folder.setNew(true);
+		folder.setPrimaryKey(folderId);
+
+		return folder;
+	}
+
+	/**
+	 * Removes the folder with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param folderId the primary key of the folder
+	 * @return the folder that was removed
+	 * @throws com.liferay.mail.NoSuchFolderException if a folder with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Folder remove(long folderId)
+		throws NoSuchFolderException, SystemException {
+		return remove(Long.valueOf(folderId));
+	}
+
+	/**
+	 * Removes the folder with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the folder
+	 * @return the folder that was removed
+	 * @throws com.liferay.mail.NoSuchFolderException if a folder with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Folder remove(Serializable primaryKey)
+		throws NoSuchFolderException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Folder folder = (Folder)session.get(FolderImpl.class, primaryKey);
+
+			if (folder == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchFolderException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(folder);
+		}
+		catch (NoSuchFolderException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected Folder removeImpl(Folder folder) throws SystemException {
+		folder = toUnwrappedModel(folder);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(folder)) {
+				folder = (Folder)session.get(FolderImpl.class,
+						folder.getPrimaryKeyObj());
+			}
+
+			if (folder != null) {
+				session.delete(folder);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (folder != null) {
+			clearCache(folder);
+		}
+
+		return folder;
+	}
+
+	@Override
+	public Folder updateImpl(com.liferay.mail.model.Folder folder)
+		throws SystemException {
+		folder = toUnwrappedModel(folder);
+
+		boolean isNew = folder.isNew();
+
+		FolderModelImpl folderModelImpl = (FolderModelImpl)folder;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (folder.isNew()) {
+				session.save(folder);
+
+				folder.setNew(false);
+			}
+			else {
+				session.merge(folder);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !FolderModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((folderModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACCOUNTID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(folderModelImpl.getOriginalAccountId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACCOUNTID,
+					args);
+
+				args = new Object[] { Long.valueOf(folderModelImpl.getAccountId()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ACCOUNTID,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
+			FolderImpl.class, folder.getPrimaryKey(), folder);
+
+		if (isNew) {
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_F,
+				new Object[] {
+					Long.valueOf(folder.getAccountId()),
+					
+				folder.getFullName()
+				}, folder);
+		}
+		else {
+			if ((folderModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_A_F.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(folderModelImpl.getOriginalAccountId()),
+						
+						folderModelImpl.getOriginalFullName()
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_A_F, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_A_F, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_A_F,
+					new Object[] {
+						Long.valueOf(folder.getAccountId()),
+						
+					folder.getFullName()
+					}, folder);
+			}
+		}
+
+		return folder;
+	}
+
+	protected Folder toUnwrappedModel(Folder folder) {
+		if (folder instanceof FolderImpl) {
+			return folder;
+		}
+
+		FolderImpl folderImpl = new FolderImpl();
+
+		folderImpl.setNew(folder.isNew());
+		folderImpl.setPrimaryKey(folder.getPrimaryKey());
+
+		folderImpl.setFolderId(folder.getFolderId());
+		folderImpl.setCompanyId(folder.getCompanyId());
+		folderImpl.setUserId(folder.getUserId());
+		folderImpl.setUserName(folder.getUserName());
+		folderImpl.setCreateDate(folder.getCreateDate());
+		folderImpl.setModifiedDate(folder.getModifiedDate());
+		folderImpl.setAccountId(folder.getAccountId());
+		folderImpl.setFullName(folder.getFullName());
+		folderImpl.setDisplayName(folder.getDisplayName());
+		folderImpl.setRemoteMessageCount(folder.getRemoteMessageCount());
+
+		return folderImpl;
+	}
+
+	/**
+	 * Returns the folder with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the folder
+	 * @return the folder
+	 * @throws com.liferay.portal.NoSuchModelException if a folder with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Folder findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the folder with the primary key or throws a {@link com.liferay.mail.NoSuchFolderException} if it could not be found.
+	 *
+	 * @param folderId the primary key of the folder
+	 * @return the folder
+	 * @throws com.liferay.mail.NoSuchFolderException if a folder with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Folder findByPrimaryKey(long folderId)
+		throws NoSuchFolderException, SystemException {
+		Folder folder = fetchByPrimaryKey(folderId);
+
+		if (folder == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + folderId);
+			}
+
+			throw new NoSuchFolderException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				folderId);
+		}
+
+		return folder;
+	}
+
+	/**
+	 * Returns the folder with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the folder
+	 * @return the folder, or <code>null</code> if a folder with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Folder fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the folder with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param folderId the primary key of the folder
+	 * @return the folder, or <code>null</code> if a folder with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Folder fetchByPrimaryKey(long folderId) throws SystemException {
+		Folder folder = (Folder)EntityCacheUtil.getResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
+				FolderImpl.class, folderId);
+
+		if (folder == _nullFolder) {
+			return null;
+		}
+
+		if (folder == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				folder = (Folder)session.get(FolderImpl.class,
+						Long.valueOf(folderId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (folder != null) {
+					cacheResult(folder);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(FolderModelImpl.ENTITY_CACHE_ENABLED,
+						FolderImpl.class, folderId, _nullFolder);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return folder;
+	}
+
+	/**
 	 * Returns all the folders.
 	 *
 	 * @return the folders
@@ -1171,33 +1342,6 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 	}
 
 	/**
-	 * Removes all the folders where accountId = &#63; from the database.
-	 *
-	 * @param accountId the account ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByAccountId(long accountId) throws SystemException {
-		for (Folder folder : findByAccountId(accountId)) {
-			remove(folder);
-		}
-	}
-
-	/**
-	 * Removes the folder where accountId = &#63; and fullName = &#63; from the database.
-	 *
-	 * @param accountId the account ID
-	 * @param fullName the full name
-	 * @return the folder that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Folder removeByA_F(long accountId, String fullName)
-		throws NoSuchFolderException, SystemException {
-		Folder folder = findByA_F(accountId, fullName);
-
-		return remove(folder);
-	}
-
-	/**
 	 * Removes all the folders from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -1206,130 +1350,6 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 		for (Folder folder : findAll()) {
 			remove(folder);
 		}
-	}
-
-	/**
-	 * Returns the number of folders where accountId = &#63;.
-	 *
-	 * @param accountId the account ID
-	 * @return the number of matching folders
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByAccountId(long accountId) throws SystemException {
-		Object[] finderArgs = new Object[] { accountId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_FOLDER_WHERE);
-
-			query.append(_FINDER_COLUMN_ACCOUNTID_ACCOUNTID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(accountId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_ACCOUNTID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of folders where accountId = &#63; and fullName = &#63;.
-	 *
-	 * @param accountId the account ID
-	 * @param fullName the full name
-	 * @return the number of matching folders
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByA_F(long accountId, String fullName)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { accountId, fullName };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_A_F,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_FOLDER_WHERE);
-
-			query.append(_FINDER_COLUMN_A_F_ACCOUNTID_2);
-
-			if (fullName == null) {
-				query.append(_FINDER_COLUMN_A_F_FULLNAME_1);
-			}
-			else {
-				if (fullName.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_A_F_FULLNAME_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_A_F_FULLNAME_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(accountId);
-
-				if (fullName != null) {
-					qPos.add(fullName);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_A_F, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -1415,11 +1435,6 @@ public class FolderPersistenceImpl extends BasePersistenceImpl<Folder>
 	private static final String _SQL_SELECT_FOLDER_WHERE = "SELECT folder FROM Folder folder WHERE ";
 	private static final String _SQL_COUNT_FOLDER = "SELECT COUNT(folder) FROM Folder folder";
 	private static final String _SQL_COUNT_FOLDER_WHERE = "SELECT COUNT(folder) FROM Folder folder WHERE ";
-	private static final String _FINDER_COLUMN_ACCOUNTID_ACCOUNTID_2 = "folder.accountId = ?";
-	private static final String _FINDER_COLUMN_A_F_ACCOUNTID_2 = "folder.accountId = ? AND ";
-	private static final String _FINDER_COLUMN_A_F_FULLNAME_1 = "folder.fullName IS NULL";
-	private static final String _FINDER_COLUMN_A_F_FULLNAME_2 = "folder.fullName = ?";
-	private static final String _FINDER_COLUMN_A_F_FULLNAME_3 = "(folder.fullName IS NULL OR folder.fullName = ?)";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "folder.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Folder exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Folder exists with the key {";

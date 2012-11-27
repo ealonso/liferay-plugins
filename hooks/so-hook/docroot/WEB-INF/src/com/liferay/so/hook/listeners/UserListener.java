@@ -19,7 +19,6 @@ package com.liferay.so.hook.listeners;
 
 import com.liferay.portal.ModelListenerException;
 import com.liferay.portal.NoSuchGroupException;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.model.BaseModelListener;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Organization;
@@ -29,8 +28,7 @@ import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.so.util.InstanceUtil;
+import com.liferay.so.service.SocialOfficeServiceUtil;
 import com.liferay.so.util.LayoutSetPrototypeUtil;
 import com.liferay.so.util.RoleConstants;
 import com.liferay.so.util.SocialOfficeConstants;
@@ -51,14 +49,16 @@ public class UserListener extends BaseModelListener<User> {
 		try {
 			User user = UserLocalServiceUtil.getUser((Long)classPK);
 
-			initInstance(user.getCompanyId());
-
 			if (associationClassName.equals(Group.class.getName()) ||
 				associationClassName.equals(Organization.class.getName()) ||
 				associationClassName.equals(UserGroup.class.getName())) {
 
-				Role role = RoleLocalServiceUtil.getRole(
+				Role role = RoleLocalServiceUtil.fetchRole(
 					user.getCompanyId(), RoleConstants.SOCIAL_OFFICE_USER);
+
+				if (role == null) {
+					return;
+				}
 
 				Group group = null;
 
@@ -80,7 +80,7 @@ public class UserListener extends BaseModelListener<User> {
 				}
 
 				if (GroupLocalServiceUtil.hasRoleGroup(
-					role.getRoleId(), group.getGroupId())) {
+						role.getRoleId(), group.getGroupId())) {
 
 					enableSocialOffice(user.getGroup());
 				}
@@ -139,7 +139,7 @@ public class UserListener extends BaseModelListener<User> {
 				}
 
 				if (GroupLocalServiceUtil.hasRoleGroup(
-					role.getRoleId(), group.getGroupId())) {
+						role.getRoleId(), group.getGroupId())) {
 
 					disableSocialOffice(user.getGroup());
 				}
@@ -163,12 +163,7 @@ public class UserListener extends BaseModelListener<User> {
 	}
 
 	protected void disableSocialOffice(Group group) throws Exception {
-		ExpandoBridge expandoBridge = group.getExpandoBridge();
-
-		boolean socialOfficeEnabled = GetterUtil.getBoolean(
-			expandoBridge.getAttribute("socialOfficeEnabled"));
-
-		if (!socialOfficeEnabled) {
+		if (!SocialOfficeServiceUtil.isSocialOfficeGroup(group.getGroupId())) {
 			return;
 		}
 
@@ -183,12 +178,7 @@ public class UserListener extends BaseModelListener<User> {
 	}
 
 	protected void enableSocialOffice(Group group) throws Exception {
-		ExpandoBridge expandoBridge = group.getExpandoBridge();
-
-		boolean socialOfficeEnabled = GetterUtil.getBoolean(
-			expandoBridge.getAttribute("socialOfficeEnabled"));
-
-		if (socialOfficeEnabled) {
+		if (SocialOfficeServiceUtil.isSocialOfficeGroup(group.getGroupId())) {
 			return;
 		}
 
@@ -200,14 +190,6 @@ public class UserListener extends BaseModelListener<User> {
 			SocialOfficeConstants.LAYOUT_SET_PROTOTYPE_KEY_USER_PRIVATE);
 
 		SocialOfficeUtil.enableSocialOffice(group);
-	}
-
-	protected void initInstance(long companyId) {
-		InstanceUtil.initRuntime(companyId);
-
-		if (!InstanceUtil.isInitialized(companyId)) {
-			InstanceUtil.initInstance(companyId);
-		}
 	}
 
 }

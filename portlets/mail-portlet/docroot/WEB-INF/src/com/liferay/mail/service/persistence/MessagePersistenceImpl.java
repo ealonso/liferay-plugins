@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -76,6 +75,15 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID =
 		new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
 			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
@@ -96,465 +104,6 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
 			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_FOLDERID = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByFolderId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID =
-		new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByFolderId",
-			new String[] { Long.class.getName() },
-			MessageModelImpl.FOLDERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_FOLDERID = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByFolderId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_FETCH_BY_F_R = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByF_R",
-			new String[] { Long.class.getName(), Long.class.getName() },
-			MessageModelImpl.FOLDERID_COLUMN_BITMASK |
-			MessageModelImpl.REMOTEMESSAGEID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_F_R = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByF_R",
-			new String[] { Long.class.getName(), Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the message in the entity cache if it is enabled.
-	 *
-	 * @param message the message
-	 */
-	public void cacheResult(Message message) {
-		EntityCacheUtil.putResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageImpl.class, message.getPrimaryKey(), message);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_F_R,
-			new Object[] {
-				Long.valueOf(message.getFolderId()),
-				Long.valueOf(message.getRemoteMessageId())
-			}, message);
-
-		message.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the messages in the entity cache if it is enabled.
-	 *
-	 * @param messages the messages
-	 */
-	public void cacheResult(List<Message> messages) {
-		for (Message message : messages) {
-			if (EntityCacheUtil.getResult(
-						MessageModelImpl.ENTITY_CACHE_ENABLED,
-						MessageImpl.class, message.getPrimaryKey()) == null) {
-				cacheResult(message);
-			}
-			else {
-				message.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all messages.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(MessageImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(MessageImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the message.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(Message message) {
-		EntityCacheUtil.removeResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageImpl.class, message.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(message);
-	}
-
-	@Override
-	public void clearCache(List<Message> messages) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (Message message : messages) {
-			EntityCacheUtil.removeResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
-				MessageImpl.class, message.getPrimaryKey());
-
-			clearUniqueFindersCache(message);
-		}
-	}
-
-	protected void clearUniqueFindersCache(Message message) {
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_F_R,
-			new Object[] {
-				Long.valueOf(message.getFolderId()),
-				Long.valueOf(message.getRemoteMessageId())
-			});
-	}
-
-	/**
-	 * Creates a new message with the primary key. Does not add the message to the database.
-	 *
-	 * @param messageId the primary key for the new message
-	 * @return the new message
-	 */
-	public Message create(long messageId) {
-		Message message = new MessageImpl();
-
-		message.setNew(true);
-		message.setPrimaryKey(messageId);
-
-		return message;
-	}
-
-	/**
-	 * Removes the message with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param messageId the primary key of the message
-	 * @return the message that was removed
-	 * @throws com.liferay.mail.NoSuchMessageException if a message with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Message remove(long messageId)
-		throws NoSuchMessageException, SystemException {
-		return remove(Long.valueOf(messageId));
-	}
-
-	/**
-	 * Removes the message with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the message
-	 * @return the message that was removed
-	 * @throws com.liferay.mail.NoSuchMessageException if a message with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Message remove(Serializable primaryKey)
-		throws NoSuchMessageException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Message message = (Message)session.get(MessageImpl.class, primaryKey);
-
-			if (message == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchMessageException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(message);
-		}
-		catch (NoSuchMessageException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected Message removeImpl(Message message) throws SystemException {
-		message = toUnwrappedModel(message);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, message);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(message);
-
-		return message;
-	}
-
-	@Override
-	public Message updateImpl(com.liferay.mail.model.Message message,
-		boolean merge) throws SystemException {
-		message = toUnwrappedModel(message);
-
-		boolean isNew = message.isNew();
-
-		MessageModelImpl messageModelImpl = (MessageModelImpl)message;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, message, merge);
-
-			message.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !MessageModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((messageModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(messageModelImpl.getOriginalCompanyId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(messageModelImpl.getCompanyId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-			}
-
-			if ((messageModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(messageModelImpl.getOriginalFolderId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FOLDERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID,
-					args);
-
-				args = new Object[] { Long.valueOf(messageModelImpl.getFolderId()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FOLDERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
-			MessageImpl.class, message.getPrimaryKey(), message);
-
-		if (isNew) {
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_F_R,
-				new Object[] {
-					Long.valueOf(message.getFolderId()),
-					Long.valueOf(message.getRemoteMessageId())
-				}, message);
-		}
-		else {
-			if ((messageModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_F_R.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(messageModelImpl.getOriginalFolderId()),
-						Long.valueOf(messageModelImpl.getOriginalRemoteMessageId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_F_R, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_F_R, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_F_R,
-					new Object[] {
-						Long.valueOf(message.getFolderId()),
-						Long.valueOf(message.getRemoteMessageId())
-					}, message);
-			}
-		}
-
-		return message;
-	}
-
-	protected Message toUnwrappedModel(Message message) {
-		if (message instanceof MessageImpl) {
-			return message;
-		}
-
-		MessageImpl messageImpl = new MessageImpl();
-
-		messageImpl.setNew(message.isNew());
-		messageImpl.setPrimaryKey(message.getPrimaryKey());
-
-		messageImpl.setMessageId(message.getMessageId());
-		messageImpl.setCompanyId(message.getCompanyId());
-		messageImpl.setUserId(message.getUserId());
-		messageImpl.setUserName(message.getUserName());
-		messageImpl.setCreateDate(message.getCreateDate());
-		messageImpl.setModifiedDate(message.getModifiedDate());
-		messageImpl.setAccountId(message.getAccountId());
-		messageImpl.setFolderId(message.getFolderId());
-		messageImpl.setSender(message.getSender());
-		messageImpl.setTo(message.getTo());
-		messageImpl.setCc(message.getCc());
-		messageImpl.setBcc(message.getBcc());
-		messageImpl.setSentDate(message.getSentDate());
-		messageImpl.setSubject(message.getSubject());
-		messageImpl.setPreview(message.getPreview());
-		messageImpl.setBody(message.getBody());
-		messageImpl.setFlags(message.getFlags());
-		messageImpl.setSize(message.getSize());
-		messageImpl.setRemoteMessageId(message.getRemoteMessageId());
-
-		return messageImpl;
-	}
-
-	/**
-	 * Returns the message with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the message
-	 * @return the message
-	 * @throws com.liferay.portal.NoSuchModelException if a message with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Message findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the message with the primary key or throws a {@link com.liferay.mail.NoSuchMessageException} if it could not be found.
-	 *
-	 * @param messageId the primary key of the message
-	 * @return the message
-	 * @throws com.liferay.mail.NoSuchMessageException if a message with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Message findByPrimaryKey(long messageId)
-		throws NoSuchMessageException, SystemException {
-		Message message = fetchByPrimaryKey(messageId);
-
-		if (message == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + messageId);
-			}
-
-			throw new NoSuchMessageException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				messageId);
-		}
-
-		return message;
-	}
-
-	/**
-	 * Returns the message with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the message
-	 * @return the message, or <code>null</code> if a message with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Message fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the message with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param messageId the primary key of the message
-	 * @return the message, or <code>null</code> if a message with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Message fetchByPrimaryKey(long messageId) throws SystemException {
-		Message message = (Message)EntityCacheUtil.getResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
-				MessageImpl.class, messageId);
-
-		if (message == _nullMessage) {
-			return null;
-		}
-
-		if (message == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				message = (Message)session.get(MessageImpl.class,
-						Long.valueOf(messageId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (message != null) {
-					cacheResult(message);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
-						MessageImpl.class, messageId, _nullMessage);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return message;
-	}
 
 	/**
 	 * Returns all the messages where companyId = &#63;.
@@ -936,6 +485,92 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 	}
 
 	/**
+	 * Removes all the messages where companyId = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByCompanyId(long companyId) throws SystemException {
+		for (Message message : findByCompanyId(companyId)) {
+			remove(message);
+		}
+	}
+
+	/**
+	 * Returns the number of messages where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @return the number of matching messages
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByCompanyId(long companyId) throws SystemException {
+		Object[] finderArgs = new Object[] { companyId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_COMPANYID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MESSAGE_WHERE);
+
+			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "message.companyId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_FOLDERID = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByFolderId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID =
+		new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByFolderId",
+			new String[] { Long.class.getName() },
+			MessageModelImpl.FOLDERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_FOLDERID = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByFolderId",
+			new String[] { Long.class.getName() });
+
+	/**
 	 * Returns all the messages where folderId = &#63;.
 	 *
 	 * @param folderId the folder ID
@@ -1315,6 +950,83 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 	}
 
 	/**
+	 * Removes all the messages where folderId = &#63; from the database.
+	 *
+	 * @param folderId the folder ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByFolderId(long folderId) throws SystemException {
+		for (Message message : findByFolderId(folderId)) {
+			remove(message);
+		}
+	}
+
+	/**
+	 * Returns the number of messages where folderId = &#63;.
+	 *
+	 * @param folderId the folder ID
+	 * @return the number of matching messages
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByFolderId(long folderId) throws SystemException {
+		Object[] finderArgs = new Object[] { folderId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_FOLDERID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MESSAGE_WHERE);
+
+			query.append(_FINDER_COLUMN_FOLDERID_FOLDERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(folderId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_FOLDERID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_FOLDERID_FOLDERID_2 = "message.folderId = ?";
+	public static final FinderPath FINDER_PATH_FETCH_BY_F_R = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, MessageImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByF_R",
+			new String[] { Long.class.getName(), Long.class.getName() },
+			MessageModelImpl.FOLDERID_COLUMN_BITMASK |
+			MessageModelImpl.REMOTEMESSAGEID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_F_R = new FinderPath(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByF_R",
+			new String[] { Long.class.getName(), Long.class.getName() });
+
+	/**
 	 * Returns the message where folderId = &#63; and remoteMessageId = &#63; or throws a {@link com.liferay.mail.NoSuchMessageException} if it could not be found.
 	 *
 	 * @param folderId the folder ID
@@ -1465,6 +1177,518 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 	}
 
 	/**
+	 * Removes the message where folderId = &#63; and remoteMessageId = &#63; from the database.
+	 *
+	 * @param folderId the folder ID
+	 * @param remoteMessageId the remote message ID
+	 * @return the message that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Message removeByF_R(long folderId, long remoteMessageId)
+		throws NoSuchMessageException, SystemException {
+		Message message = findByF_R(folderId, remoteMessageId);
+
+		return remove(message);
+	}
+
+	/**
+	 * Returns the number of messages where folderId = &#63; and remoteMessageId = &#63;.
+	 *
+	 * @param folderId the folder ID
+	 * @param remoteMessageId the remote message ID
+	 * @return the number of matching messages
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByF_R(long folderId, long remoteMessageId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { folderId, remoteMessageId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_F_R,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_MESSAGE_WHERE);
+
+			query.append(_FINDER_COLUMN_F_R_FOLDERID_2);
+
+			query.append(_FINDER_COLUMN_F_R_REMOTEMESSAGEID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(folderId);
+
+				qPos.add(remoteMessageId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_F_R, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_F_R_FOLDERID_2 = "message.folderId = ? AND ";
+	private static final String _FINDER_COLUMN_F_R_REMOTEMESSAGEID_2 = "message.remoteMessageId = ?";
+
+	/**
+	 * Caches the message in the entity cache if it is enabled.
+	 *
+	 * @param message the message
+	 */
+	public void cacheResult(Message message) {
+		EntityCacheUtil.putResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageImpl.class, message.getPrimaryKey(), message);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_F_R,
+			new Object[] {
+				Long.valueOf(message.getFolderId()),
+				Long.valueOf(message.getRemoteMessageId())
+			}, message);
+
+		message.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the messages in the entity cache if it is enabled.
+	 *
+	 * @param messages the messages
+	 */
+	public void cacheResult(List<Message> messages) {
+		for (Message message : messages) {
+			if (EntityCacheUtil.getResult(
+						MessageModelImpl.ENTITY_CACHE_ENABLED,
+						MessageImpl.class, message.getPrimaryKey()) == null) {
+				cacheResult(message);
+			}
+			else {
+				message.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all messages.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(MessageImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(MessageImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the message.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(Message message) {
+		EntityCacheUtil.removeResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageImpl.class, message.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		clearUniqueFindersCache(message);
+	}
+
+	@Override
+	public void clearCache(List<Message> messages) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (Message message : messages) {
+			EntityCacheUtil.removeResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
+				MessageImpl.class, message.getPrimaryKey());
+
+			clearUniqueFindersCache(message);
+		}
+	}
+
+	protected void clearUniqueFindersCache(Message message) {
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_F_R,
+			new Object[] {
+				Long.valueOf(message.getFolderId()),
+				Long.valueOf(message.getRemoteMessageId())
+			});
+	}
+
+	/**
+	 * Creates a new message with the primary key. Does not add the message to the database.
+	 *
+	 * @param messageId the primary key for the new message
+	 * @return the new message
+	 */
+	public Message create(long messageId) {
+		Message message = new MessageImpl();
+
+		message.setNew(true);
+		message.setPrimaryKey(messageId);
+
+		return message;
+	}
+
+	/**
+	 * Removes the message with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param messageId the primary key of the message
+	 * @return the message that was removed
+	 * @throws com.liferay.mail.NoSuchMessageException if a message with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Message remove(long messageId)
+		throws NoSuchMessageException, SystemException {
+		return remove(Long.valueOf(messageId));
+	}
+
+	/**
+	 * Removes the message with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the message
+	 * @return the message that was removed
+	 * @throws com.liferay.mail.NoSuchMessageException if a message with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Message remove(Serializable primaryKey)
+		throws NoSuchMessageException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Message message = (Message)session.get(MessageImpl.class, primaryKey);
+
+			if (message == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchMessageException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(message);
+		}
+		catch (NoSuchMessageException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected Message removeImpl(Message message) throws SystemException {
+		message = toUnwrappedModel(message);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(message)) {
+				message = (Message)session.get(MessageImpl.class,
+						message.getPrimaryKeyObj());
+			}
+
+			if (message != null) {
+				session.delete(message);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (message != null) {
+			clearCache(message);
+		}
+
+		return message;
+	}
+
+	@Override
+	public Message updateImpl(com.liferay.mail.model.Message message)
+		throws SystemException {
+		message = toUnwrappedModel(message);
+
+		boolean isNew = message.isNew();
+
+		MessageModelImpl messageModelImpl = (MessageModelImpl)message;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (message.isNew()) {
+				session.save(message);
+
+				message.setNew(false);
+			}
+			else {
+				session.merge(message);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !MessageModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((messageModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(messageModelImpl.getOriginalCompanyId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(messageModelImpl.getCompanyId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+					args);
+			}
+
+			if ((messageModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(messageModelImpl.getOriginalFolderId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FOLDERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID,
+					args);
+
+				args = new Object[] { Long.valueOf(messageModelImpl.getFolderId()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FOLDERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FOLDERID,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
+			MessageImpl.class, message.getPrimaryKey(), message);
+
+		if (isNew) {
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_F_R,
+				new Object[] {
+					Long.valueOf(message.getFolderId()),
+					Long.valueOf(message.getRemoteMessageId())
+				}, message);
+		}
+		else {
+			if ((messageModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_F_R.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(messageModelImpl.getOriginalFolderId()),
+						Long.valueOf(messageModelImpl.getOriginalRemoteMessageId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_F_R, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_F_R, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_F_R,
+					new Object[] {
+						Long.valueOf(message.getFolderId()),
+						Long.valueOf(message.getRemoteMessageId())
+					}, message);
+			}
+		}
+
+		return message;
+	}
+
+	protected Message toUnwrappedModel(Message message) {
+		if (message instanceof MessageImpl) {
+			return message;
+		}
+
+		MessageImpl messageImpl = new MessageImpl();
+
+		messageImpl.setNew(message.isNew());
+		messageImpl.setPrimaryKey(message.getPrimaryKey());
+
+		messageImpl.setMessageId(message.getMessageId());
+		messageImpl.setCompanyId(message.getCompanyId());
+		messageImpl.setUserId(message.getUserId());
+		messageImpl.setUserName(message.getUserName());
+		messageImpl.setCreateDate(message.getCreateDate());
+		messageImpl.setModifiedDate(message.getModifiedDate());
+		messageImpl.setAccountId(message.getAccountId());
+		messageImpl.setFolderId(message.getFolderId());
+		messageImpl.setSender(message.getSender());
+		messageImpl.setTo(message.getTo());
+		messageImpl.setCc(message.getCc());
+		messageImpl.setBcc(message.getBcc());
+		messageImpl.setSentDate(message.getSentDate());
+		messageImpl.setSubject(message.getSubject());
+		messageImpl.setPreview(message.getPreview());
+		messageImpl.setBody(message.getBody());
+		messageImpl.setFlags(message.getFlags());
+		messageImpl.setSize(message.getSize());
+		messageImpl.setRemoteMessageId(message.getRemoteMessageId());
+
+		return messageImpl;
+	}
+
+	/**
+	 * Returns the message with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the message
+	 * @return the message
+	 * @throws com.liferay.portal.NoSuchModelException if a message with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Message findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the message with the primary key or throws a {@link com.liferay.mail.NoSuchMessageException} if it could not be found.
+	 *
+	 * @param messageId the primary key of the message
+	 * @return the message
+	 * @throws com.liferay.mail.NoSuchMessageException if a message with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Message findByPrimaryKey(long messageId)
+		throws NoSuchMessageException, SystemException {
+		Message message = fetchByPrimaryKey(messageId);
+
+		if (message == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + messageId);
+			}
+
+			throw new NoSuchMessageException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				messageId);
+		}
+
+		return message;
+	}
+
+	/**
+	 * Returns the message with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the message
+	 * @return the message, or <code>null</code> if a message with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Message fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the message with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param messageId the primary key of the message
+	 * @return the message, or <code>null</code> if a message with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Message fetchByPrimaryKey(long messageId) throws SystemException {
+		Message message = (Message)EntityCacheUtil.getResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
+				MessageImpl.class, messageId);
+
+		if (message == _nullMessage) {
+			return null;
+		}
+
+		if (message == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				message = (Message)session.get(MessageImpl.class,
+						Long.valueOf(messageId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (message != null) {
+					cacheResult(message);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(MessageModelImpl.ENTITY_CACHE_ENABLED,
+						MessageImpl.class, messageId, _nullMessage);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return message;
+	}
+
+	/**
 	 * Returns all the messages.
 	 *
 	 * @return the messages
@@ -1579,45 +1803,6 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 	}
 
 	/**
-	 * Removes all the messages where companyId = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByCompanyId(long companyId) throws SystemException {
-		for (Message message : findByCompanyId(companyId)) {
-			remove(message);
-		}
-	}
-
-	/**
-	 * Removes all the messages where folderId = &#63; from the database.
-	 *
-	 * @param folderId the folder ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByFolderId(long folderId) throws SystemException {
-		for (Message message : findByFolderId(folderId)) {
-			remove(message);
-		}
-	}
-
-	/**
-	 * Removes the message where folderId = &#63; and remoteMessageId = &#63; from the database.
-	 *
-	 * @param folderId the folder ID
-	 * @param remoteMessageId the remote message ID
-	 * @return the message that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Message removeByF_R(long folderId, long remoteMessageId)
-		throws NoSuchMessageException, SystemException {
-		Message message = findByF_R(folderId, remoteMessageId);
-
-		return remove(message);
-	}
-
-	/**
 	 * Removes all the messages from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -1626,171 +1811,6 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 		for (Message message : findAll()) {
 			remove(message);
 		}
-	}
-
-	/**
-	 * Returns the number of messages where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the number of matching messages
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByCompanyId(long companyId) throws SystemException {
-		Object[] finderArgs = new Object[] { companyId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_COMPANYID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MESSAGE_WHERE);
-
-			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of messages where folderId = &#63;.
-	 *
-	 * @param folderId the folder ID
-	 * @return the number of matching messages
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByFolderId(long folderId) throws SystemException {
-		Object[] finderArgs = new Object[] { folderId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_FOLDERID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MESSAGE_WHERE);
-
-			query.append(_FINDER_COLUMN_FOLDERID_FOLDERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(folderId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_FOLDERID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of messages where folderId = &#63; and remoteMessageId = &#63;.
-	 *
-	 * @param folderId the folder ID
-	 * @param remoteMessageId the remote message ID
-	 * @return the number of matching messages
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByF_R(long folderId, long remoteMessageId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { folderId, remoteMessageId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_F_R,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_MESSAGE_WHERE);
-
-			query.append(_FINDER_COLUMN_F_R_FOLDERID_2);
-
-			query.append(_FINDER_COLUMN_F_R_REMOTEMESSAGEID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(folderId);
-
-				qPos.add(remoteMessageId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_F_R, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -1876,10 +1896,6 @@ public class MessagePersistenceImpl extends BasePersistenceImpl<Message>
 	private static final String _SQL_SELECT_MESSAGE_WHERE = "SELECT message FROM Message message WHERE ";
 	private static final String _SQL_COUNT_MESSAGE = "SELECT COUNT(message) FROM Message message";
 	private static final String _SQL_COUNT_MESSAGE_WHERE = "SELECT COUNT(message) FROM Message message WHERE ";
-	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "message.companyId = ?";
-	private static final String _FINDER_COLUMN_FOLDERID_FOLDERID_2 = "message.folderId = ?";
-	private static final String _FINDER_COLUMN_F_R_FOLDERID_2 = "message.folderId = ? AND ";
-	private static final String _FINDER_COLUMN_F_R_REMOTEMESSAGEID_2 = "message.remoteMessageId = ?";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "message.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Message exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Message exists with the key {";

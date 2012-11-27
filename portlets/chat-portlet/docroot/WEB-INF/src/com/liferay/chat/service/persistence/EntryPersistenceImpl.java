@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -77,6 +76,15 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_CREATEDATE =
 		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
 			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
@@ -97,611 +105,6 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCreateDate",
 			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_FROMUSERID =
-		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByFromUserId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID =
-		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByFromUserId",
-			new String[] { Long.class.getName() },
-			EntryModelImpl.FROMUSERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_FROMUSERID = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByFromUserId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_TOUSERID = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByToUserId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID =
-		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByToUserId",
-			new String[] { Long.class.getName() },
-			EntryModelImpl.TOUSERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_TOUSERID = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByToUserId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_F = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_F",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_F",
-			new String[] { Long.class.getName(), Long.class.getName() },
-			EntryModelImpl.CREATEDATE_COLUMN_BITMASK |
-			EntryModelImpl.FROMUSERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_C_F = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_F",
-			new String[] { Long.class.getName(), Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_T",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_T",
-			new String[] { Long.class.getName(), Long.class.getName() },
-			EntryModelImpl.CREATEDATE_COLUMN_BITMASK |
-			EntryModelImpl.TOUSERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_C_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_T",
-			new String[] { Long.class.getName(), Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_F_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_F_T",
-			new String[] {
-				Long.class.getName(), Long.class.getName(), Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_F_T",
-			new String[] {
-				Long.class.getName(), Long.class.getName(), Long.class.getName()
-			},
-			EntryModelImpl.CREATEDATE_COLUMN_BITMASK |
-			EntryModelImpl.FROMUSERID_COLUMN_BITMASK |
-			EntryModelImpl.TOUSERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_C_F_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_F_T",
-			new String[] {
-				Long.class.getName(), Long.class.getName(), Long.class.getName()
-			});
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_F_T_C = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByF_T_C",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				String.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByF_T_C",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				String.class.getName()
-			},
-			EntryModelImpl.FROMUSERID_COLUMN_BITMASK |
-			EntryModelImpl.TOUSERID_COLUMN_BITMASK |
-			EntryModelImpl.CONTENT_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_F_T_C = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByF_T_C",
-			new String[] {
-				Long.class.getName(), Long.class.getName(),
-				String.class.getName()
-			});
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the entry in the entity cache if it is enabled.
-	 *
-	 * @param entry the entry
-	 */
-	public void cacheResult(Entry entry) {
-		EntityCacheUtil.putResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryImpl.class, entry.getPrimaryKey(), entry);
-
-		entry.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the entries in the entity cache if it is enabled.
-	 *
-	 * @param entries the entries
-	 */
-	public void cacheResult(List<Entry> entries) {
-		for (Entry entry : entries) {
-			if (EntityCacheUtil.getResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-						EntryImpl.class, entry.getPrimaryKey()) == null) {
-				cacheResult(entry);
-			}
-			else {
-				entry.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all entries.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(EntryImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(EntryImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the entry.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(Entry entry) {
-		EntityCacheUtil.removeResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryImpl.class, entry.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	@Override
-	public void clearCache(List<Entry> entries) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (Entry entry : entries) {
-			EntityCacheUtil.removeResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-				EntryImpl.class, entry.getPrimaryKey());
-		}
-	}
-
-	/**
-	 * Creates a new entry with the primary key. Does not add the entry to the database.
-	 *
-	 * @param entryId the primary key for the new entry
-	 * @return the new entry
-	 */
-	public Entry create(long entryId) {
-		Entry entry = new EntryImpl();
-
-		entry.setNew(true);
-		entry.setPrimaryKey(entryId);
-
-		return entry;
-	}
-
-	/**
-	 * Removes the entry with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param entryId the primary key of the entry
-	 * @return the entry that was removed
-	 * @throws com.liferay.chat.NoSuchEntryException if a entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Entry remove(long entryId)
-		throws NoSuchEntryException, SystemException {
-		return remove(Long.valueOf(entryId));
-	}
-
-	/**
-	 * Removes the entry with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the entry
-	 * @return the entry that was removed
-	 * @throws com.liferay.chat.NoSuchEntryException if a entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Entry remove(Serializable primaryKey)
-		throws NoSuchEntryException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			Entry entry = (Entry)session.get(EntryImpl.class, primaryKey);
-
-			if (entry == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(entry);
-		}
-		catch (NoSuchEntryException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected Entry removeImpl(Entry entry) throws SystemException {
-		entry = toUnwrappedModel(entry);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, entry);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(entry);
-
-		return entry;
-	}
-
-	@Override
-	public Entry updateImpl(com.liferay.chat.model.Entry entry, boolean merge)
-		throws SystemException {
-		entry = toUnwrappedModel(entry);
-
-		boolean isNew = entry.isNew();
-
-		EntryModelImpl entryModelImpl = (EntryModelImpl)entry;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, entry, merge);
-
-			entry.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !EntryModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CREATEDATE.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalCreateDate())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CREATEDATE,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CREATEDATE,
-					args);
-
-				args = new Object[] { Long.valueOf(entryModelImpl.getCreateDate()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CREATEDATE,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CREATEDATE,
-					args);
-			}
-
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalFromUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FROMUSERID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID,
-					args);
-
-				args = new Object[] { Long.valueOf(entryModelImpl.getFromUserId()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FROMUSERID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID,
-					args);
-			}
-
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalToUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_TOUSERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID,
-					args);
-
-				args = new Object[] { Long.valueOf(entryModelImpl.getToUserId()) };
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_TOUSERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID,
-					args);
-			}
-
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalCreateDate()),
-						Long.valueOf(entryModelImpl.getOriginalFromUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(entryModelImpl.getCreateDate()),
-						Long.valueOf(entryModelImpl.getFromUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F,
-					args);
-			}
-
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalCreateDate()),
-						Long.valueOf(entryModelImpl.getOriginalToUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_T, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(entryModelImpl.getCreateDate()),
-						Long.valueOf(entryModelImpl.getToUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_T, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T,
-					args);
-			}
-
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalCreateDate()),
-						Long.valueOf(entryModelImpl.getOriginalFromUserId()),
-						Long.valueOf(entryModelImpl.getOriginalToUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F_T, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(entryModelImpl.getCreateDate()),
-						Long.valueOf(entryModelImpl.getFromUserId()),
-						Long.valueOf(entryModelImpl.getToUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F_T, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T,
-					args);
-			}
-
-			if ((entryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(entryModelImpl.getOriginalFromUserId()),
-						Long.valueOf(entryModelImpl.getOriginalToUserId()),
-						
-						entryModelImpl.getOriginalContent()
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_F_T_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(entryModelImpl.getFromUserId()),
-						Long.valueOf(entryModelImpl.getToUserId()),
-						
-						entryModelImpl.getContent()
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_F_T_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-			EntryImpl.class, entry.getPrimaryKey(), entry);
-
-		return entry;
-	}
-
-	protected Entry toUnwrappedModel(Entry entry) {
-		if (entry instanceof EntryImpl) {
-			return entry;
-		}
-
-		EntryImpl entryImpl = new EntryImpl();
-
-		entryImpl.setNew(entry.isNew());
-		entryImpl.setPrimaryKey(entry.getPrimaryKey());
-
-		entryImpl.setEntryId(entry.getEntryId());
-		entryImpl.setCreateDate(entry.getCreateDate());
-		entryImpl.setFromUserId(entry.getFromUserId());
-		entryImpl.setToUserId(entry.getToUserId());
-		entryImpl.setContent(entry.getContent());
-
-		return entryImpl;
-	}
-
-	/**
-	 * Returns the entry with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the entry
-	 * @return the entry
-	 * @throws com.liferay.portal.NoSuchModelException if a entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Entry findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the entry with the primary key or throws a {@link com.liferay.chat.NoSuchEntryException} if it could not be found.
-	 *
-	 * @param entryId the primary key of the entry
-	 * @return the entry
-	 * @throws com.liferay.chat.NoSuchEntryException if a entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Entry findByPrimaryKey(long entryId)
-		throws NoSuchEntryException, SystemException {
-		Entry entry = fetchByPrimaryKey(entryId);
-
-		if (entry == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + entryId);
-			}
-
-			throw new NoSuchEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				entryId);
-		}
-
-		return entry;
-	}
-
-	/**
-	 * Returns the entry with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the entry
-	 * @return the entry, or <code>null</code> if a entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public Entry fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the entry with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param entryId the primary key of the entry
-	 * @return the entry, or <code>null</code> if a entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public Entry fetchByPrimaryKey(long entryId) throws SystemException {
-		Entry entry = (Entry)EntityCacheUtil.getResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-				EntryImpl.class, entryId);
-
-		if (entry == _nullEntry) {
-			return null;
-		}
-
-		if (entry == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				entry = (Entry)session.get(EntryImpl.class,
-						Long.valueOf(entryId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (entry != null) {
-					cacheResult(entry);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
-						EntryImpl.class, entryId, _nullEntry);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return entry;
-	}
 
 	/**
 	 * Returns all the entries where createDate = &#63;.
@@ -1082,6 +485,93 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 	}
 
 	/**
+	 * Removes all the entries where createDate = &#63; from the database.
+	 *
+	 * @param createDate the create date
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByCreateDate(long createDate) throws SystemException {
+		for (Entry entry : findByCreateDate(createDate)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where createDate = &#63;.
+	 *
+	 * @param createDate the create date
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByCreateDate(long createDate) throws SystemException {
+		Object[] finderArgs = new Object[] { createDate };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_CREATEDATE,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_CREATEDATE_CREATEDATE_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(createDate);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_CREATEDATE,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_CREATEDATE_CREATEDATE_2 = "entry.createDate = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_FROMUSERID =
+		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByFromUserId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID =
+		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByFromUserId",
+			new String[] { Long.class.getName() },
+			EntryModelImpl.FROMUSERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_FROMUSERID = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByFromUserId",
+			new String[] { Long.class.getName() });
+
+	/**
 	 * Returns all the entries where fromUserId = &#63;.
 	 *
 	 * @param fromUserId the from user ID
@@ -1460,6 +950,92 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 	}
 
 	/**
+	 * Removes all the entries where fromUserId = &#63; from the database.
+	 *
+	 * @param fromUserId the from user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByFromUserId(long fromUserId) throws SystemException {
+		for (Entry entry : findByFromUserId(fromUserId)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where fromUserId = &#63;.
+	 *
+	 * @param fromUserId the from user ID
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByFromUserId(long fromUserId) throws SystemException {
+		Object[] finderArgs = new Object[] { fromUserId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_FROMUSERID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_FROMUSERID_FROMUSERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(fromUserId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_FROMUSERID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_FROMUSERID_FROMUSERID_2 = "entry.fromUserId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_TOUSERID = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByToUserId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID =
+		new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByToUserId",
+			new String[] { Long.class.getName() },
+			EntryModelImpl.TOUSERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_TOUSERID = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByToUserId",
+			new String[] { Long.class.getName() });
+
+	/**
 	 * Returns all the entries where toUserId = &#63;.
 	 *
 	 * @param toUserId the to user ID
@@ -1835,6 +1411,92 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the entries where toUserId = &#63; from the database.
+	 *
+	 * @param toUserId the to user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByToUserId(long toUserId) throws SystemException {
+		for (Entry entry : findByToUserId(toUserId)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where toUserId = &#63;.
+	 *
+	 * @param toUserId the to user ID
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByToUserId(long toUserId) throws SystemException {
+		Object[] finderArgs = new Object[] { toUserId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_TOUSERID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_TOUSERID_TOUSERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(toUserId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_TOUSERID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_TOUSERID_TOUSERID_2 = "entry.toUserId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_F = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_F",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_F",
+			new String[] { Long.class.getName(), Long.class.getName() },
+			EntryModelImpl.CREATEDATE_COLUMN_BITMASK |
+			EntryModelImpl.FROMUSERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_C_F = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_F",
+			new String[] { Long.class.getName(), Long.class.getName() });
 
 	/**
 	 * Returns all the entries where createDate = &#63; and fromUserId = &#63;.
@@ -2244,6 +1906,101 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 	}
 
 	/**
+	 * Removes all the entries where createDate = &#63; and fromUserId = &#63; from the database.
+	 *
+	 * @param createDate the create date
+	 * @param fromUserId the from user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByC_F(long createDate, long fromUserId)
+		throws SystemException {
+		for (Entry entry : findByC_F(createDate, fromUserId)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where createDate = &#63; and fromUserId = &#63;.
+	 *
+	 * @param createDate the create date
+	 * @param fromUserId the from user ID
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByC_F(long createDate, long fromUserId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { createDate, fromUserId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_F,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_C_F_CREATEDATE_2);
+
+			query.append(_FINDER_COLUMN_C_F_FROMUSERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(createDate);
+
+				qPos.add(fromUserId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_F, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_C_F_CREATEDATE_2 = "entry.createDate = ? AND ";
+	private static final String _FINDER_COLUMN_C_F_FROMUSERID_2 = "entry.fromUserId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_T",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_T",
+			new String[] { Long.class.getName(), Long.class.getName() },
+			EntryModelImpl.CREATEDATE_COLUMN_BITMASK |
+			EntryModelImpl.TOUSERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_C_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_T",
+			new String[] { Long.class.getName(), Long.class.getName() });
+
+	/**
 	 * Returns all the entries where createDate = &#63; and toUserId = &#63;.
 	 *
 	 * @param createDate the create date
@@ -2649,6 +2406,106 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the entries where createDate = &#63; and toUserId = &#63; from the database.
+	 *
+	 * @param createDate the create date
+	 * @param toUserId the to user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByC_T(long createDate, long toUserId)
+		throws SystemException {
+		for (Entry entry : findByC_T(createDate, toUserId)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where createDate = &#63; and toUserId = &#63;.
+	 *
+	 * @param createDate the create date
+	 * @param toUserId the to user ID
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByC_T(long createDate, long toUserId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { createDate, toUserId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_T,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_C_T_CREATEDATE_2);
+
+			query.append(_FINDER_COLUMN_C_T_TOUSERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(createDate);
+
+				qPos.add(toUserId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_T, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_C_T_CREATEDATE_2 = "entry.createDate = ? AND ";
+	private static final String _FINDER_COLUMN_C_T_TOUSERID_2 = "entry.toUserId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_C_F_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_F_T",
+			new String[] {
+				Long.class.getName(), Long.class.getName(), Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByC_F_T",
+			new String[] {
+				Long.class.getName(), Long.class.getName(), Long.class.getName()
+			},
+			EntryModelImpl.CREATEDATE_COLUMN_BITMASK |
+			EntryModelImpl.FROMUSERID_COLUMN_BITMASK |
+			EntryModelImpl.TOUSERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_C_F_T = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_F_T",
+			new String[] {
+				Long.class.getName(), Long.class.getName(), Long.class.getName()
+			});
 
 	/**
 	 * Returns all the entries where createDate = &#63; and fromUserId = &#63; and toUserId = &#63;.
@@ -3084,6 +2941,116 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the entries where createDate = &#63; and fromUserId = &#63; and toUserId = &#63; from the database.
+	 *
+	 * @param createDate the create date
+	 * @param fromUserId the from user ID
+	 * @param toUserId the to user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByC_F_T(long createDate, long fromUserId, long toUserId)
+		throws SystemException {
+		for (Entry entry : findByC_F_T(createDate, fromUserId, toUserId)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where createDate = &#63; and fromUserId = &#63; and toUserId = &#63;.
+	 *
+	 * @param createDate the create date
+	 * @param fromUserId the from user ID
+	 * @param toUserId the to user ID
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByC_F_T(long createDate, long fromUserId, long toUserId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { createDate, fromUserId, toUserId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_F_T,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(4);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_C_F_T_CREATEDATE_2);
+
+			query.append(_FINDER_COLUMN_C_F_T_FROMUSERID_2);
+
+			query.append(_FINDER_COLUMN_C_F_T_TOUSERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(createDate);
+
+				qPos.add(fromUserId);
+
+				qPos.add(toUserId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_F_T,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_C_F_T_CREATEDATE_2 = "entry.createDate = ? AND ";
+	private static final String _FINDER_COLUMN_C_F_T_FROMUSERID_2 = "entry.fromUserId = ? AND ";
+	private static final String _FINDER_COLUMN_C_F_T_TOUSERID_2 = "entry.toUserId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_F_T_C = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByF_T_C",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				String.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, EntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByF_T_C",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				String.class.getName()
+			},
+			EntryModelImpl.FROMUSERID_COLUMN_BITMASK |
+			EntryModelImpl.TOUSERID_COLUMN_BITMASK |
+			EntryModelImpl.CONTENT_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_F_T_C = new FinderPath(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByF_T_C",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				String.class.getName()
+			});
 
 	/**
 	 * Returns all the entries where fromUserId = &#63; and toUserId = &#63; and content = &#63;.
@@ -3545,6 +3512,585 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 	}
 
 	/**
+	 * Removes all the entries where fromUserId = &#63; and toUserId = &#63; and content = &#63; from the database.
+	 *
+	 * @param fromUserId the from user ID
+	 * @param toUserId the to user ID
+	 * @param content the content
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByF_T_C(long fromUserId, long toUserId, String content)
+		throws SystemException {
+		for (Entry entry : findByF_T_C(fromUserId, toUserId, content)) {
+			remove(entry);
+		}
+	}
+
+	/**
+	 * Returns the number of entries where fromUserId = &#63; and toUserId = &#63; and content = &#63;.
+	 *
+	 * @param fromUserId the from user ID
+	 * @param toUserId the to user ID
+	 * @param content the content
+	 * @return the number of matching entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByF_T_C(long fromUserId, long toUserId, String content)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { fromUserId, toUserId, content };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_F_T_C,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(4);
+
+			query.append(_SQL_COUNT_ENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_F_T_C_FROMUSERID_2);
+
+			query.append(_FINDER_COLUMN_F_T_C_TOUSERID_2);
+
+			if (content == null) {
+				query.append(_FINDER_COLUMN_F_T_C_CONTENT_1);
+			}
+			else {
+				if (content.equals(StringPool.BLANK)) {
+					query.append(_FINDER_COLUMN_F_T_C_CONTENT_3);
+				}
+				else {
+					query.append(_FINDER_COLUMN_F_T_C_CONTENT_2);
+				}
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(fromUserId);
+
+				qPos.add(toUserId);
+
+				if (content != null) {
+					qPos.add(content);
+				}
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_F_T_C,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_F_T_C_FROMUSERID_2 = "entry.fromUserId = ? AND ";
+	private static final String _FINDER_COLUMN_F_T_C_TOUSERID_2 = "entry.toUserId = ? AND ";
+	private static final String _FINDER_COLUMN_F_T_C_CONTENT_1 = "entry.content IS NULL";
+	private static final String _FINDER_COLUMN_F_T_C_CONTENT_2 = "entry.content = ?";
+	private static final String _FINDER_COLUMN_F_T_C_CONTENT_3 = "(entry.content IS NULL OR entry.content = ?)";
+
+	/**
+	 * Caches the entry in the entity cache if it is enabled.
+	 *
+	 * @param entry the entry
+	 */
+	public void cacheResult(Entry entry) {
+		EntityCacheUtil.putResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryImpl.class, entry.getPrimaryKey(), entry);
+
+		entry.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the entries in the entity cache if it is enabled.
+	 *
+	 * @param entries the entries
+	 */
+	public void cacheResult(List<Entry> entries) {
+		for (Entry entry : entries) {
+			if (EntityCacheUtil.getResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+						EntryImpl.class, entry.getPrimaryKey()) == null) {
+				cacheResult(entry);
+			}
+			else {
+				entry.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all entries.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(EntryImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(EntryImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the entry.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(Entry entry) {
+		EntityCacheUtil.removeResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryImpl.class, entry.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	@Override
+	public void clearCache(List<Entry> entries) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (Entry entry : entries) {
+			EntityCacheUtil.removeResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+				EntryImpl.class, entry.getPrimaryKey());
+		}
+	}
+
+	/**
+	 * Creates a new entry with the primary key. Does not add the entry to the database.
+	 *
+	 * @param entryId the primary key for the new entry
+	 * @return the new entry
+	 */
+	public Entry create(long entryId) {
+		Entry entry = new EntryImpl();
+
+		entry.setNew(true);
+		entry.setPrimaryKey(entryId);
+
+		return entry;
+	}
+
+	/**
+	 * Removes the entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param entryId the primary key of the entry
+	 * @return the entry that was removed
+	 * @throws com.liferay.chat.NoSuchEntryException if a entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Entry remove(long entryId)
+		throws NoSuchEntryException, SystemException {
+		return remove(Long.valueOf(entryId));
+	}
+
+	/**
+	 * Removes the entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the entry
+	 * @return the entry that was removed
+	 * @throws com.liferay.chat.NoSuchEntryException if a entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Entry remove(Serializable primaryKey)
+		throws NoSuchEntryException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Entry entry = (Entry)session.get(EntryImpl.class, primaryKey);
+
+			if (entry == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(entry);
+		}
+		catch (NoSuchEntryException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected Entry removeImpl(Entry entry) throws SystemException {
+		entry = toUnwrappedModel(entry);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(entry)) {
+				entry = (Entry)session.get(EntryImpl.class,
+						entry.getPrimaryKeyObj());
+			}
+
+			if (entry != null) {
+				session.delete(entry);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (entry != null) {
+			clearCache(entry);
+		}
+
+		return entry;
+	}
+
+	@Override
+	public Entry updateImpl(com.liferay.chat.model.Entry entry)
+		throws SystemException {
+		entry = toUnwrappedModel(entry);
+
+		boolean isNew = entry.isNew();
+
+		EntryModelImpl entryModelImpl = (EntryModelImpl)entry;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (entry.isNew()) {
+				session.save(entry);
+
+				entry.setNew(false);
+			}
+			else {
+				session.merge(entry);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !EntryModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CREATEDATE.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalCreateDate())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CREATEDATE,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CREATEDATE,
+					args);
+
+				args = new Object[] { Long.valueOf(entryModelImpl.getCreateDate()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_CREATEDATE,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_CREATEDATE,
+					args);
+			}
+
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalFromUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FROMUSERID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID,
+					args);
+
+				args = new Object[] { Long.valueOf(entryModelImpl.getFromUserId()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_FROMUSERID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_FROMUSERID,
+					args);
+			}
+
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalToUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_TOUSERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID,
+					args);
+
+				args = new Object[] { Long.valueOf(entryModelImpl.getToUserId()) };
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_TOUSERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_TOUSERID,
+					args);
+			}
+
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalCreateDate()),
+						Long.valueOf(entryModelImpl.getOriginalFromUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(entryModelImpl.getCreateDate()),
+						Long.valueOf(entryModelImpl.getFromUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F,
+					args);
+			}
+
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalCreateDate()),
+						Long.valueOf(entryModelImpl.getOriginalToUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_T, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(entryModelImpl.getCreateDate()),
+						Long.valueOf(entryModelImpl.getToUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_T, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_T,
+					args);
+			}
+
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalCreateDate()),
+						Long.valueOf(entryModelImpl.getOriginalFromUserId()),
+						Long.valueOf(entryModelImpl.getOriginalToUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F_T, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(entryModelImpl.getCreateDate()),
+						Long.valueOf(entryModelImpl.getFromUserId()),
+						Long.valueOf(entryModelImpl.getToUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_C_F_T, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_C_F_T,
+					args);
+			}
+
+			if ((entryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(entryModelImpl.getOriginalFromUserId()),
+						Long.valueOf(entryModelImpl.getOriginalToUserId()),
+						
+						entryModelImpl.getOriginalContent()
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_F_T_C, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(entryModelImpl.getFromUserId()),
+						Long.valueOf(entryModelImpl.getToUserId()),
+						
+						entryModelImpl.getContent()
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_F_T_C, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_F_T_C,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+			EntryImpl.class, entry.getPrimaryKey(), entry);
+
+		return entry;
+	}
+
+	protected Entry toUnwrappedModel(Entry entry) {
+		if (entry instanceof EntryImpl) {
+			return entry;
+		}
+
+		EntryImpl entryImpl = new EntryImpl();
+
+		entryImpl.setNew(entry.isNew());
+		entryImpl.setPrimaryKey(entry.getPrimaryKey());
+
+		entryImpl.setEntryId(entry.getEntryId());
+		entryImpl.setCreateDate(entry.getCreateDate());
+		entryImpl.setFromUserId(entry.getFromUserId());
+		entryImpl.setToUserId(entry.getToUserId());
+		entryImpl.setContent(entry.getContent());
+
+		return entryImpl;
+	}
+
+	/**
+	 * Returns the entry with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the entry
+	 * @return the entry
+	 * @throws com.liferay.portal.NoSuchModelException if a entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Entry findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the entry with the primary key or throws a {@link com.liferay.chat.NoSuchEntryException} if it could not be found.
+	 *
+	 * @param entryId the primary key of the entry
+	 * @return the entry
+	 * @throws com.liferay.chat.NoSuchEntryException if a entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Entry findByPrimaryKey(long entryId)
+		throws NoSuchEntryException, SystemException {
+		Entry entry = fetchByPrimaryKey(entryId);
+
+		if (entry == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + entryId);
+			}
+
+			throw new NoSuchEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				entryId);
+		}
+
+		return entry;
+	}
+
+	/**
+	 * Returns the entry with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the entry
+	 * @return the entry, or <code>null</code> if a entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public Entry fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the entry with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param entryId the primary key of the entry
+	 * @return the entry, or <code>null</code> if a entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public Entry fetchByPrimaryKey(long entryId) throws SystemException {
+		Entry entry = (Entry)EntityCacheUtil.getResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+				EntryImpl.class, entryId);
+
+		if (entry == _nullEntry) {
+			return null;
+		}
+
+		if (entry == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				entry = (Entry)session.get(EntryImpl.class,
+						Long.valueOf(entryId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (entry != null) {
+					cacheResult(entry);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(EntryModelImpl.ENTITY_CACHE_ENABLED,
+						EntryImpl.class, entryId, _nullEntry);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return entry;
+	}
+
+	/**
 	 * Returns all the entries.
 	 *
 	 * @return the entries
@@ -3659,100 +4205,6 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 	}
 
 	/**
-	 * Removes all the entries where createDate = &#63; from the database.
-	 *
-	 * @param createDate the create date
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByCreateDate(long createDate) throws SystemException {
-		for (Entry entry : findByCreateDate(createDate)) {
-			remove(entry);
-		}
-	}
-
-	/**
-	 * Removes all the entries where fromUserId = &#63; from the database.
-	 *
-	 * @param fromUserId the from user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByFromUserId(long fromUserId) throws SystemException {
-		for (Entry entry : findByFromUserId(fromUserId)) {
-			remove(entry);
-		}
-	}
-
-	/**
-	 * Removes all the entries where toUserId = &#63; from the database.
-	 *
-	 * @param toUserId the to user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByToUserId(long toUserId) throws SystemException {
-		for (Entry entry : findByToUserId(toUserId)) {
-			remove(entry);
-		}
-	}
-
-	/**
-	 * Removes all the entries where createDate = &#63; and fromUserId = &#63; from the database.
-	 *
-	 * @param createDate the create date
-	 * @param fromUserId the from user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByC_F(long createDate, long fromUserId)
-		throws SystemException {
-		for (Entry entry : findByC_F(createDate, fromUserId)) {
-			remove(entry);
-		}
-	}
-
-	/**
-	 * Removes all the entries where createDate = &#63; and toUserId = &#63; from the database.
-	 *
-	 * @param createDate the create date
-	 * @param toUserId the to user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByC_T(long createDate, long toUserId)
-		throws SystemException {
-		for (Entry entry : findByC_T(createDate, toUserId)) {
-			remove(entry);
-		}
-	}
-
-	/**
-	 * Removes all the entries where createDate = &#63; and fromUserId = &#63; and toUserId = &#63; from the database.
-	 *
-	 * @param createDate the create date
-	 * @param fromUserId the from user ID
-	 * @param toUserId the to user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByC_F_T(long createDate, long fromUserId, long toUserId)
-		throws SystemException {
-		for (Entry entry : findByC_F_T(createDate, fromUserId, toUserId)) {
-			remove(entry);
-		}
-	}
-
-	/**
-	 * Removes all the entries where fromUserId = &#63; and toUserId = &#63; and content = &#63; from the database.
-	 *
-	 * @param fromUserId the from user ID
-	 * @param toUserId the to user ID
-	 * @param content the content
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByF_T_C(long fromUserId, long toUserId, String content)
-		throws SystemException {
-		for (Entry entry : findByF_T_C(fromUserId, toUserId, content)) {
-			remove(entry);
-		}
-	}
-
-	/**
 	 * Removes all the entries from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -3761,423 +4213,6 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 		for (Entry entry : findAll()) {
 			remove(entry);
 		}
-	}
-
-	/**
-	 * Returns the number of entries where createDate = &#63;.
-	 *
-	 * @param createDate the create date
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByCreateDate(long createDate) throws SystemException {
-		Object[] finderArgs = new Object[] { createDate };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_CREATEDATE,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_CREATEDATE_CREATEDATE_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(createDate);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_CREATEDATE,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of entries where fromUserId = &#63;.
-	 *
-	 * @param fromUserId the from user ID
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByFromUserId(long fromUserId) throws SystemException {
-		Object[] finderArgs = new Object[] { fromUserId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_FROMUSERID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_FROMUSERID_FROMUSERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(fromUserId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_FROMUSERID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of entries where toUserId = &#63;.
-	 *
-	 * @param toUserId the to user ID
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByToUserId(long toUserId) throws SystemException {
-		Object[] finderArgs = new Object[] { toUserId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_TOUSERID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_TOUSERID_TOUSERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(toUserId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_TOUSERID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of entries where createDate = &#63; and fromUserId = &#63;.
-	 *
-	 * @param createDate the create date
-	 * @param fromUserId the from user ID
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByC_F(long createDate, long fromUserId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { createDate, fromUserId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_F,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_C_F_CREATEDATE_2);
-
-			query.append(_FINDER_COLUMN_C_F_FROMUSERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(createDate);
-
-				qPos.add(fromUserId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_F, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of entries where createDate = &#63; and toUserId = &#63;.
-	 *
-	 * @param createDate the create date
-	 * @param toUserId the to user ID
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByC_T(long createDate, long toUserId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { createDate, toUserId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_T,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_C_T_CREATEDATE_2);
-
-			query.append(_FINDER_COLUMN_C_T_TOUSERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(createDate);
-
-				qPos.add(toUserId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_T, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of entries where createDate = &#63; and fromUserId = &#63; and toUserId = &#63;.
-	 *
-	 * @param createDate the create date
-	 * @param fromUserId the from user ID
-	 * @param toUserId the to user ID
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByC_F_T(long createDate, long fromUserId, long toUserId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { createDate, fromUserId, toUserId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_C_F_T,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(4);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_C_F_T_CREATEDATE_2);
-
-			query.append(_FINDER_COLUMN_C_F_T_FROMUSERID_2);
-
-			query.append(_FINDER_COLUMN_C_F_T_TOUSERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(createDate);
-
-				qPos.add(fromUserId);
-
-				qPos.add(toUserId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_C_F_T,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of entries where fromUserId = &#63; and toUserId = &#63; and content = &#63;.
-	 *
-	 * @param fromUserId the from user ID
-	 * @param toUserId the to user ID
-	 * @param content the content
-	 * @return the number of matching entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByF_T_C(long fromUserId, long toUserId, String content)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { fromUserId, toUserId, content };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_F_T_C,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(4);
-
-			query.append(_SQL_COUNT_ENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_F_T_C_FROMUSERID_2);
-
-			query.append(_FINDER_COLUMN_F_T_C_TOUSERID_2);
-
-			if (content == null) {
-				query.append(_FINDER_COLUMN_F_T_C_CONTENT_1);
-			}
-			else {
-				if (content.equals(StringPool.BLANK)) {
-					query.append(_FINDER_COLUMN_F_T_C_CONTENT_3);
-				}
-				else {
-					query.append(_FINDER_COLUMN_F_T_C_CONTENT_2);
-				}
-			}
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(fromUserId);
-
-				qPos.add(toUserId);
-
-				if (content != null) {
-					qPos.add(content);
-				}
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_F_T_C,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -4259,21 +4294,6 @@ public class EntryPersistenceImpl extends BasePersistenceImpl<Entry>
 	private static final String _SQL_SELECT_ENTRY_WHERE = "SELECT entry FROM Entry entry WHERE ";
 	private static final String _SQL_COUNT_ENTRY = "SELECT COUNT(entry) FROM Entry entry";
 	private static final String _SQL_COUNT_ENTRY_WHERE = "SELECT COUNT(entry) FROM Entry entry WHERE ";
-	private static final String _FINDER_COLUMN_CREATEDATE_CREATEDATE_2 = "entry.createDate = ?";
-	private static final String _FINDER_COLUMN_FROMUSERID_FROMUSERID_2 = "entry.fromUserId = ?";
-	private static final String _FINDER_COLUMN_TOUSERID_TOUSERID_2 = "entry.toUserId = ?";
-	private static final String _FINDER_COLUMN_C_F_CREATEDATE_2 = "entry.createDate = ? AND ";
-	private static final String _FINDER_COLUMN_C_F_FROMUSERID_2 = "entry.fromUserId = ?";
-	private static final String _FINDER_COLUMN_C_T_CREATEDATE_2 = "entry.createDate = ? AND ";
-	private static final String _FINDER_COLUMN_C_T_TOUSERID_2 = "entry.toUserId = ?";
-	private static final String _FINDER_COLUMN_C_F_T_CREATEDATE_2 = "entry.createDate = ? AND ";
-	private static final String _FINDER_COLUMN_C_F_T_FROMUSERID_2 = "entry.fromUserId = ? AND ";
-	private static final String _FINDER_COLUMN_C_F_T_TOUSERID_2 = "entry.toUserId = ?";
-	private static final String _FINDER_COLUMN_F_T_C_FROMUSERID_2 = "entry.fromUserId = ? AND ";
-	private static final String _FINDER_COLUMN_F_T_C_TOUSERID_2 = "entry.toUserId = ? AND ";
-	private static final String _FINDER_COLUMN_F_T_C_CONTENT_1 = "entry.content IS NULL";
-	private static final String _FINDER_COLUMN_F_T_C_CONTENT_2 = "entry.content = ?";
-	private static final String _FINDER_COLUMN_F_T_C_CONTENT_3 = "(entry.content IS NULL OR entry.content = ?)";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "entry.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Entry exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Entry exists with the key {";

@@ -879,6 +879,10 @@ public class KBArticleWrapper implements KBArticle, ModelWrapper<KBArticle> {
 		return new KBArticleWrapper(_kbArticle.toEscapedModel());
 	}
 
+	public com.liferay.knowledgebase.model.KBArticle toUnescapedModel() {
+		return new KBArticleWrapper(_kbArticle.toUnescapedModel());
+	}
+
 	@Override
 	public java.lang.String toString() {
 		return _kbArticle.toString();
@@ -901,6 +905,12 @@ public class KBArticleWrapper implements KBArticle, ModelWrapper<KBArticle> {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _kbArticle.getAttachmentsFileNames();
+	}
+
+	public java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getAttachmentsFileEntries()
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _kbArticle.getAttachmentsFileEntries();
 	}
 
 	public long getClassPK() {

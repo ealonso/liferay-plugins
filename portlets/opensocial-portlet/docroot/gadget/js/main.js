@@ -70,7 +70,7 @@ AUI.add(
 								return 'ALL';
 							}
 						}
-					}, 
+					},
 					moduleId: {
 						valueFn: function() {
 							return Gadget._id++;
@@ -118,7 +118,14 @@ AUI.add(
 						}
 					},
 					userPrefs: {
-						value: {}
+						setter: function(v) {
+							if (v) {
+								return v;
+							}
+							else {
+								return {};
+							}
+						}
 					},
 					view: {
 						value: 'default'

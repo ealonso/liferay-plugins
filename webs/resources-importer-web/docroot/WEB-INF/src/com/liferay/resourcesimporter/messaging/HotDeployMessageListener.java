@@ -20,7 +20,9 @@ import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Validator;
@@ -39,7 +41,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -70,22 +74,12 @@ public class HotDeployMessageListener extends BaseMessageListener {
 			return;
 		}
 
-		Properties pluginProperties = getPluginProperties(servletContext);
+		Properties pluginPackageProperties = getPluginPackageProperties(
+			servletContext);
 
-		String targetClassName = pluginProperties.getProperty(
+		String targetClassName = pluginPackageProperties.getProperty(
 			"resources-importer-target-class-name",
 			LayoutSetPrototype.class.getName());
-
-		String targetValue = pluginProperties.getProperty(
-			"resources-importer-target-value");
-
-		if (Validator.isNull(targetValue)) {
-			targetValue = TextFormatter.format(
-				servletContextName, TextFormatter.J);
-		}
-
-		String resourcesDir = pluginProperties.getProperty(
-			"resources-importer-external-dir");
 
 		Set<String> resourcePaths = servletContext.getResourcePaths(
 			_RESOURCES_DIR);
@@ -118,6 +112,9 @@ public class HotDeployMessageListener extends BaseMessageListener {
 					importer.setResourcesDir(_RESOURCES_DIR);
 				}
 				else {
+					String resourcesDir = pluginPackageProperties.getProperty(
+						"resources-importer-external-dir");
+
 					if (Validator.isNotNull(resourcesDir)) {
 						importer = getFileSystemImporter();
 
@@ -133,11 +130,24 @@ public class HotDeployMessageListener extends BaseMessageListener {
 				importer.setServletContext(servletContext);
 				importer.setServletContextName(servletContextName);
 				importer.setTargetClassName(targetClassName);
+
+				String targetValue = pluginPackageProperties.getProperty(
+					"resources-importer-target-value");
+
+				if (Validator.isNull(targetValue)) {
+					targetValue = TextFormatter.format(
+						servletContextName, TextFormatter.J);
+				}
+
 				importer.setTargetValue(targetValue);
 
 				importer.afterPropertiesSet();
 
-				if (importer.getGroupId() == 0) {
+				boolean developerModeEnabled = GetterUtil.getBoolean(
+					pluginPackageProperties.getProperty(
+						"resources-importer-developer-mode-enabled"));
+
+				if (!developerModeEnabled && importer.isExisting()) {
 					if (_log.isInfoEnabled()) {
 						_log.info(
 							"Group or layout set prototype already exists " +
@@ -147,13 +157,22 @@ public class HotDeployMessageListener extends BaseMessageListener {
 					continue;
 				}
 
+				long startTime = 0;
+
 				if (_log.isInfoEnabled()) {
-					_log.info(
-						"Importing resources from " + servletContextName +
-							" to group " + importer.getGroupId());
+					startTime = System.currentTimeMillis();
 				}
 
 				importer.importResources();
+
+				if (_log.isInfoEnabled()) {
+					long endTime = System.currentTimeMillis() - startTime;
+
+					_log.info(
+						"Importing resources from " + servletContextName +
+							" to group " + importer.getGroupId() + " takes " +
+								endTime + " ms");
+				}
 
 				Message newMessage = new Message();
 
@@ -161,6 +180,17 @@ public class HotDeployMessageListener extends BaseMessageListener {
 				newMessage.put("servletContextName", servletContextName);
 				newMessage.put("targetClassName", targetClassName);
 				newMessage.put("targetClassPK", importer.getTargetClassPK());
+
+				if (message.getResponseId() != null) {
+					Map<String, Object> responseMap =
+						new HashMap<String, Object>();
+
+					responseMap.put("groupId", importer.getTargetClassPK());
+
+					newMessage.setPayload(responseMap);
+
+					newMessage.setResponseId(message.getResponseId());
+				}
 
 				MessageBusUtil.sendMessage(
 					"liferay/resources_importer", newMessage);
@@ -191,8 +221,10 @@ public class HotDeployMessageListener extends BaseMessageListener {
 		return new LARImporter();
 	}
 
-	protected Properties getPluginProperties(ServletContext servletContext) {
-		Properties properties = null;
+	protected Properties getPluginPackageProperties(
+		ServletContext servletContext) {
+
+		Properties properties = new Properties();
 
 		try {
 			String propertiesString = StringUtil.read(
@@ -200,15 +232,20 @@ public class HotDeployMessageListener extends BaseMessageListener {
 					"/WEB-INF/liferay-plugin-package.properties"));
 
 			if (propertiesString != null) {
-				properties = PropertiesUtil.load(propertiesString);
+				String contextPath = servletContext.getRealPath(
+					StringPool.SLASH);
+
+				contextPath = StringUtil.replace(
+					contextPath, StringPool.BACK_SLASH, StringPool.SLASH);
+
+				propertiesString = propertiesString.replace(
+					"${context.path}", contextPath);
+
+				PropertiesUtil.load(properties, propertiesString);
 			}
 		}
 		catch (IOException e) {
 			_log.error(e, e);
-		}
-
-		if (properties == null) {
-			properties = new Properties();
 		}
 
 		return properties;

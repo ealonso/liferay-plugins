@@ -95,19 +95,87 @@ public class SVNRepositoryUtil {
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel)
 	 */
-	public static SVNRepository update(SVNRepository svnRepository,
-		boolean merge) throws SystemException {
-		return getPersistence().update(svnRepository, merge);
+	public static SVNRepository update(SVNRepository svnRepository)
+		throws SystemException {
+		return getPersistence().update(svnRepository);
 	}
 
 	/**
-	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, boolean, ServiceContext)
+	 * @see com.liferay.portal.service.persistence.BasePersistence#update(com.liferay.portal.model.BaseModel, ServiceContext)
 	 */
 	public static SVNRepository update(SVNRepository svnRepository,
-		boolean merge, ServiceContext serviceContext) throws SystemException {
-		return getPersistence().update(svnRepository, merge, serviceContext);
+		ServiceContext serviceContext) throws SystemException {
+		return getPersistence().update(svnRepository, serviceContext);
+	}
+
+	/**
+	* Returns the s v n repository where url = &#63; or throws a {@link com.liferay.socialcoding.NoSuchSVNRepositoryException} if it could not be found.
+	*
+	* @param url the url
+	* @return the matching s v n repository
+	* @throws com.liferay.socialcoding.NoSuchSVNRepositoryException if a matching s v n repository could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.socialcoding.model.SVNRepository findByUrl(
+		java.lang.String url)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.socialcoding.NoSuchSVNRepositoryException {
+		return getPersistence().findByUrl(url);
+	}
+
+	/**
+	* Returns the s v n repository where url = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	*
+	* @param url the url
+	* @return the matching s v n repository, or <code>null</code> if a matching s v n repository could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.socialcoding.model.SVNRepository fetchByUrl(
+		java.lang.String url)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByUrl(url);
+	}
+
+	/**
+	* Returns the s v n repository where url = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	*
+	* @param url the url
+	* @param retrieveFromCache whether to use the finder cache
+	* @return the matching s v n repository, or <code>null</code> if a matching s v n repository could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.socialcoding.model.SVNRepository fetchByUrl(
+		java.lang.String url, boolean retrieveFromCache)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().fetchByUrl(url, retrieveFromCache);
+	}
+
+	/**
+	* Removes the s v n repository where url = &#63; from the database.
+	*
+	* @param url the url
+	* @return the s v n repository that was removed
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.socialcoding.model.SVNRepository removeByUrl(
+		java.lang.String url)
+		throws com.liferay.portal.kernel.exception.SystemException,
+			com.liferay.socialcoding.NoSuchSVNRepositoryException {
+		return getPersistence().removeByUrl(url);
+	}
+
+	/**
+	* Returns the number of s v n repositories where url = &#63;.
+	*
+	* @param url the url
+	* @return the number of matching s v n repositories
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByUrl(java.lang.String url)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByUrl(url);
 	}
 
 	/**
@@ -157,10 +225,9 @@ public class SVNRepositoryUtil {
 	}
 
 	public static com.liferay.socialcoding.model.SVNRepository updateImpl(
-		com.liferay.socialcoding.model.SVNRepository svnRepository,
-		boolean merge)
+		com.liferay.socialcoding.model.SVNRepository svnRepository)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().updateImpl(svnRepository, merge);
+		return getPersistence().updateImpl(svnRepository);
 	}
 
 	/**
@@ -189,48 +256,6 @@ public class SVNRepositoryUtil {
 		long svnRepositoryId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getPersistence().fetchByPrimaryKey(svnRepositoryId);
-	}
-
-	/**
-	* Returns the s v n repository where url = &#63; or throws a {@link com.liferay.socialcoding.NoSuchSVNRepositoryException} if it could not be found.
-	*
-	* @param url the url
-	* @return the matching s v n repository
-	* @throws com.liferay.socialcoding.NoSuchSVNRepositoryException if a matching s v n repository could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.socialcoding.model.SVNRepository findByUrl(
-		java.lang.String url)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.socialcoding.NoSuchSVNRepositoryException {
-		return getPersistence().findByUrl(url);
-	}
-
-	/**
-	* Returns the s v n repository where url = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
-	*
-	* @param url the url
-	* @return the matching s v n repository, or <code>null</code> if a matching s v n repository could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.socialcoding.model.SVNRepository fetchByUrl(
-		java.lang.String url)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByUrl(url);
-	}
-
-	/**
-	* Returns the s v n repository where url = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
-	*
-	* @param url the url
-	* @param retrieveFromCache whether to use the finder cache
-	* @return the matching s v n repository, or <code>null</code> if a matching s v n repository could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.socialcoding.model.SVNRepository fetchByUrl(
-		java.lang.String url, boolean retrieveFromCache)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByUrl(url, retrieveFromCache);
 	}
 
 	/**
@@ -283,20 +308,6 @@ public class SVNRepositoryUtil {
 	}
 
 	/**
-	* Removes the s v n repository where url = &#63; from the database.
-	*
-	* @param url the url
-	* @return the s v n repository that was removed
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.socialcoding.model.SVNRepository removeByUrl(
-		java.lang.String url)
-		throws com.liferay.portal.kernel.exception.SystemException,
-			com.liferay.socialcoding.NoSuchSVNRepositoryException {
-		return getPersistence().removeByUrl(url);
-	}
-
-	/**
 	* Removes all the s v n repositories from the database.
 	*
 	* @throws SystemException if a system exception occurred
@@ -304,18 +315,6 @@ public class SVNRepositoryUtil {
 	public static void removeAll()
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getPersistence().removeAll();
-	}
-
-	/**
-	* Returns the number of s v n repositories where url = &#63;.
-	*
-	* @param url the url
-	* @return the number of matching s v n repositories
-	* @throws SystemException if a system exception occurred
-	*/
-	public static int countByUrl(java.lang.String url)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().countByUrl(url);
 	}
 
 	/**

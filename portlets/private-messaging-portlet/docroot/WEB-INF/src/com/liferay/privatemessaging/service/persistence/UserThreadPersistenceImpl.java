@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -76,6 +75,15 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_MBTHREADID =
 		new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
 			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
@@ -96,552 +104,6 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByMBThreadId",
 			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_USERID = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID =
-		new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUserId",
-			new String[] { Long.class.getName() },
-			UserThreadModelImpl.USERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_USERID = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_FETCH_BY_U_M = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_ENTITY, "fetchByU_M",
-			new String[] { Long.class.getName(), Long.class.getName() },
-			UserThreadModelImpl.USERID_COLUMN_BITMASK |
-			UserThreadModelImpl.MBTHREADID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_U_M = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_M",
-			new String[] { Long.class.getName(), Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_U_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_D",
-			new String[] {
-				Long.class.getName(), Boolean.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByU_D",
-			new String[] { Long.class.getName(), Boolean.class.getName() },
-			UserThreadModelImpl.USERID_COLUMN_BITMASK |
-			UserThreadModelImpl.DELETED_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_U_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_D",
-			new String[] { Long.class.getName(), Boolean.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_U_R_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_R_D",
-			new String[] {
-				Long.class.getName(), Boolean.class.getName(),
-				Boolean.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByU_R_D",
-			new String[] {
-				Long.class.getName(), Boolean.class.getName(),
-				Boolean.class.getName()
-			},
-			UserThreadModelImpl.USERID_COLUMN_BITMASK |
-			UserThreadModelImpl.READ_COLUMN_BITMASK |
-			UserThreadModelImpl.DELETED_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_U_R_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_R_D",
-			new String[] {
-				Long.class.getName(), Boolean.class.getName(),
-				Boolean.class.getName()
-			});
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the user thread in the entity cache if it is enabled.
-	 *
-	 * @param userThread the user thread
-	 */
-	public void cacheResult(UserThread userThread) {
-		EntityCacheUtil.putResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadImpl.class, userThread.getPrimaryKey(), userThread);
-
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_U_M,
-			new Object[] {
-				Long.valueOf(userThread.getUserId()),
-				Long.valueOf(userThread.getMbThreadId())
-			}, userThread);
-
-		userThread.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the user threads in the entity cache if it is enabled.
-	 *
-	 * @param userThreads the user threads
-	 */
-	public void cacheResult(List<UserThread> userThreads) {
-		for (UserThread userThread : userThreads) {
-			if (EntityCacheUtil.getResult(
-						UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-						UserThreadImpl.class, userThread.getPrimaryKey()) == null) {
-				cacheResult(userThread);
-			}
-			else {
-				userThread.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all user threads.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(UserThreadImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(UserThreadImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the user thread.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(UserThread userThread) {
-		EntityCacheUtil.removeResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadImpl.class, userThread.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		clearUniqueFindersCache(userThread);
-	}
-
-	@Override
-	public void clearCache(List<UserThread> userThreads) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (UserThread userThread : userThreads) {
-			EntityCacheUtil.removeResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-				UserThreadImpl.class, userThread.getPrimaryKey());
-
-			clearUniqueFindersCache(userThread);
-		}
-	}
-
-	protected void clearUniqueFindersCache(UserThread userThread) {
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_U_M,
-			new Object[] {
-				Long.valueOf(userThread.getUserId()),
-				Long.valueOf(userThread.getMbThreadId())
-			});
-	}
-
-	/**
-	 * Creates a new user thread with the primary key. Does not add the user thread to the database.
-	 *
-	 * @param userThreadId the primary key for the new user thread
-	 * @return the new user thread
-	 */
-	public UserThread create(long userThreadId) {
-		UserThread userThread = new UserThreadImpl();
-
-		userThread.setNew(true);
-		userThread.setPrimaryKey(userThreadId);
-
-		return userThread;
-	}
-
-	/**
-	 * Removes the user thread with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param userThreadId the primary key of the user thread
-	 * @return the user thread that was removed
-	 * @throws com.liferay.privatemessaging.NoSuchUserThreadException if a user thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public UserThread remove(long userThreadId)
-		throws NoSuchUserThreadException, SystemException {
-		return remove(Long.valueOf(userThreadId));
-	}
-
-	/**
-	 * Removes the user thread with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the user thread
-	 * @return the user thread that was removed
-	 * @throws com.liferay.privatemessaging.NoSuchUserThreadException if a user thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public UserThread remove(Serializable primaryKey)
-		throws NoSuchUserThreadException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			UserThread userThread = (UserThread)session.get(UserThreadImpl.class,
-					primaryKey);
-
-			if (userThread == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchUserThreadException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(userThread);
-		}
-		catch (NoSuchUserThreadException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected UserThread removeImpl(UserThread userThread)
-		throws SystemException {
-		userThread = toUnwrappedModel(userThread);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, userThread);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(userThread);
-
-		return userThread;
-	}
-
-	@Override
-	public UserThread updateImpl(
-		com.liferay.privatemessaging.model.UserThread userThread, boolean merge)
-		throws SystemException {
-		userThread = toUnwrappedModel(userThread);
-
-		boolean isNew = userThread.isNew();
-
-		UserThreadModelImpl userThreadModelImpl = (UserThreadModelImpl)userThread;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, userThread, merge);
-
-			userThread.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !UserThreadModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((userThreadModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MBTHREADID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getOriginalMbThreadId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MBTHREADID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MBTHREADID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getMbThreadId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MBTHREADID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MBTHREADID,
-					args);
-			}
-
-			if ((userThreadModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getOriginalUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
-					args);
-			}
-
-			if ((userThreadModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getOriginalUserId()),
-						Boolean.valueOf(userThreadModelImpl.getOriginalDeleted())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getUserId()),
-						Boolean.valueOf(userThreadModelImpl.getDeleted())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
-					args);
-			}
-
-			if ((userThreadModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getOriginalUserId()),
-						Boolean.valueOf(userThreadModelImpl.getOriginalRead()),
-						Boolean.valueOf(userThreadModelImpl.getOriginalDeleted())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_R_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getUserId()),
-						Boolean.valueOf(userThreadModelImpl.getRead()),
-						Boolean.valueOf(userThreadModelImpl.getDeleted())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_R_D, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-			UserThreadImpl.class, userThread.getPrimaryKey(), userThread);
-
-		if (isNew) {
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_U_M,
-				new Object[] {
-					Long.valueOf(userThread.getUserId()),
-					Long.valueOf(userThread.getMbThreadId())
-				}, userThread);
-		}
-		else {
-			if ((userThreadModelImpl.getColumnBitmask() &
-					FINDER_PATH_FETCH_BY_U_M.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(userThreadModelImpl.getOriginalUserId()),
-						Long.valueOf(userThreadModelImpl.getOriginalMbThreadId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_M, args);
-
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_U_M, args);
-
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_U_M,
-					new Object[] {
-						Long.valueOf(userThread.getUserId()),
-						Long.valueOf(userThread.getMbThreadId())
-					}, userThread);
-			}
-		}
-
-		return userThread;
-	}
-
-	protected UserThread toUnwrappedModel(UserThread userThread) {
-		if (userThread instanceof UserThreadImpl) {
-			return userThread;
-		}
-
-		UserThreadImpl userThreadImpl = new UserThreadImpl();
-
-		userThreadImpl.setNew(userThread.isNew());
-		userThreadImpl.setPrimaryKey(userThread.getPrimaryKey());
-
-		userThreadImpl.setUserThreadId(userThread.getUserThreadId());
-		userThreadImpl.setCompanyId(userThread.getCompanyId());
-		userThreadImpl.setUserId(userThread.getUserId());
-		userThreadImpl.setUserName(userThread.getUserName());
-		userThreadImpl.setCreateDate(userThread.getCreateDate());
-		userThreadImpl.setModifiedDate(userThread.getModifiedDate());
-		userThreadImpl.setMbThreadId(userThread.getMbThreadId());
-		userThreadImpl.setTopMBMessageId(userThread.getTopMBMessageId());
-		userThreadImpl.setRead(userThread.isRead());
-		userThreadImpl.setDeleted(userThread.isDeleted());
-
-		return userThreadImpl;
-	}
-
-	/**
-	 * Returns the user thread with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the user thread
-	 * @return the user thread
-	 * @throws com.liferay.portal.NoSuchModelException if a user thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public UserThread findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the user thread with the primary key or throws a {@link com.liferay.privatemessaging.NoSuchUserThreadException} if it could not be found.
-	 *
-	 * @param userThreadId the primary key of the user thread
-	 * @return the user thread
-	 * @throws com.liferay.privatemessaging.NoSuchUserThreadException if a user thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public UserThread findByPrimaryKey(long userThreadId)
-		throws NoSuchUserThreadException, SystemException {
-		UserThread userThread = fetchByPrimaryKey(userThreadId);
-
-		if (userThread == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + userThreadId);
-			}
-
-			throw new NoSuchUserThreadException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				userThreadId);
-		}
-
-		return userThread;
-	}
-
-	/**
-	 * Returns the user thread with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the user thread
-	 * @return the user thread, or <code>null</code> if a user thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public UserThread fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the user thread with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param userThreadId the primary key of the user thread
-	 * @return the user thread, or <code>null</code> if a user thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public UserThread fetchByPrimaryKey(long userThreadId)
-		throws SystemException {
-		UserThread userThread = (UserThread)EntityCacheUtil.getResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-				UserThreadImpl.class, userThreadId);
-
-		if (userThread == _nullUserThread) {
-			return null;
-		}
-
-		if (userThread == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				userThread = (UserThread)session.get(UserThreadImpl.class,
-						Long.valueOf(userThreadId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (userThread != null) {
-					cacheResult(userThread);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
-						UserThreadImpl.class, userThreadId, _nullUserThread);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return userThread;
-	}
 
 	/**
 	 * Returns all the user threads where mbThreadId = &#63;.
@@ -1027,6 +489,92 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 	}
 
 	/**
+	 * Removes all the user threads where mbThreadId = &#63; from the database.
+	 *
+	 * @param mbThreadId the mb thread ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByMBThreadId(long mbThreadId) throws SystemException {
+		for (UserThread userThread : findByMBThreadId(mbThreadId)) {
+			remove(userThread);
+		}
+	}
+
+	/**
+	 * Returns the number of user threads where mbThreadId = &#63;.
+	 *
+	 * @param mbThreadId the mb thread ID
+	 * @return the number of matching user threads
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByMBThreadId(long mbThreadId) throws SystemException {
+		Object[] finderArgs = new Object[] { mbThreadId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_MBTHREADID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_USERTHREAD_WHERE);
+
+			query.append(_FINDER_COLUMN_MBTHREADID_MBTHREADID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(mbThreadId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_MBTHREADID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_MBTHREADID_MBTHREADID_2 = "userThread.mbThreadId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_USERID = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID =
+		new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUserId",
+			new String[] { Long.class.getName() },
+			UserThreadModelImpl.USERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_USERID = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
+			new String[] { Long.class.getName() });
+
+	/**
 	 * Returns all the user threads where userId = &#63;.
 	 *
 	 * @param userId the user ID
@@ -1405,6 +953,83 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 	}
 
 	/**
+	 * Removes all the user threads where userId = &#63; from the database.
+	 *
+	 * @param userId the user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByUserId(long userId) throws SystemException {
+		for (UserThread userThread : findByUserId(userId)) {
+			remove(userThread);
+		}
+	}
+
+	/**
+	 * Returns the number of user threads where userId = &#63;.
+	 *
+	 * @param userId the user ID
+	 * @return the number of matching user threads
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByUserId(long userId) throws SystemException {
+		Object[] finderArgs = new Object[] { userId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_USERID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_USERTHREAD_WHERE);
+
+			query.append(_FINDER_COLUMN_USERID_USERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(userId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_USERID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_USERID_USERID_2 = "userThread.userId = ?";
+	public static final FinderPath FINDER_PATH_FETCH_BY_U_M = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_ENTITY, "fetchByU_M",
+			new String[] { Long.class.getName(), Long.class.getName() },
+			UserThreadModelImpl.USERID_COLUMN_BITMASK |
+			UserThreadModelImpl.MBTHREADID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_U_M = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_M",
+			new String[] { Long.class.getName(), Long.class.getName() });
+
+	/**
 	 * Returns the user thread where userId = &#63; and mbThreadId = &#63; or throws a {@link com.liferay.privatemessaging.NoSuchUserThreadException} if it could not be found.
 	 *
 	 * @param userId the user ID
@@ -1553,6 +1178,102 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 			}
 		}
 	}
+
+	/**
+	 * Removes the user thread where userId = &#63; and mbThreadId = &#63; from the database.
+	 *
+	 * @param userId the user ID
+	 * @param mbThreadId the mb thread ID
+	 * @return the user thread that was removed
+	 * @throws SystemException if a system exception occurred
+	 */
+	public UserThread removeByU_M(long userId, long mbThreadId)
+		throws NoSuchUserThreadException, SystemException {
+		UserThread userThread = findByU_M(userId, mbThreadId);
+
+		return remove(userThread);
+	}
+
+	/**
+	 * Returns the number of user threads where userId = &#63; and mbThreadId = &#63;.
+	 *
+	 * @param userId the user ID
+	 * @param mbThreadId the mb thread ID
+	 * @return the number of matching user threads
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByU_M(long userId, long mbThreadId)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { userId, mbThreadId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_U_M,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_USERTHREAD_WHERE);
+
+			query.append(_FINDER_COLUMN_U_M_USERID_2);
+
+			query.append(_FINDER_COLUMN_U_M_MBTHREADID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(userId);
+
+				qPos.add(mbThreadId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_U_M, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_U_M_USERID_2 = "userThread.userId = ? AND ";
+	private static final String _FINDER_COLUMN_U_M_MBTHREADID_2 = "userThread.mbThreadId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_U_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_D",
+			new String[] {
+				Long.class.getName(), Boolean.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByU_D",
+			new String[] { Long.class.getName(), Boolean.class.getName() },
+			UserThreadModelImpl.USERID_COLUMN_BITMASK |
+			UserThreadModelImpl.DELETED_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_U_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_D",
+			new String[] { Long.class.getName(), Boolean.class.getName() });
 
 	/**
 	 * Returns all the user threads where userId = &#63; and deleted = &#63;.
@@ -1963,6 +1684,109 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 			return null;
 		}
 	}
+
+	/**
+	 * Removes all the user threads where userId = &#63; and deleted = &#63; from the database.
+	 *
+	 * @param userId the user ID
+	 * @param deleted the deleted
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByU_D(long userId, boolean deleted)
+		throws SystemException {
+		for (UserThread userThread : findByU_D(userId, deleted)) {
+			remove(userThread);
+		}
+	}
+
+	/**
+	 * Returns the number of user threads where userId = &#63; and deleted = &#63;.
+	 *
+	 * @param userId the user ID
+	 * @param deleted the deleted
+	 * @return the number of matching user threads
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByU_D(long userId, boolean deleted)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { userId, deleted };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_U_D,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_USERTHREAD_WHERE);
+
+			query.append(_FINDER_COLUMN_U_D_USERID_2);
+
+			query.append(_FINDER_COLUMN_U_D_DELETED_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(userId);
+
+				qPos.add(deleted);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_U_D, finderArgs,
+					count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_U_D_USERID_2 = "userThread.userId = ? AND ";
+	private static final String _FINDER_COLUMN_U_D_DELETED_2 = "userThread.deleted = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_U_R_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_R_D",
+			new String[] {
+				Long.class.getName(), Boolean.class.getName(),
+				Boolean.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, UserThreadImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByU_R_D",
+			new String[] {
+				Long.class.getName(), Boolean.class.getName(),
+				Boolean.class.getName()
+			},
+			UserThreadModelImpl.USERID_COLUMN_BITMASK |
+			UserThreadModelImpl.READ_COLUMN_BITMASK |
+			UserThreadModelImpl.DELETED_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_U_R_D = new FinderPath(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByU_R_D",
+			new String[] {
+				Long.class.getName(), Boolean.class.getName(),
+				Boolean.class.getName()
+			});
 
 	/**
 	 * Returns all the user threads where userId = &#63; and read = &#63; and deleted = &#63;.
@@ -2401,6 +2225,565 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 	}
 
 	/**
+	 * Removes all the user threads where userId = &#63; and read = &#63; and deleted = &#63; from the database.
+	 *
+	 * @param userId the user ID
+	 * @param read the read
+	 * @param deleted the deleted
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByU_R_D(long userId, boolean read, boolean deleted)
+		throws SystemException {
+		for (UserThread userThread : findByU_R_D(userId, read, deleted)) {
+			remove(userThread);
+		}
+	}
+
+	/**
+	 * Returns the number of user threads where userId = &#63; and read = &#63; and deleted = &#63;.
+	 *
+	 * @param userId the user ID
+	 * @param read the read
+	 * @param deleted the deleted
+	 * @return the number of matching user threads
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByU_R_D(long userId, boolean read, boolean deleted)
+		throws SystemException {
+		Object[] finderArgs = new Object[] { userId, read, deleted };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_U_R_D,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(4);
+
+			query.append(_SQL_COUNT_USERTHREAD_WHERE);
+
+			query.append(_FINDER_COLUMN_U_R_D_USERID_2);
+
+			query.append(_FINDER_COLUMN_U_R_D_READ_2);
+
+			query.append(_FINDER_COLUMN_U_R_D_DELETED_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(userId);
+
+				qPos.add(read);
+
+				qPos.add(deleted);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_U_R_D,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_U_R_D_USERID_2 = "userThread.userId = ? AND ";
+	private static final String _FINDER_COLUMN_U_R_D_READ_2 = "userThread.read = ? AND ";
+	private static final String _FINDER_COLUMN_U_R_D_DELETED_2 = "userThread.deleted = ?";
+
+	/**
+	 * Caches the user thread in the entity cache if it is enabled.
+	 *
+	 * @param userThread the user thread
+	 */
+	public void cacheResult(UserThread userThread) {
+		EntityCacheUtil.putResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadImpl.class, userThread.getPrimaryKey(), userThread);
+
+		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_U_M,
+			new Object[] {
+				Long.valueOf(userThread.getUserId()),
+				Long.valueOf(userThread.getMbThreadId())
+			}, userThread);
+
+		userThread.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the user threads in the entity cache if it is enabled.
+	 *
+	 * @param userThreads the user threads
+	 */
+	public void cacheResult(List<UserThread> userThreads) {
+		for (UserThread userThread : userThreads) {
+			if (EntityCacheUtil.getResult(
+						UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+						UserThreadImpl.class, userThread.getPrimaryKey()) == null) {
+				cacheResult(userThread);
+			}
+			else {
+				userThread.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all user threads.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(UserThreadImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(UserThreadImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the user thread.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(UserThread userThread) {
+		EntityCacheUtil.removeResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadImpl.class, userThread.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		clearUniqueFindersCache(userThread);
+	}
+
+	@Override
+	public void clearCache(List<UserThread> userThreads) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (UserThread userThread : userThreads) {
+			EntityCacheUtil.removeResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+				UserThreadImpl.class, userThread.getPrimaryKey());
+
+			clearUniqueFindersCache(userThread);
+		}
+	}
+
+	protected void clearUniqueFindersCache(UserThread userThread) {
+		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_U_M,
+			new Object[] {
+				Long.valueOf(userThread.getUserId()),
+				Long.valueOf(userThread.getMbThreadId())
+			});
+	}
+
+	/**
+	 * Creates a new user thread with the primary key. Does not add the user thread to the database.
+	 *
+	 * @param userThreadId the primary key for the new user thread
+	 * @return the new user thread
+	 */
+	public UserThread create(long userThreadId) {
+		UserThread userThread = new UserThreadImpl();
+
+		userThread.setNew(true);
+		userThread.setPrimaryKey(userThreadId);
+
+		return userThread;
+	}
+
+	/**
+	 * Removes the user thread with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param userThreadId the primary key of the user thread
+	 * @return the user thread that was removed
+	 * @throws com.liferay.privatemessaging.NoSuchUserThreadException if a user thread with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public UserThread remove(long userThreadId)
+		throws NoSuchUserThreadException, SystemException {
+		return remove(Long.valueOf(userThreadId));
+	}
+
+	/**
+	 * Removes the user thread with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the user thread
+	 * @return the user thread that was removed
+	 * @throws com.liferay.privatemessaging.NoSuchUserThreadException if a user thread with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public UserThread remove(Serializable primaryKey)
+		throws NoSuchUserThreadException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			UserThread userThread = (UserThread)session.get(UserThreadImpl.class,
+					primaryKey);
+
+			if (userThread == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchUserThreadException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(userThread);
+		}
+		catch (NoSuchUserThreadException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected UserThread removeImpl(UserThread userThread)
+		throws SystemException {
+		userThread = toUnwrappedModel(userThread);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(userThread)) {
+				userThread = (UserThread)session.get(UserThreadImpl.class,
+						userThread.getPrimaryKeyObj());
+			}
+
+			if (userThread != null) {
+				session.delete(userThread);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (userThread != null) {
+			clearCache(userThread);
+		}
+
+		return userThread;
+	}
+
+	@Override
+	public UserThread updateImpl(
+		com.liferay.privatemessaging.model.UserThread userThread)
+		throws SystemException {
+		userThread = toUnwrappedModel(userThread);
+
+		boolean isNew = userThread.isNew();
+
+		UserThreadModelImpl userThreadModelImpl = (UserThreadModelImpl)userThread;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (userThread.isNew()) {
+				session.save(userThread);
+
+				userThread.setNew(false);
+			}
+			else {
+				session.merge(userThread);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !UserThreadModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((userThreadModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MBTHREADID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getOriginalMbThreadId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MBTHREADID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MBTHREADID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getMbThreadId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_MBTHREADID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_MBTHREADID,
+					args);
+			}
+
+			if ((userThreadModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getOriginalUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+					args);
+			}
+
+			if ((userThreadModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getOriginalUserId()),
+						Boolean.valueOf(userThreadModelImpl.getOriginalDeleted())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getUserId()),
+						Boolean.valueOf(userThreadModelImpl.getDeleted())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_D, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_D,
+					args);
+			}
+
+			if ((userThreadModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getOriginalUserId()),
+						Boolean.valueOf(userThreadModelImpl.getOriginalRead()),
+						Boolean.valueOf(userThreadModelImpl.getOriginalDeleted())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_R_D, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getUserId()),
+						Boolean.valueOf(userThreadModelImpl.getRead()),
+						Boolean.valueOf(userThreadModelImpl.getDeleted())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_R_D, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_R_D,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+			UserThreadImpl.class, userThread.getPrimaryKey(), userThread);
+
+		if (isNew) {
+			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_U_M,
+				new Object[] {
+					Long.valueOf(userThread.getUserId()),
+					Long.valueOf(userThread.getMbThreadId())
+				}, userThread);
+		}
+		else {
+			if ((userThreadModelImpl.getColumnBitmask() &
+					FINDER_PATH_FETCH_BY_U_M.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(userThreadModelImpl.getOriginalUserId()),
+						Long.valueOf(userThreadModelImpl.getOriginalMbThreadId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_M, args);
+
+				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_U_M, args);
+
+				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_U_M,
+					new Object[] {
+						Long.valueOf(userThread.getUserId()),
+						Long.valueOf(userThread.getMbThreadId())
+					}, userThread);
+			}
+		}
+
+		return userThread;
+	}
+
+	protected UserThread toUnwrappedModel(UserThread userThread) {
+		if (userThread instanceof UserThreadImpl) {
+			return userThread;
+		}
+
+		UserThreadImpl userThreadImpl = new UserThreadImpl();
+
+		userThreadImpl.setNew(userThread.isNew());
+		userThreadImpl.setPrimaryKey(userThread.getPrimaryKey());
+
+		userThreadImpl.setUserThreadId(userThread.getUserThreadId());
+		userThreadImpl.setCompanyId(userThread.getCompanyId());
+		userThreadImpl.setUserId(userThread.getUserId());
+		userThreadImpl.setUserName(userThread.getUserName());
+		userThreadImpl.setCreateDate(userThread.getCreateDate());
+		userThreadImpl.setModifiedDate(userThread.getModifiedDate());
+		userThreadImpl.setMbThreadId(userThread.getMbThreadId());
+		userThreadImpl.setTopMBMessageId(userThread.getTopMBMessageId());
+		userThreadImpl.setRead(userThread.isRead());
+		userThreadImpl.setDeleted(userThread.isDeleted());
+
+		return userThreadImpl;
+	}
+
+	/**
+	 * Returns the user thread with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the user thread
+	 * @return the user thread
+	 * @throws com.liferay.portal.NoSuchModelException if a user thread with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public UserThread findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the user thread with the primary key or throws a {@link com.liferay.privatemessaging.NoSuchUserThreadException} if it could not be found.
+	 *
+	 * @param userThreadId the primary key of the user thread
+	 * @return the user thread
+	 * @throws com.liferay.privatemessaging.NoSuchUserThreadException if a user thread with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public UserThread findByPrimaryKey(long userThreadId)
+		throws NoSuchUserThreadException, SystemException {
+		UserThread userThread = fetchByPrimaryKey(userThreadId);
+
+		if (userThread == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + userThreadId);
+			}
+
+			throw new NoSuchUserThreadException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				userThreadId);
+		}
+
+		return userThread;
+	}
+
+	/**
+	 * Returns the user thread with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the user thread
+	 * @return the user thread, or <code>null</code> if a user thread with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public UserThread fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the user thread with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param userThreadId the primary key of the user thread
+	 * @return the user thread, or <code>null</code> if a user thread with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public UserThread fetchByPrimaryKey(long userThreadId)
+		throws SystemException {
+		UserThread userThread = (UserThread)EntityCacheUtil.getResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+				UserThreadImpl.class, userThreadId);
+
+		if (userThread == _nullUserThread) {
+			return null;
+		}
+
+		if (userThread == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				userThread = (UserThread)session.get(UserThreadImpl.class,
+						Long.valueOf(userThreadId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (userThread != null) {
+					cacheResult(userThread);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(UserThreadModelImpl.ENTITY_CACHE_ENABLED,
+						UserThreadImpl.class, userThreadId, _nullUserThread);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return userThread;
+	}
+
+	/**
 	 * Returns all the user threads.
 	 *
 	 * @return the user threads
@@ -2516,74 +2899,6 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 	}
 
 	/**
-	 * Removes all the user threads where mbThreadId = &#63; from the database.
-	 *
-	 * @param mbThreadId the mb thread ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByMBThreadId(long mbThreadId) throws SystemException {
-		for (UserThread userThread : findByMBThreadId(mbThreadId)) {
-			remove(userThread);
-		}
-	}
-
-	/**
-	 * Removes all the user threads where userId = &#63; from the database.
-	 *
-	 * @param userId the user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByUserId(long userId) throws SystemException {
-		for (UserThread userThread : findByUserId(userId)) {
-			remove(userThread);
-		}
-	}
-
-	/**
-	 * Removes the user thread where userId = &#63; and mbThreadId = &#63; from the database.
-	 *
-	 * @param userId the user ID
-	 * @param mbThreadId the mb thread ID
-	 * @return the user thread that was removed
-	 * @throws SystemException if a system exception occurred
-	 */
-	public UserThread removeByU_M(long userId, long mbThreadId)
-		throws NoSuchUserThreadException, SystemException {
-		UserThread userThread = findByU_M(userId, mbThreadId);
-
-		return remove(userThread);
-	}
-
-	/**
-	 * Removes all the user threads where userId = &#63; and deleted = &#63; from the database.
-	 *
-	 * @param userId the user ID
-	 * @param deleted the deleted
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByU_D(long userId, boolean deleted)
-		throws SystemException {
-		for (UserThread userThread : findByU_D(userId, deleted)) {
-			remove(userThread);
-		}
-	}
-
-	/**
-	 * Removes all the user threads where userId = &#63; and read = &#63; and deleted = &#63; from the database.
-	 *
-	 * @param userId the user ID
-	 * @param read the read
-	 * @param deleted the deleted
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByU_R_D(long userId, boolean read, boolean deleted)
-		throws SystemException {
-		for (UserThread userThread : findByU_R_D(userId, read, deleted)) {
-			remove(userThread);
-		}
-	}
-
-	/**
 	 * Removes all the user threads from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -2592,294 +2907,6 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 		for (UserThread userThread : findAll()) {
 			remove(userThread);
 		}
-	}
-
-	/**
-	 * Returns the number of user threads where mbThreadId = &#63;.
-	 *
-	 * @param mbThreadId the mb thread ID
-	 * @return the number of matching user threads
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByMBThreadId(long mbThreadId) throws SystemException {
-		Object[] finderArgs = new Object[] { mbThreadId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_MBTHREADID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_USERTHREAD_WHERE);
-
-			query.append(_FINDER_COLUMN_MBTHREADID_MBTHREADID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(mbThreadId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_MBTHREADID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of user threads where userId = &#63;.
-	 *
-	 * @param userId the user ID
-	 * @return the number of matching user threads
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByUserId(long userId) throws SystemException {
-		Object[] finderArgs = new Object[] { userId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_USERID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_USERTHREAD_WHERE);
-
-			query.append(_FINDER_COLUMN_USERID_USERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(userId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_USERID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of user threads where userId = &#63; and mbThreadId = &#63;.
-	 *
-	 * @param userId the user ID
-	 * @param mbThreadId the mb thread ID
-	 * @return the number of matching user threads
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByU_M(long userId, long mbThreadId)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { userId, mbThreadId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_U_M,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_USERTHREAD_WHERE);
-
-			query.append(_FINDER_COLUMN_U_M_USERID_2);
-
-			query.append(_FINDER_COLUMN_U_M_MBTHREADID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(userId);
-
-				qPos.add(mbThreadId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_U_M, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of user threads where userId = &#63; and deleted = &#63;.
-	 *
-	 * @param userId the user ID
-	 * @param deleted the deleted
-	 * @return the number of matching user threads
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByU_D(long userId, boolean deleted)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { userId, deleted };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_U_D,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(3);
-
-			query.append(_SQL_COUNT_USERTHREAD_WHERE);
-
-			query.append(_FINDER_COLUMN_U_D_USERID_2);
-
-			query.append(_FINDER_COLUMN_U_D_DELETED_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(userId);
-
-				qPos.add(deleted);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_U_D, finderArgs,
-					count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of user threads where userId = &#63; and read = &#63; and deleted = &#63;.
-	 *
-	 * @param userId the user ID
-	 * @param read the read
-	 * @param deleted the deleted
-	 * @return the number of matching user threads
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByU_R_D(long userId, boolean read, boolean deleted)
-		throws SystemException {
-		Object[] finderArgs = new Object[] { userId, read, deleted };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_U_R_D,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(4);
-
-			query.append(_SQL_COUNT_USERTHREAD_WHERE);
-
-			query.append(_FINDER_COLUMN_U_R_D_USERID_2);
-
-			query.append(_FINDER_COLUMN_U_R_D_READ_2);
-
-			query.append(_FINDER_COLUMN_U_R_D_DELETED_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(userId);
-
-				qPos.add(read);
-
-				qPos.add(deleted);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_U_R_D,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -2959,15 +2986,6 @@ public class UserThreadPersistenceImpl extends BasePersistenceImpl<UserThread>
 	private static final String _SQL_SELECT_USERTHREAD_WHERE = "SELECT userThread FROM UserThread userThread WHERE ";
 	private static final String _SQL_COUNT_USERTHREAD = "SELECT COUNT(userThread) FROM UserThread userThread";
 	private static final String _SQL_COUNT_USERTHREAD_WHERE = "SELECT COUNT(userThread) FROM UserThread userThread WHERE ";
-	private static final String _FINDER_COLUMN_MBTHREADID_MBTHREADID_2 = "userThread.mbThreadId = ?";
-	private static final String _FINDER_COLUMN_USERID_USERID_2 = "userThread.userId = ?";
-	private static final String _FINDER_COLUMN_U_M_USERID_2 = "userThread.userId = ? AND ";
-	private static final String _FINDER_COLUMN_U_M_MBTHREADID_2 = "userThread.mbThreadId = ?";
-	private static final String _FINDER_COLUMN_U_D_USERID_2 = "userThread.userId = ? AND ";
-	private static final String _FINDER_COLUMN_U_D_DELETED_2 = "userThread.deleted = ?";
-	private static final String _FINDER_COLUMN_U_R_D_USERID_2 = "userThread.userId = ? AND ";
-	private static final String _FINDER_COLUMN_U_R_D_READ_2 = "userThread.read = ? AND ";
-	private static final String _FINDER_COLUMN_U_R_D_DELETED_2 = "userThread.deleted = ?";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "userThread.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No UserThread exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No UserThread exists with the key {";

@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BatchSessionUtil;
 import com.liferay.portal.service.persistence.UserPersistence;
 import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
@@ -76,6 +75,15 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 		".List1";
 	public static final String FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION = FINDER_CLASS_NAME_ENTITY +
 		".List2";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
+	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
 	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_COMPANYID =
 		new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
 			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
@@ -96,412 +104,6 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCompanyId",
 			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_USERID = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
-			new String[] {
-				Long.class.getName(),
-				
-			"java.lang.Integer", "java.lang.Integer",
-				"com.liferay.portal.kernel.util.OrderByComparator"
-			});
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID =
-		new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUserId",
-			new String[] { Long.class.getName() },
-			MeetupsEntryModelImpl.USERID_COLUMN_BITMASK);
-	public static final FinderPath FINDER_PATH_COUNT_BY_USERID = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
-			new String[] { Long.class.getName() });
-	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_ALL = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_ALL = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findAll", new String[0]);
-	public static final FinderPath FINDER_PATH_COUNT_ALL = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countAll", new String[0]);
-
-	/**
-	 * Caches the meetups entry in the entity cache if it is enabled.
-	 *
-	 * @param meetupsEntry the meetups entry
-	 */
-	public void cacheResult(MeetupsEntry meetupsEntry) {
-		EntityCacheUtil.putResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey(), meetupsEntry);
-
-		meetupsEntry.resetOriginalValues();
-	}
-
-	/**
-	 * Caches the meetups entries in the entity cache if it is enabled.
-	 *
-	 * @param meetupsEntries the meetups entries
-	 */
-	public void cacheResult(List<MeetupsEntry> meetupsEntries) {
-		for (MeetupsEntry meetupsEntry : meetupsEntries) {
-			if (EntityCacheUtil.getResult(
-						MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-						MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey()) == null) {
-				cacheResult(meetupsEntry);
-			}
-			else {
-				meetupsEntry.resetOriginalValues();
-			}
-		}
-	}
-
-	/**
-	 * Clears the cache for all meetups entries.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(MeetupsEntryImpl.class.getName());
-		}
-
-		EntityCacheUtil.clearCache(MeetupsEntryImpl.class.getName());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	/**
-	 * Clears the cache for the meetups entry.
-	 *
-	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
-	 * </p>
-	 */
-	@Override
-	public void clearCache(MeetupsEntry meetupsEntry) {
-		EntityCacheUtil.removeResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey());
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-	}
-
-	@Override
-	public void clearCache(List<MeetupsEntry> meetupsEntries) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-
-		for (MeetupsEntry meetupsEntry : meetupsEntries) {
-			EntityCacheUtil.removeResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-				MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey());
-		}
-	}
-
-	/**
-	 * Creates a new meetups entry with the primary key. Does not add the meetups entry to the database.
-	 *
-	 * @param meetupsEntryId the primary key for the new meetups entry
-	 * @return the new meetups entry
-	 */
-	public MeetupsEntry create(long meetupsEntryId) {
-		MeetupsEntry meetupsEntry = new MeetupsEntryImpl();
-
-		meetupsEntry.setNew(true);
-		meetupsEntry.setPrimaryKey(meetupsEntryId);
-
-		return meetupsEntry;
-	}
-
-	/**
-	 * Removes the meetups entry with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param meetupsEntryId the primary key of the meetups entry
-	 * @return the meetups entry that was removed
-	 * @throws com.liferay.socialnetworking.NoSuchMeetupsEntryException if a meetups entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public MeetupsEntry remove(long meetupsEntryId)
-		throws NoSuchMeetupsEntryException, SystemException {
-		return remove(Long.valueOf(meetupsEntryId));
-	}
-
-	/**
-	 * Removes the meetups entry with the primary key from the database. Also notifies the appropriate model listeners.
-	 *
-	 * @param primaryKey the primary key of the meetups entry
-	 * @return the meetups entry that was removed
-	 * @throws com.liferay.socialnetworking.NoSuchMeetupsEntryException if a meetups entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public MeetupsEntry remove(Serializable primaryKey)
-		throws NoSuchMeetupsEntryException, SystemException {
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			MeetupsEntry meetupsEntry = (MeetupsEntry)session.get(MeetupsEntryImpl.class,
-					primaryKey);
-
-			if (meetupsEntry == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
-				}
-
-				throw new NoSuchMeetupsEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-					primaryKey);
-			}
-
-			return remove(meetupsEntry);
-		}
-		catch (NoSuchMeetupsEntryException nsee) {
-			throw nsee;
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-	}
-
-	@Override
-	protected MeetupsEntry removeImpl(MeetupsEntry meetupsEntry)
-		throws SystemException {
-		meetupsEntry = toUnwrappedModel(meetupsEntry);
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.delete(session, meetupsEntry);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		clearCache(meetupsEntry);
-
-		return meetupsEntry;
-	}
-
-	@Override
-	public MeetupsEntry updateImpl(
-		com.liferay.socialnetworking.model.MeetupsEntry meetupsEntry,
-		boolean merge) throws SystemException {
-		meetupsEntry = toUnwrappedModel(meetupsEntry);
-
-		boolean isNew = meetupsEntry.isNew();
-
-		MeetupsEntryModelImpl meetupsEntryModelImpl = (MeetupsEntryModelImpl)meetupsEntry;
-
-		Session session = null;
-
-		try {
-			session = openSession();
-
-			BatchSessionUtil.update(session, meetupsEntry, merge);
-
-			meetupsEntry.setNew(false);
-		}
-		catch (Exception e) {
-			throw processException(e);
-		}
-		finally {
-			closeSession(session);
-		}
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-
-		if (isNew || !MeetupsEntryModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
-		}
-
-		else {
-			if ((meetupsEntryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(meetupsEntryModelImpl.getOriginalCompanyId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(meetupsEntryModelImpl.getCompanyId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
-					args);
-			}
-
-			if ((meetupsEntryModelImpl.getColumnBitmask() &
-					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] {
-						Long.valueOf(meetupsEntryModelImpl.getOriginalUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
-					args);
-
-				args = new Object[] {
-						Long.valueOf(meetupsEntryModelImpl.getUserId())
-					};
-
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
-					args);
-			}
-		}
-
-		EntityCacheUtil.putResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-			MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey(), meetupsEntry);
-
-		return meetupsEntry;
-	}
-
-	protected MeetupsEntry toUnwrappedModel(MeetupsEntry meetupsEntry) {
-		if (meetupsEntry instanceof MeetupsEntryImpl) {
-			return meetupsEntry;
-		}
-
-		MeetupsEntryImpl meetupsEntryImpl = new MeetupsEntryImpl();
-
-		meetupsEntryImpl.setNew(meetupsEntry.isNew());
-		meetupsEntryImpl.setPrimaryKey(meetupsEntry.getPrimaryKey());
-
-		meetupsEntryImpl.setMeetupsEntryId(meetupsEntry.getMeetupsEntryId());
-		meetupsEntryImpl.setCompanyId(meetupsEntry.getCompanyId());
-		meetupsEntryImpl.setUserId(meetupsEntry.getUserId());
-		meetupsEntryImpl.setUserName(meetupsEntry.getUserName());
-		meetupsEntryImpl.setCreateDate(meetupsEntry.getCreateDate());
-		meetupsEntryImpl.setModifiedDate(meetupsEntry.getModifiedDate());
-		meetupsEntryImpl.setTitle(meetupsEntry.getTitle());
-		meetupsEntryImpl.setDescription(meetupsEntry.getDescription());
-		meetupsEntryImpl.setStartDate(meetupsEntry.getStartDate());
-		meetupsEntryImpl.setEndDate(meetupsEntry.getEndDate());
-		meetupsEntryImpl.setTotalAttendees(meetupsEntry.getTotalAttendees());
-		meetupsEntryImpl.setMaxAttendees(meetupsEntry.getMaxAttendees());
-		meetupsEntryImpl.setPrice(meetupsEntry.getPrice());
-		meetupsEntryImpl.setThumbnailId(meetupsEntry.getThumbnailId());
-
-		return meetupsEntryImpl;
-	}
-
-	/**
-	 * Returns the meetups entry with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the meetups entry
-	 * @return the meetups entry
-	 * @throws com.liferay.portal.NoSuchModelException if a meetups entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public MeetupsEntry findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchModelException, SystemException {
-		return findByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the meetups entry with the primary key or throws a {@link com.liferay.socialnetworking.NoSuchMeetupsEntryException} if it could not be found.
-	 *
-	 * @param meetupsEntryId the primary key of the meetups entry
-	 * @return the meetups entry
-	 * @throws com.liferay.socialnetworking.NoSuchMeetupsEntryException if a meetups entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public MeetupsEntry findByPrimaryKey(long meetupsEntryId)
-		throws NoSuchMeetupsEntryException, SystemException {
-		MeetupsEntry meetupsEntry = fetchByPrimaryKey(meetupsEntryId);
-
-		if (meetupsEntry == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + meetupsEntryId);
-			}
-
-			throw new NoSuchMeetupsEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
-				meetupsEntryId);
-		}
-
-		return meetupsEntry;
-	}
-
-	/**
-	 * Returns the meetups entry with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param primaryKey the primary key of the meetups entry
-	 * @return the meetups entry, or <code>null</code> if a meetups entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	@Override
-	public MeetupsEntry fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
-		return fetchByPrimaryKey(((Long)primaryKey).longValue());
-	}
-
-	/**
-	 * Returns the meetups entry with the primary key or returns <code>null</code> if it could not be found.
-	 *
-	 * @param meetupsEntryId the primary key of the meetups entry
-	 * @return the meetups entry, or <code>null</code> if a meetups entry with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
-	 */
-	public MeetupsEntry fetchByPrimaryKey(long meetupsEntryId)
-		throws SystemException {
-		MeetupsEntry meetupsEntry = (MeetupsEntry)EntityCacheUtil.getResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-				MeetupsEntryImpl.class, meetupsEntryId);
-
-		if (meetupsEntry == _nullMeetupsEntry) {
-			return null;
-		}
-
-		if (meetupsEntry == null) {
-			Session session = null;
-
-			boolean hasException = false;
-
-			try {
-				session = openSession();
-
-				meetupsEntry = (MeetupsEntry)session.get(MeetupsEntryImpl.class,
-						Long.valueOf(meetupsEntryId));
-			}
-			catch (Exception e) {
-				hasException = true;
-
-				throw processException(e);
-			}
-			finally {
-				if (meetupsEntry != null) {
-					cacheResult(meetupsEntry);
-				}
-				else if (!hasException) {
-					EntityCacheUtil.putResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
-						MeetupsEntryImpl.class, meetupsEntryId,
-						_nullMeetupsEntry);
-				}
-
-				closeSession(session);
-			}
-		}
-
-		return meetupsEntry;
-	}
 
 	/**
 	 * Returns all the meetups entries where companyId = &#63;.
@@ -887,6 +489,92 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 	}
 
 	/**
+	 * Removes all the meetups entries where companyId = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByCompanyId(long companyId) throws SystemException {
+		for (MeetupsEntry meetupsEntry : findByCompanyId(companyId)) {
+			remove(meetupsEntry);
+		}
+	}
+
+	/**
+	 * Returns the number of meetups entries where companyId = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @return the number of matching meetups entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByCompanyId(long companyId) throws SystemException {
+		Object[] finderArgs = new Object[] { companyId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_COMPANYID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MEETUPSENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(companyId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "meetupsEntry.companyId = ?";
+	public static final FinderPath FINDER_PATH_WITH_PAGINATION_FIND_BY_USERID = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
+			new String[] {
+				Long.class.getName(),
+				
+			"java.lang.Integer", "java.lang.Integer",
+				"com.liferay.portal.kernel.util.OrderByComparator"
+			});
+	public static final FinderPath FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID =
+		new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, MeetupsEntryImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByUserId",
+			new String[] { Long.class.getName() },
+			MeetupsEntryModelImpl.USERID_COLUMN_BITMASK);
+	public static final FinderPath FINDER_PATH_COUNT_BY_USERID = new FinderPath(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryModelImpl.FINDER_CACHE_ENABLED, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
+			new String[] { Long.class.getName() });
+
+	/**
 	 * Returns all the meetups entries where userId = &#63;.
 	 *
 	 * @param userId the user ID
@@ -1267,6 +955,465 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 	}
 
 	/**
+	 * Removes all the meetups entries where userId = &#63; from the database.
+	 *
+	 * @param userId the user ID
+	 * @throws SystemException if a system exception occurred
+	 */
+	public void removeByUserId(long userId) throws SystemException {
+		for (MeetupsEntry meetupsEntry : findByUserId(userId)) {
+			remove(meetupsEntry);
+		}
+	}
+
+	/**
+	 * Returns the number of meetups entries where userId = &#63;.
+	 *
+	 * @param userId the user ID
+	 * @return the number of matching meetups entries
+	 * @throws SystemException if a system exception occurred
+	 */
+	public int countByUserId(long userId) throws SystemException {
+		Object[] finderArgs = new Object[] { userId };
+
+		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_USERID,
+				finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(2);
+
+			query.append(_SQL_COUNT_MEETUPSENTRY_WHERE);
+
+			query.append(_FINDER_COLUMN_USERID_USERID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(userId);
+
+				count = (Long)q.uniqueResult();
+			}
+			catch (Exception e) {
+				throw processException(e);
+			}
+			finally {
+				if (count == null) {
+					count = Long.valueOf(0);
+				}
+
+				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_USERID,
+					finderArgs, count);
+
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_USERID_USERID_2 = "meetupsEntry.userId = ?";
+
+	/**
+	 * Caches the meetups entry in the entity cache if it is enabled.
+	 *
+	 * @param meetupsEntry the meetups entry
+	 */
+	public void cacheResult(MeetupsEntry meetupsEntry) {
+		EntityCacheUtil.putResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey(), meetupsEntry);
+
+		meetupsEntry.resetOriginalValues();
+	}
+
+	/**
+	 * Caches the meetups entries in the entity cache if it is enabled.
+	 *
+	 * @param meetupsEntries the meetups entries
+	 */
+	public void cacheResult(List<MeetupsEntry> meetupsEntries) {
+		for (MeetupsEntry meetupsEntry : meetupsEntries) {
+			if (EntityCacheUtil.getResult(
+						MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+						MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey()) == null) {
+				cacheResult(meetupsEntry);
+			}
+			else {
+				meetupsEntry.resetOriginalValues();
+			}
+		}
+	}
+
+	/**
+	 * Clears the cache for all meetups entries.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache() {
+		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
+			CacheRegistryUtil.clear(MeetupsEntryImpl.class.getName());
+		}
+
+		EntityCacheUtil.clearCache(MeetupsEntryImpl.class.getName());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	/**
+	 * Clears the cache for the meetups entry.
+	 *
+	 * <p>
+	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * </p>
+	 */
+	@Override
+	public void clearCache(MeetupsEntry meetupsEntry) {
+		EntityCacheUtil.removeResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey());
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+	}
+
+	@Override
+	public void clearCache(List<MeetupsEntry> meetupsEntries) {
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+
+		for (MeetupsEntry meetupsEntry : meetupsEntries) {
+			EntityCacheUtil.removeResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+				MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey());
+		}
+	}
+
+	/**
+	 * Creates a new meetups entry with the primary key. Does not add the meetups entry to the database.
+	 *
+	 * @param meetupsEntryId the primary key for the new meetups entry
+	 * @return the new meetups entry
+	 */
+	public MeetupsEntry create(long meetupsEntryId) {
+		MeetupsEntry meetupsEntry = new MeetupsEntryImpl();
+
+		meetupsEntry.setNew(true);
+		meetupsEntry.setPrimaryKey(meetupsEntryId);
+
+		return meetupsEntry;
+	}
+
+	/**
+	 * Removes the meetups entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param meetupsEntryId the primary key of the meetups entry
+	 * @return the meetups entry that was removed
+	 * @throws com.liferay.socialnetworking.NoSuchMeetupsEntryException if a meetups entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public MeetupsEntry remove(long meetupsEntryId)
+		throws NoSuchMeetupsEntryException, SystemException {
+		return remove(Long.valueOf(meetupsEntryId));
+	}
+
+	/**
+	 * Removes the meetups entry with the primary key from the database. Also notifies the appropriate model listeners.
+	 *
+	 * @param primaryKey the primary key of the meetups entry
+	 * @return the meetups entry that was removed
+	 * @throws com.liferay.socialnetworking.NoSuchMeetupsEntryException if a meetups entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public MeetupsEntry remove(Serializable primaryKey)
+		throws NoSuchMeetupsEntryException, SystemException {
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			MeetupsEntry meetupsEntry = (MeetupsEntry)session.get(MeetupsEntryImpl.class,
+					primaryKey);
+
+			if (meetupsEntry == null) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				}
+
+				throw new NoSuchMeetupsEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+					primaryKey);
+			}
+
+			return remove(meetupsEntry);
+		}
+		catch (NoSuchMeetupsEntryException nsee) {
+			throw nsee;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	@Override
+	protected MeetupsEntry removeImpl(MeetupsEntry meetupsEntry)
+		throws SystemException {
+		meetupsEntry = toUnwrappedModel(meetupsEntry);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (!session.contains(meetupsEntry)) {
+				meetupsEntry = (MeetupsEntry)session.get(MeetupsEntryImpl.class,
+						meetupsEntry.getPrimaryKeyObj());
+			}
+
+			if (meetupsEntry != null) {
+				session.delete(meetupsEntry);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		if (meetupsEntry != null) {
+			clearCache(meetupsEntry);
+		}
+
+		return meetupsEntry;
+	}
+
+	@Override
+	public MeetupsEntry updateImpl(
+		com.liferay.socialnetworking.model.MeetupsEntry meetupsEntry)
+		throws SystemException {
+		meetupsEntry = toUnwrappedModel(meetupsEntry);
+
+		boolean isNew = meetupsEntry.isNew();
+
+		MeetupsEntryModelImpl meetupsEntryModelImpl = (MeetupsEntryModelImpl)meetupsEntry;
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			if (meetupsEntry.isNew()) {
+				session.save(meetupsEntry);
+
+				meetupsEntry.setNew(false);
+			}
+			else {
+				session.merge(meetupsEntry);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+
+		if (isNew || !MeetupsEntryModelImpl.COLUMN_BITMASK_ENABLED) {
+			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		}
+
+		else {
+			if ((meetupsEntryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(meetupsEntryModelImpl.getOriginalCompanyId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(meetupsEntryModelImpl.getCompanyId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
+					args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+					args);
+			}
+
+			if ((meetupsEntryModelImpl.getColumnBitmask() &
+					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
+				Object[] args = new Object[] {
+						Long.valueOf(meetupsEntryModelImpl.getOriginalUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+					args);
+
+				args = new Object[] {
+						Long.valueOf(meetupsEntryModelImpl.getUserId())
+					};
+
+				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+					args);
+			}
+		}
+
+		EntityCacheUtil.putResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+			MeetupsEntryImpl.class, meetupsEntry.getPrimaryKey(), meetupsEntry);
+
+		return meetupsEntry;
+	}
+
+	protected MeetupsEntry toUnwrappedModel(MeetupsEntry meetupsEntry) {
+		if (meetupsEntry instanceof MeetupsEntryImpl) {
+			return meetupsEntry;
+		}
+
+		MeetupsEntryImpl meetupsEntryImpl = new MeetupsEntryImpl();
+
+		meetupsEntryImpl.setNew(meetupsEntry.isNew());
+		meetupsEntryImpl.setPrimaryKey(meetupsEntry.getPrimaryKey());
+
+		meetupsEntryImpl.setMeetupsEntryId(meetupsEntry.getMeetupsEntryId());
+		meetupsEntryImpl.setCompanyId(meetupsEntry.getCompanyId());
+		meetupsEntryImpl.setUserId(meetupsEntry.getUserId());
+		meetupsEntryImpl.setUserName(meetupsEntry.getUserName());
+		meetupsEntryImpl.setCreateDate(meetupsEntry.getCreateDate());
+		meetupsEntryImpl.setModifiedDate(meetupsEntry.getModifiedDate());
+		meetupsEntryImpl.setTitle(meetupsEntry.getTitle());
+		meetupsEntryImpl.setDescription(meetupsEntry.getDescription());
+		meetupsEntryImpl.setStartDate(meetupsEntry.getStartDate());
+		meetupsEntryImpl.setEndDate(meetupsEntry.getEndDate());
+		meetupsEntryImpl.setTotalAttendees(meetupsEntry.getTotalAttendees());
+		meetupsEntryImpl.setMaxAttendees(meetupsEntry.getMaxAttendees());
+		meetupsEntryImpl.setPrice(meetupsEntry.getPrice());
+		meetupsEntryImpl.setThumbnailId(meetupsEntry.getThumbnailId());
+
+		return meetupsEntryImpl;
+	}
+
+	/**
+	 * Returns the meetups entry with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the meetups entry
+	 * @return the meetups entry
+	 * @throws com.liferay.portal.NoSuchModelException if a meetups entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public MeetupsEntry findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchModelException, SystemException {
+		return findByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the meetups entry with the primary key or throws a {@link com.liferay.socialnetworking.NoSuchMeetupsEntryException} if it could not be found.
+	 *
+	 * @param meetupsEntryId the primary key of the meetups entry
+	 * @return the meetups entry
+	 * @throws com.liferay.socialnetworking.NoSuchMeetupsEntryException if a meetups entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public MeetupsEntry findByPrimaryKey(long meetupsEntryId)
+		throws NoSuchMeetupsEntryException, SystemException {
+		MeetupsEntry meetupsEntry = fetchByPrimaryKey(meetupsEntryId);
+
+		if (meetupsEntry == null) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + meetupsEntryId);
+			}
+
+			throw new NoSuchMeetupsEntryException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
+				meetupsEntryId);
+		}
+
+		return meetupsEntry;
+	}
+
+	/**
+	 * Returns the meetups entry with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param primaryKey the primary key of the meetups entry
+	 * @return the meetups entry, or <code>null</code> if a meetups entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	@Override
+	public MeetupsEntry fetchByPrimaryKey(Serializable primaryKey)
+		throws SystemException {
+		return fetchByPrimaryKey(((Long)primaryKey).longValue());
+	}
+
+	/**
+	 * Returns the meetups entry with the primary key or returns <code>null</code> if it could not be found.
+	 *
+	 * @param meetupsEntryId the primary key of the meetups entry
+	 * @return the meetups entry, or <code>null</code> if a meetups entry with the primary key could not be found
+	 * @throws SystemException if a system exception occurred
+	 */
+	public MeetupsEntry fetchByPrimaryKey(long meetupsEntryId)
+		throws SystemException {
+		MeetupsEntry meetupsEntry = (MeetupsEntry)EntityCacheUtil.getResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+				MeetupsEntryImpl.class, meetupsEntryId);
+
+		if (meetupsEntry == _nullMeetupsEntry) {
+			return null;
+		}
+
+		if (meetupsEntry == null) {
+			Session session = null;
+
+			boolean hasException = false;
+
+			try {
+				session = openSession();
+
+				meetupsEntry = (MeetupsEntry)session.get(MeetupsEntryImpl.class,
+						Long.valueOf(meetupsEntryId));
+			}
+			catch (Exception e) {
+				hasException = true;
+
+				throw processException(e);
+			}
+			finally {
+				if (meetupsEntry != null) {
+					cacheResult(meetupsEntry);
+				}
+				else if (!hasException) {
+					EntityCacheUtil.putResult(MeetupsEntryModelImpl.ENTITY_CACHE_ENABLED,
+						MeetupsEntryImpl.class, meetupsEntryId,
+						_nullMeetupsEntry);
+				}
+
+				closeSession(session);
+			}
+		}
+
+		return meetupsEntry;
+	}
+
+	/**
 	 * Returns all the meetups entries.
 	 *
 	 * @return the meetups entries
@@ -1382,30 +1529,6 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 	}
 
 	/**
-	 * Removes all the meetups entries where companyId = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByCompanyId(long companyId) throws SystemException {
-		for (MeetupsEntry meetupsEntry : findByCompanyId(companyId)) {
-			remove(meetupsEntry);
-		}
-	}
-
-	/**
-	 * Removes all the meetups entries where userId = &#63; from the database.
-	 *
-	 * @param userId the user ID
-	 * @throws SystemException if a system exception occurred
-	 */
-	public void removeByUserId(long userId) throws SystemException {
-		for (MeetupsEntry meetupsEntry : findByUserId(userId)) {
-			remove(meetupsEntry);
-		}
-	}
-
-	/**
 	 * Removes all the meetups entries from the database.
 	 *
 	 * @throws SystemException if a system exception occurred
@@ -1414,112 +1537,6 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 		for (MeetupsEntry meetupsEntry : findAll()) {
 			remove(meetupsEntry);
 		}
-	}
-
-	/**
-	 * Returns the number of meetups entries where companyId = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @return the number of matching meetups entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByCompanyId(long companyId) throws SystemException {
-		Object[] finderArgs = new Object[] { companyId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_COMPANYID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MEETUPSENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(companyId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
-	}
-
-	/**
-	 * Returns the number of meetups entries where userId = &#63;.
-	 *
-	 * @param userId the user ID
-	 * @return the number of matching meetups entries
-	 * @throws SystemException if a system exception occurred
-	 */
-	public int countByUserId(long userId) throws SystemException {
-		Object[] finderArgs = new Object[] { userId };
-
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_BY_USERID,
-				finderArgs, this);
-
-		if (count == null) {
-			StringBundler query = new StringBundler(2);
-
-			query.append(_SQL_COUNT_MEETUPSENTRY_WHERE);
-
-			query.append(_FINDER_COLUMN_USERID_USERID_2);
-
-			String sql = query.toString();
-
-			Session session = null;
-
-			try {
-				session = openSession();
-
-				Query q = session.createQuery(sql);
-
-				QueryPos qPos = QueryPos.getInstance(q);
-
-				qPos.add(userId);
-
-				count = (Long)q.uniqueResult();
-			}
-			catch (Exception e) {
-				throw processException(e);
-			}
-			finally {
-				if (count == null) {
-					count = Long.valueOf(0);
-				}
-
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_USERID,
-					finderArgs, count);
-
-				closeSession(session);
-			}
-		}
-
-		return count.intValue();
 	}
 
 	/**
@@ -1603,8 +1620,6 @@ public class MeetupsEntryPersistenceImpl extends BasePersistenceImpl<MeetupsEntr
 	private static final String _SQL_SELECT_MEETUPSENTRY_WHERE = "SELECT meetupsEntry FROM MeetupsEntry meetupsEntry WHERE ";
 	private static final String _SQL_COUNT_MEETUPSENTRY = "SELECT COUNT(meetupsEntry) FROM MeetupsEntry meetupsEntry";
 	private static final String _SQL_COUNT_MEETUPSENTRY_WHERE = "SELECT COUNT(meetupsEntry) FROM MeetupsEntry meetupsEntry WHERE ";
-	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 = "meetupsEntry.companyId = ?";
-	private static final String _FINDER_COLUMN_USERID_USERID_2 = "meetupsEntry.userId = ?";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "meetupsEntry.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No MeetupsEntry exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No MeetupsEntry exists with the key {";
