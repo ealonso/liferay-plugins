@@ -14,6 +14,14 @@
 
 package com.liferay.mobilewidgets.service.http;
 
+import com.liferay.mobilewidgets.service.MobileWidgetsAssetServiceUtil;
+
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+
+import java.rmi.RemoteException;
+
 /**
  * Provides the SOAP utility for the
  * {@link com.liferay.mobilewidgets.service.MobileWidgetsAssetServiceUtil} service utility. The
@@ -44,4 +52,27 @@ package com.liferay.mobilewidgets.service.http;
  * @generated
  */
 public class MobileWidgetsAssetServiceSoap {
+	/**
+	* NOTE FOR DEVELOPERS:
+	*
+	* Never reference this interface directly. Always use {@link com.liferay.mobilewidgets.service.MobileWidgetsAssetServiceUtil} to access the mobile widgets asset remote service.
+	*/
+	public static com.liferay.portlet.asset.model.AssetEntry[] getEntries(
+		com.liferay.portlet.asset.service.persistence.AssetEntryQuery entryQuery,
+		String locale) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portlet.asset.model.AssetEntry> returnValue =
+				MobileWidgetsAssetServiceUtil.getEntries(entryQuery,
+					LocaleUtil.fromLanguageId(locale));
+
+			return returnValue.toArray(new com.liferay.portlet.asset.model.AssetEntry[returnValue.size()]);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	private static Log _log = LogFactoryUtil.getLog(MobileWidgetsAssetServiceSoap.class);
 }

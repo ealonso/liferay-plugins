@@ -63,6 +63,19 @@ public class MobileWidgetsAssetServiceUtil {
 		return getService().invokeMethod(name, parameterTypes, arguments);
 	}
 
+	/**
+	* NOTE FOR DEVELOPERS:
+	*
+	* Never reference this interface directly. Always use {@link com.liferay.mobilewidgets.service.MobileWidgetsAssetServiceUtil} to access the mobile widgets asset remote service.
+	*/
+	public static java.util.List<com.liferay.portlet.asset.model.AssetEntry> getEntries(
+		com.liferay.portlet.asset.service.persistence.AssetEntryQuery entryQuery,
+		java.util.Locale locale)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getEntries(entryQuery, locale);
+	}
+
 	public static void clearService() {
 		_service = null;
 	}
