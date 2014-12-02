@@ -855,6 +855,181 @@ public class KBCommentUtil {
 	}
 
 	/**
+	* Returns all the k b comments where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @return the matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByG_S(
+		long groupId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByG_S(groupId, status);
+	}
+
+	/**
+	* Returns a range of all the k b comments where groupId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @return the range of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByG_S(
+		long groupId, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByG_S(groupId, status, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the k b comments where groupId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByG_S(
+		long groupId, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByG_S(groupId, status, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns the first k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the first matching k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment findByG_S_First(
+		long groupId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByG_S_First(groupId, status, orderByComparator);
+	}
+
+	/**
+	* Returns the first k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment fetchByG_S_First(
+		long groupId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .fetchByG_S_First(groupId, status, orderByComparator);
+	}
+
+	/**
+	* Returns the last k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the last matching k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment findByG_S_Last(
+		long groupId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByG_S_Last(groupId, status, orderByComparator);
+	}
+
+	/**
+	* Returns the last k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment fetchByG_S_Last(
+		long groupId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .fetchByG_S_Last(groupId, status, orderByComparator);
+	}
+
+	/**
+	* Returns the k b comments before and after the current k b comment in the ordered set where groupId = &#63; and status = &#63;.
+	*
+	* @param kbCommentId the primary key of the current k b comment
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a k b comment with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment[] findByG_S_PrevAndNext(
+		long kbCommentId, long groupId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByG_S_PrevAndNext(kbCommentId, groupId, status,
+			orderByComparator);
+	}
+
+	/**
+	* Removes all the k b comments where groupId = &#63; and status = &#63; from the database.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByG_S(long groupId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByG_S(groupId, status);
+	}
+
+	/**
+	* Returns the number of k b comments where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @return the number of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByG_S(long groupId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByG_S(groupId, status);
+	}
+
+	/**
 	* Returns all the k b comments where classNameId = &#63; and classPK = &#63;.
 	*
 	* @param classNameId the class name ID
@@ -1031,68 +1206,180 @@ public class KBCommentUtil {
 	}
 
 	/**
-	* Returns the k b comment where userId = &#63; and classNameId = &#63; and classPK = &#63; or throws a {@link com.liferay.knowledgebase.NoSuchCommentException} if it could not be found.
+	* Returns all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
 	*
 	* @param userId the user ID
 	* @param classNameId the class name ID
 	* @param classPK the class p k
-	* @return the matching k b comment
-	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @return the matching k b comments
 	* @throws SystemException if a system exception occurred
 	*/
-	public static com.liferay.knowledgebase.model.KBComment findByU_C_C(
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByU_C_C(
 		long userId, long classNameId, long classPK)
-		throws com.liferay.knowledgebase.NoSuchCommentException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.SystemException {
 		return getPersistence().findByU_C_C(userId, classNameId, classPK);
 	}
 
 	/**
-	* Returns the k b comment where userId = &#63; and classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	* Returns a range of all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
 	*
 	* @param userId the user ID
 	* @param classNameId the class name ID
 	* @param classPK the class p k
-	* @return the matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @return the range of matching k b comments
 	* @throws SystemException if a system exception occurred
 	*/
-	public static com.liferay.knowledgebase.model.KBComment fetchByU_C_C(
-		long userId, long classNameId, long classPK)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().fetchByU_C_C(userId, classNameId, classPK);
-	}
-
-	/**
-	* Returns the k b comment where userId = &#63; and classNameId = &#63; and classPK = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
-	*
-	* @param userId the user ID
-	* @param classNameId the class name ID
-	* @param classPK the class p k
-	* @param retrieveFromCache whether to use the finder cache
-	* @return the matching k b comment, or <code>null</code> if a matching k b comment could not be found
-	* @throws SystemException if a system exception occurred
-	*/
-	public static com.liferay.knowledgebase.model.KBComment fetchByU_C_C(
-		long userId, long classNameId, long classPK, boolean retrieveFromCache)
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByU_C_C(
+		long userId, long classNameId, long classPK, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getPersistence()
-				   .fetchByU_C_C(userId, classNameId, classPK, retrieveFromCache);
+				   .findByU_C_C(userId, classNameId, classPK, start, end);
 	}
 
 	/**
-	* Removes the k b comment where userId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
+	* Returns an ordered range of all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
 	*
 	* @param userId the user ID
 	* @param classNameId the class name ID
 	* @param classPK the class p k
-	* @return the k b comment that was removed
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching k b comments
 	* @throws SystemException if a system exception occurred
 	*/
-	public static com.liferay.knowledgebase.model.KBComment removeByU_C_C(
-		long userId, long classNameId, long classPK)
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByU_C_C(
+		long userId, long classNameId, long classPK, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByU_C_C(userId, classNameId, classPK, start, end,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the first k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* @param userId the user ID
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the first matching k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment findByU_C_C_First(
+		long userId, long classNameId, long classPK,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
 		throws com.liferay.knowledgebase.NoSuchCommentException,
 			com.liferay.portal.kernel.exception.SystemException {
-		return getPersistence().removeByU_C_C(userId, classNameId, classPK);
+		return getPersistence()
+				   .findByU_C_C_First(userId, classNameId, classPK,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the first k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* @param userId the user ID
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment fetchByU_C_C_First(
+		long userId, long classNameId, long classPK,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .fetchByU_C_C_First(userId, classNameId, classPK,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the last k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* @param userId the user ID
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the last matching k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment findByU_C_C_Last(
+		long userId, long classNameId, long classPK,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByU_C_C_Last(userId, classNameId, classPK,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the last k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* @param userId the user ID
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment fetchByU_C_C_Last(
+		long userId, long classNameId, long classPK,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .fetchByU_C_C_Last(userId, classNameId, classPK,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the k b comments before and after the current k b comment in the ordered set where userId = &#63; and classNameId = &#63; and classPK = &#63;.
+	*
+	* @param kbCommentId the primary key of the current k b comment
+	* @param userId the user ID
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a k b comment with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment[] findByU_C_C_PrevAndNext(
+		long kbCommentId, long userId, long classNameId, long classPK,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByU_C_C_PrevAndNext(kbCommentId, userId, classNameId,
+			classPK, orderByComparator);
+	}
+
+	/**
+	* Removes all the k b comments where userId = &#63; and classNameId = &#63; and classPK = &#63; from the database.
+	*
+	* @param userId the user ID
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByU_C_C(long userId, long classNameId, long classPK)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByU_C_C(userId, classNameId, classPK);
 	}
 
 	/**
@@ -1107,6 +1394,278 @@ public class KBCommentUtil {
 	public static int countByU_C_C(long userId, long classNameId, long classPK)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getPersistence().countByU_C_C(userId, classNameId, classPK);
+	}
+
+	/**
+	* Returns all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @return the matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByC_C_S(
+		long classNameId, long classPK, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByC_C_S(classNameId, classPK, status);
+	}
+
+	/**
+	* Returns a range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @return the range of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByC_C_S(
+		long classNameId, long classPK, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S(classNameId, classPK, status, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByC_C_S(
+		long classNameId, long classPK, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S(classNameId, classPK, status, start, end,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the first k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the first matching k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment findByC_C_S_First(
+		long classNameId, long classPK, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S_First(classNameId, classPK, status,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the first k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the first matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment fetchByC_C_S_First(
+		long classNameId, long classPK, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .fetchByC_C_S_First(classNameId, classPK, status,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the last k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the last matching k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment findByC_C_S_Last(
+		long classNameId, long classPK, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S_Last(classNameId, classPK, status,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the last k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the last matching k b comment, or <code>null</code> if a matching k b comment could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment fetchByC_C_S_Last(
+		long classNameId, long classPK, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .fetchByC_C_S_Last(classNameId, classPK, status,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the k b comments before and after the current k b comment in the ordered set where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param kbCommentId the primary key of the current k b comment
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next k b comment
+	* @throws com.liferay.knowledgebase.NoSuchCommentException if a k b comment with the primary key could not be found
+	* @throws SystemException if a system exception occurred
+	*/
+	public static com.liferay.knowledgebase.model.KBComment[] findByC_C_S_PrevAndNext(
+		long kbCommentId, long classNameId, long classPK, int status,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.knowledgebase.NoSuchCommentException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S_PrevAndNext(kbCommentId, classNameId, classPK,
+			status, orderByComparator);
+	}
+
+	/**
+	* Returns all the k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param statuses the statuses
+	* @return the matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByC_C_S(
+		long classNameId, long classPK, int[] statuses)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().findByC_C_S(classNameId, classPK, statuses);
+	}
+
+	/**
+	* Returns a range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param statuses the statuses
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @return the range of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByC_C_S(
+		long classNameId, long classPK, int[] statuses, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S(classNameId, classPK, statuses, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link com.liferay.knowledgebase.model.impl.KBCommentModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param statuses the statuses
+	* @param start the lower bound of the range of k b comments
+	* @param end the upper bound of the range of k b comments (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<com.liferay.knowledgebase.model.KBComment> findByC_C_S(
+		long classNameId, long classPK, int[] statuses, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence()
+				   .findByC_C_S(classNameId, classPK, statuses, start, end,
+			orderByComparator);
+	}
+
+	/**
+	* Removes all the k b comments where classNameId = &#63; and classPK = &#63; and status = &#63; from the database.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @throws SystemException if a system exception occurred
+	*/
+	public static void removeByC_C_S(long classNameId, long classPK, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		getPersistence().removeByC_C_S(classNameId, classPK, status);
+	}
+
+	/**
+	* Returns the number of k b comments where classNameId = &#63; and classPK = &#63; and status = &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param status the status
+	* @return the number of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByC_C_S(long classNameId, long classPK, int status)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByC_C_S(classNameId, classPK, status);
+	}
+
+	/**
+	* Returns the number of k b comments where classNameId = &#63; and classPK = &#63; and status = any &#63;.
+	*
+	* @param classNameId the class name ID
+	* @param classPK the class p k
+	* @param statuses the statuses
+	* @return the number of matching k b comments
+	* @throws SystemException if a system exception occurred
+	*/
+	public static int countByC_C_S(long classNameId, long classPK,
+		int[] statuses)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countByC_C_S(classNameId, classPK, statuses);
 	}
 
 	/**

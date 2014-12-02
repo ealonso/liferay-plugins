@@ -18,12 +18,13 @@ import com.liferay.knowledgebase.model.KBArticle;
 import com.liferay.knowledgebase.model.KBComment;
 import com.liferay.knowledgebase.model.KBTemplate;
 import com.liferay.knowledgebase.service.KBArticleLocalServiceUtil;
+import com.liferay.knowledgebase.service.KBCommentLocalServiceUtil;
 import com.liferay.knowledgebase.service.KBTemplateLocalServiceUtil;
+import com.liferay.knowledgebase.util.ActionKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 
 /**
@@ -41,6 +42,16 @@ public class KBCommentPermission {
 		}
 	}
 
+	public static void check(
+			PermissionChecker permissionChecker, long kbCommentId,
+			String actionId)
+		throws PortalException, SystemException {
+
+		if (!contains(permissionChecker, kbCommentId, actionId)) {
+			throw new PrincipalException();
+		}
+	}
+
 	public static boolean contains(
 			PermissionChecker permissionChecker, KBComment kbComment,
 			String actionId)
@@ -50,7 +61,15 @@ public class KBCommentPermission {
 			return true;
 		}
 
-		if (!actionId.equals(ActionKeys.DELETE)) {
+		if (actionId.equals(ActionKeys.VIEW)) {
+			return AdminPermission.contains(
+				permissionChecker, kbComment.getGroupId(),
+				ActionKeys.VIEW_SUGGESTIONS);
+		}
+
+		if (!actionId.equals(ActionKeys.DELETE) &&
+			!actionId.equals(ActionKeys.UPDATE)) {
+
 			return false;
 		}
 
@@ -74,6 +93,17 @@ public class KBCommentPermission {
 		}
 
 		return false;
+	}
+
+	public static boolean contains(
+			PermissionChecker permissionChecker, long kbCommentId,
+			String actionId)
+		throws PortalException, SystemException {
+
+		KBComment kbComment = KBCommentLocalServiceUtil.getKBComment(
+			kbCommentId);
+
+		return contains(permissionChecker, kbComment, actionId);
 	}
 
 }

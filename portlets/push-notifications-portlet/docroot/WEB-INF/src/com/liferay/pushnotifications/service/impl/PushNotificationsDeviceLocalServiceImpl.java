@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.pushnotifications.model.PushNotificationsDevice;
 import com.liferay.pushnotifications.service.base.PushNotificationsDeviceLocalServiceBaseImpl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -64,23 +63,17 @@ public class PushNotificationsDeviceLocalServiceImpl
 	}
 
 	@Override
-	public List<String> getTokens(
-			long userId, String platform, int start, int end)
+	public List<PushNotificationsDevice> getPushNotificationsDevices(
+			long toUserId, String platform, int start, int end)
 		throws SystemException {
 
-		List<String> tokens = new ArrayList<String>();
-
-		List<PushNotificationsDevice> pushNotificationsDevices =
-			pushNotificationsDevicePersistence.findByU_P(
-				userId, platform, start, end);
-
-		for (PushNotificationsDevice pushNotificationsDevice :
-				pushNotificationsDevices) {
-
-			tokens.add(pushNotificationsDevice.getToken());
+		if (toUserId == 0) {
+			return pushNotificationsDevicePersistence.findByPlatform(
+				platform, start, end);
 		}
 
-		return tokens;
+		return pushNotificationsDevicePersistence.findByU_P(
+			toUserId, platform, start, end);
 	}
 
 }

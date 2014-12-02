@@ -16,8 +16,8 @@ package com.liferay.knowledgebase.service.impl;
 
 import com.liferay.knowledgebase.admin.util.AdminUtil;
 import com.liferay.knowledgebase.model.KBArticle;
-import com.liferay.knowledgebase.model.KBArticleConstants;
 import com.liferay.knowledgebase.model.KBArticleSearchDisplay;
+import com.liferay.knowledgebase.model.KBFolderConstants;
 import com.liferay.knowledgebase.model.impl.KBArticleSearchDisplayImpl;
 import com.liferay.knowledgebase.service.base.KBArticleServiceBaseImpl;
 import com.liferay.knowledgebase.service.permission.AdminPermission;
@@ -55,7 +55,6 @@ import com.sun.syndication.feed.synd.SyndLink;
 import com.sun.syndication.feed.synd.SyndLinkImpl;
 import com.sun.syndication.io.FeedException;
 
-import java.io.File;
 import java.io.InputStream;
 
 import java.util.ArrayList;
@@ -71,24 +70,12 @@ import java.util.Map;
 public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 
 	@Override
-	public void addAttachment(
-			String portletId, long resourcePrimKey, String dirName,
-			String shortFileName, InputStream inputStream,
-			ServiceContext serviceContext)
-		throws PortalException, SystemException {
-
-		checkAttachmentPermissions(
-			serviceContext.getScopeGroupId(), portletId, resourcePrimKey);
-
-		kbArticleLocalService.addAttachment(
-			dirName, shortFileName, inputStream, serviceContext);
-	}
-
-	@Override
 	public KBArticle addKBArticle(
-			String portletId, long parentResourcePrimKey, String title,
-			String urlTitle, String content, String description,
-			String[] sections, String dirName, ServiceContext serviceContext)
+			String portletId, long parentResourceClassNameId,
+			long parentResourcePrimKey, String title, String urlTitle,
+			String content, String description, String sourceURL,
+			String[] sections, String[] selectedFileNames,
+			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		if (portletId.equals(PortletKeys.KNOWLEDGE_BASE_ADMIN)) {
@@ -103,47 +90,37 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		}
 
 		return kbArticleLocalService.addKBArticle(
-			getUserId(), parentResourcePrimKey, title, urlTitle, content,
-			description, sections, dirName, serviceContext);
+			getUserId(), parentResourceClassNameId, parentResourcePrimKey,
+			title, urlTitle, content, description, sourceURL, sections,
+			selectedFileNames, serviceContext);
 	}
 
 	@Override
 	public void addKBArticlesMarkdown(
-			long groupId, String fileName, InputStream inputStream,
-			ServiceContext serviceContext)
+			long groupId, long parentKBFolderId, String fileName,
+			InputStream inputStream, ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
 		AdminPermission.check(
 			getPermissionChecker(), groupId, ActionKeys.ADD_KB_ARTICLE);
 
 		kbArticleLocalService.addKBArticlesMarkdown(
-			getUserId(), groupId, fileName, inputStream, serviceContext);
+			getUserId(), groupId, parentKBFolderId, fileName, inputStream,
+			serviceContext);
 	}
 
 	@Override
-	public void deleteAttachment(
-			long companyId, long groupId, String portletId,
-			long resourcePrimKey, String fileName)
+	public void addTempAttachment(
+			long groupId, long resourcePrimKey, String fileName,
+			String tempFolderName, InputStream inputStream, String mimeType)
 		throws PortalException, SystemException {
 
-		if ((resourcePrimKey <= 0) &&
-			portletId.equals(PortletKeys.KNOWLEDGE_BASE_ADMIN)) {
+		checkAttachmentPermissions(
+			groupId, PortletKeys.KNOWLEDGE_BASE_ADMIN, resourcePrimKey);
 
-			AdminPermission.check(
-				getPermissionChecker(), groupId, ActionKeys.ADD_KB_ARTICLE);
-		}
-		else if ((resourcePrimKey <= 0) &&
-				 portletId.equals(PortletKeys.KNOWLEDGE_BASE_DISPLAY)) {
-
-			DisplayPermission.check(
-				getPermissionChecker(), groupId, ActionKeys.ADD_KB_ARTICLE);
-		}
-		else {
-			KBArticlePermission.check(
-				getPermissionChecker(), resourcePrimKey, ActionKeys.UPDATE);
-		}
-
-		kbArticleLocalService.deleteAttachment(companyId, fileName);
+		kbArticleLocalService.addTempAttachment(
+			groupId, getUserId(), fileName, tempFolderName, inputStream,
+			mimeType);
 	}
 
 	@Override
@@ -167,14 +144,33 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	@Override
-	public File getAttachment(
-			long companyId, long groupId, String portletId,
-			long resourcePrimKey, String fileName)
+	public void deleteTempAttachment(
+			long groupId, long resourcePrimKey, String fileName,
+			String tempFolderName)
 		throws PortalException, SystemException {
 
-		checkAttachmentPermissions(groupId, portletId, resourcePrimKey);
+		checkAttachmentPermissions(
+			groupId, PortletKeys.KNOWLEDGE_BASE_ADMIN, resourcePrimKey);
 
-		return kbArticleLocalService.getAttachment(companyId, fileName);
+		kbArticleLocalService.deleteTempAttachment(
+			groupId, getUserId(), fileName, tempFolderName);
+	}
+
+	@Override
+	public KBArticle fetchLatestKBArticle(long resourcePrimKey, int status)
+		throws PortalException, SystemException {
+
+		KBArticle kbArticle = kbArticleLocalService.fetchLatestKBArticle(
+			resourcePrimKey, status);
+
+		if (kbArticle == null) {
+			return null;
+		}
+
+		KBArticlePermission.check(
+			getPermissionChecker(), kbArticle, ActionKeys.VIEW);
+
+		return kbArticle;
 	}
 
 	@Override
@@ -575,18 +571,18 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 
 		if (status == WorkflowConstants.STATUS_ANY) {
 			return kbArticlePersistence.filterFindByG_P_S_L(
-				groupId, KBArticleConstants.DEFAULT_PARENT_RESOURCE_PRIM_KEY,
-				array, true, start, end, orderByComparator);
+				groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID, array,
+				true, start, end, orderByComparator);
 		}
 		else if (status == WorkflowConstants.STATUS_APPROVED) {
 			return kbArticlePersistence.filterFindByG_P_S_M(
-				groupId, KBArticleConstants.DEFAULT_PARENT_RESOURCE_PRIM_KEY,
-				array, true, start, end, orderByComparator);
+				groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID, array,
+				true, start, end, orderByComparator);
 		}
 
 		return kbArticlePersistence.filterFindByG_P_S_S(
-			groupId, KBArticleConstants.DEFAULT_PARENT_RESOURCE_PRIM_KEY, array,
-			status, start, end, orderByComparator);
+			groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID, array, status,
+			start, end, orderByComparator);
 	}
 
 	@Override
@@ -602,18 +598,17 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 
 		if (status == WorkflowConstants.STATUS_ANY) {
 			return kbArticlePersistence.filterCountByG_P_S_L(
-				groupId, KBArticleConstants.DEFAULT_PARENT_RESOURCE_PRIM_KEY,
-				array, true);
+				groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID, array,
+				true);
 		}
 		else if (status == WorkflowConstants.STATUS_APPROVED) {
 			return kbArticlePersistence.filterCountByG_P_S_M(
-				groupId, KBArticleConstants.DEFAULT_PARENT_RESOURCE_PRIM_KEY,
-				array, true);
+				groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID, array,
+				true);
 		}
 
 		return kbArticlePersistence.filterCountByG_P_S_S(
-			groupId, KBArticleConstants.DEFAULT_PARENT_RESOURCE_PRIM_KEY, array,
-			status);
+			groupId, KBFolderConstants.DEFAULT_PARENT_FOLDER_ID, array, status);
 	}
 
 	/**
@@ -645,8 +640,17 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	@Override
+	public String[] getTempAttachmentNames(long groupId, String tempFolderName)
+		throws PortalException, SystemException {
+
+		return kbArticleLocalService.getTempAttachmentNames(
+			groupId, getUserId(), tempFolderName);
+	}
+
+	@Override
 	public void moveKBArticle(
-			long resourcePrimKey, long parentResourcePrimKey, double priority)
+			long resourcePrimKey, long parentResourceClassNameId,
+			long parentResourcePrimKey, double priority)
 		throws PortalException, SystemException {
 
 		KBArticlePermission.check(
@@ -654,7 +658,8 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			ActionKeys.MOVE_KB_ARTICLE);
 
 		kbArticleLocalService.moveKBArticle(
-			getUserId(), resourcePrimKey, parentResourcePrimKey, priority);
+			getUserId(), resourcePrimKey, parentResourceClassNameId,
+			parentResourcePrimKey, priority);
 	}
 
 	@Override
@@ -712,38 +717,10 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	@Override
-	public String updateAttachments(
-			String portletId, long resourcePrimKey, String dirName,
-			ServiceContext serviceContext)
-		throws PortalException, SystemException {
-
-		if ((resourcePrimKey <= 0) &&
-			portletId.equals(PortletKeys.KNOWLEDGE_BASE_ADMIN)) {
-
-			AdminPermission.check(
-				getPermissionChecker(), serviceContext.getScopeGroupId(),
-				ActionKeys.ADD_KB_ARTICLE);
-		}
-		else if ((resourcePrimKey <= 0) &&
-				 portletId.equals(PortletKeys.KNOWLEDGE_BASE_DISPLAY)) {
-
-			DisplayPermission.check(
-				getPermissionChecker(), serviceContext.getScopeGroupId(),
-				ActionKeys.ADD_KB_ARTICLE);
-		}
-		else {
-			KBArticlePermission.check(
-				getPermissionChecker(), resourcePrimKey, ActionKeys.UPDATE);
-		}
-
-		return kbArticleLocalService.updateAttachments(
-			resourcePrimKey, dirName, serviceContext);
-	}
-
-	@Override
 	public KBArticle updateKBArticle(
 			long resourcePrimKey, String title, String content,
-			String description, String[] sections, String dirName,
+			String description, String sourceURL, String[] sections,
+			String[] selectedFileNames, long[] removeFileEntryIds,
 			ServiceContext serviceContext)
 		throws PortalException, SystemException {
 
@@ -751,8 +728,9 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			getPermissionChecker(), resourcePrimKey, ActionKeys.UPDATE);
 
 		return kbArticleLocalService.updateKBArticle(
-			getUserId(), resourcePrimKey, title, content, description, sections,
-			dirName, serviceContext);
+			getUserId(), resourcePrimKey, title, content, description,
+			sourceURL, sections, selectedFileNames, removeFileEntryIds,
+			serviceContext);
 	}
 
 	@Override

@@ -15,14 +15,19 @@
 package com.liferay.pushnotifications.sender.apple;
 
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.pushnotifications.sender.PushNotificationsSender;
 import com.liferay.pushnotifications.util.PortletPropsValues;
+import com.liferay.pushnotifications.util.PushNotificationsConstants;
 
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.ApnsServiceBuilder;
 import com.notnoop.apns.PayloadBuilder;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,9 +39,31 @@ public class ApplePushNotificationsSender implements PushNotificationsSender {
 	public ApplePushNotificationsSender() {
 		ApnsServiceBuilder appleServiceBuilder = APNS.newService();
 
-		appleServiceBuilder.withCert(
-			PortletPropsValues.APPLE_CERTIFICATE_PATH,
-			PortletPropsValues.APPLE_CERTIFICATE_PASSWORD);
+		String path = PortletPropsValues.APPLE_CERTIFICATE_PATH;
+
+		if (Validator.isNull(path)) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"The property \"apple.certificate.path\" is not set in " +
+						"portlet.properties");
+			}
+
+			return;
+		}
+
+		String password = PortletPropsValues.APPLE_CERTIFICATE_PASSWORD;
+
+		if (Validator.isNull(path)) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"The property \"apple.certificate.password\" is not set " +
+						"in portlet.properties");
+			}
+
+			return;
+		}
+
+		appleServiceBuilder.withCert(path, password);
 
 		if (PortletPropsValues.APPLE_SANDBOX) {
 			appleServiceBuilder.withSandboxDestination();
@@ -49,6 +76,10 @@ public class ApplePushNotificationsSender implements PushNotificationsSender {
 	public void send(List<String> tokens, JSONObject jsonObject)
 		throws Exception {
 
+		if (_apnsService == null) {
+			return;
+		}
+
 		String payload = buildPayload(jsonObject);
 
 		_apnsService.push(tokens, payload);
@@ -57,14 +88,31 @@ public class ApplePushNotificationsSender implements PushNotificationsSender {
 	protected String buildPayload(JSONObject jsonObject) {
 		PayloadBuilder builder = PayloadBuilder.newPayload();
 
-		String entryTitle = jsonObject.getString("entryTitle");
+		JSONObject payloadJSONObject = jsonObject.getJSONObject(
+			PushNotificationsConstants.KEY_PAYLOAD);
 
-		if (entryTitle != null) {
-			builder.alertBody(entryTitle);
+		String message = payloadJSONObject.getString(
+			PushNotificationsConstants.KEY_MESSAGE);
+
+		if (message != null) {
+			builder.alertBody(message);
+		}
+
+		payloadJSONObject.remove(PushNotificationsConstants.KEY_MESSAGE);
+
+		Iterator<String> keys = jsonObject.keys();
+
+		while (keys.hasNext()) {
+			String key = keys.next();
+
+			builder.customField(key, jsonObject.getString(key));
 		}
 
 		return builder.build();
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(
+		ApplePushNotificationsSender.class);
 
 	private ApnsService _apnsService;
 

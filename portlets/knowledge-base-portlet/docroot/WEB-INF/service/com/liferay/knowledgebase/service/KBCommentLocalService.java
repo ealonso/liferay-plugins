@@ -16,6 +16,7 @@ package com.liferay.knowledgebase.service;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -52,6 +53,7 @@ public interface KBCommentLocalService extends BaseLocalService,
 	* @return the k b comment that was added
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
 	public com.liferay.knowledgebase.model.KBComment addKBComment(
 		com.liferay.knowledgebase.model.KBComment kbComment)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -73,6 +75,7 @@ public interface KBCommentLocalService extends BaseLocalService,
 	* @throws PortalException if a k b comment with the primary key could not be found
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public com.liferay.knowledgebase.model.KBComment deleteKBComment(
 		long kbCommentId)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -86,6 +89,7 @@ public interface KBCommentLocalService extends BaseLocalService,
 	* @throws PortalException
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.DELETE)
 	public com.liferay.knowledgebase.model.KBComment deleteKBComment(
 		com.liferay.knowledgebase.model.KBComment kbComment)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -284,6 +288,7 @@ public interface KBCommentLocalService extends BaseLocalService,
 	* @return the k b comment that was updated
 	* @throws SystemException if a system exception occurred
 	*/
+	@com.liferay.portal.kernel.search.Indexable(type = IndexableType.REINDEX)
 	public com.liferay.knowledgebase.model.KBComment updateKBComment(
 		com.liferay.knowledgebase.model.KBComment kbComment)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -326,17 +331,63 @@ public interface KBCommentLocalService extends BaseLocalService,
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.knowledgebase.model.KBComment> getKBComments(
+		long groupId, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.knowledgebase.model.KBComment> getKBComments(
+		long userId, java.lang.String className, long classPK, int start,
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.knowledgebase.model.KBComment> getKBComments(
+		java.lang.String className, long classPK, int status, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.knowledgebase.model.KBComment> getKBComments(
 		java.lang.String className, long classPK, int start, int end,
 		com.liferay.portal.kernel.util.OrderByComparator orderByComparator)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.knowledgebase.model.KBComment> getKBComments(
+		java.lang.String className, long classPK, int[] status, int start,
+		int end) throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getKBCommentsCount(long groupId, int status)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getKBCommentsCount(long userId, java.lang.String className,
+		long classPK)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getKBCommentsCount(java.lang.String className, long classPK)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getKBCommentsCount(java.lang.String className, long classPK,
+		int status) throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getKBCommentsCount(java.lang.String className, long classPK,
+		int[] status)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	public com.liferay.knowledgebase.model.KBComment updateKBComment(
 		long kbCommentId, long classNameId, long classPK,
-		java.lang.String content, boolean helpful,
+		java.lang.String content, boolean helpful, int status,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public com.liferay.knowledgebase.model.KBComment updateStatus(
+		long kbCommentId, int status,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;

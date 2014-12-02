@@ -19,7 +19,7 @@ import com.liferay.portal.service.ServiceWrapper;
 /**
  * Provides a wrapper for {@link PushNotificationsDeviceLocalService}.
  *
- * @author Silvio Santos
+ * @author Bruno Farache
  * @see PushNotificationsDeviceLocalService
  * @generated
  */
@@ -307,11 +307,11 @@ public class PushNotificationsDeviceLocalServiceWrapper
 	}
 
 	@Override
-	public java.util.List<java.lang.String> getTokens(long userId,
-		java.lang.String platform, int start, int end)
+	public java.util.List<com.liferay.pushnotifications.model.PushNotificationsDevice> getPushNotificationsDevices(
+		long toUserId, java.lang.String platform, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _pushNotificationsDeviceLocalService.getTokens(userId, platform,
-			start, end);
+		return _pushNotificationsDeviceLocalService.getPushNotificationsDevices(toUserId,
+			platform, start, end);
 	}
 
 	/**

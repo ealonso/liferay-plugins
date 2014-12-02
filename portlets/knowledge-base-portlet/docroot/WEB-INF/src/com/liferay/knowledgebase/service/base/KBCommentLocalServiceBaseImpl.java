@@ -16,8 +16,10 @@ package com.liferay.knowledgebase.service.base;
 
 import com.liferay.knowledgebase.model.KBComment;
 import com.liferay.knowledgebase.service.KBCommentLocalService;
+import com.liferay.knowledgebase.service.persistence.KBArticleFinder;
 import com.liferay.knowledgebase.service.persistence.KBArticlePersistence;
 import com.liferay.knowledgebase.service.persistence.KBCommentPersistence;
+import com.liferay.knowledgebase.service.persistence.KBFolderPersistence;
 import com.liferay.knowledgebase.service.persistence.KBTemplatePersistence;
 
 import com.liferay.portal.kernel.bean.BeanReference;
@@ -36,6 +38,7 @@ import com.liferay.portal.model.PersistedModel;
 import com.liferay.portal.service.BaseLocalServiceImpl;
 import com.liferay.portal.service.PersistedModelLocalServiceRegistryUtil;
 import com.liferay.portal.service.persistence.ClassNamePersistence;
+import com.liferay.portal.service.persistence.PortletPreferencesPersistence;
 import com.liferay.portal.service.persistence.UserPersistence;
 
 import com.liferay.portlet.social.service.persistence.SocialActivityPersistence;
@@ -400,6 +403,24 @@ public abstract class KBCommentLocalServiceBaseImpl extends BaseLocalServiceImpl
 	}
 
 	/**
+	 * Returns the k b article finder.
+	 *
+	 * @return the k b article finder
+	 */
+	public KBArticleFinder getKBArticleFinder() {
+		return kbArticleFinder;
+	}
+
+	/**
+	 * Sets the k b article finder.
+	 *
+	 * @param kbArticleFinder the k b article finder
+	 */
+	public void setKBArticleFinder(KBArticleFinder kbArticleFinder) {
+		this.kbArticleFinder = kbArticleFinder;
+	}
+
+	/**
 	 * Returns the k b comment local service.
 	 *
 	 * @return the k b comment local service
@@ -454,6 +475,62 @@ public abstract class KBCommentLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public void setKBCommentPersistence(
 		KBCommentPersistence kbCommentPersistence) {
 		this.kbCommentPersistence = kbCommentPersistence;
+	}
+
+	/**
+	 * Returns the k b folder local service.
+	 *
+	 * @return the k b folder local service
+	 */
+	public com.liferay.knowledgebase.service.KBFolderLocalService getKBFolderLocalService() {
+		return kbFolderLocalService;
+	}
+
+	/**
+	 * Sets the k b folder local service.
+	 *
+	 * @param kbFolderLocalService the k b folder local service
+	 */
+	public void setKBFolderLocalService(
+		com.liferay.knowledgebase.service.KBFolderLocalService kbFolderLocalService) {
+		this.kbFolderLocalService = kbFolderLocalService;
+	}
+
+	/**
+	 * Returns the k b folder remote service.
+	 *
+	 * @return the k b folder remote service
+	 */
+	public com.liferay.knowledgebase.service.KBFolderService getKBFolderService() {
+		return kbFolderService;
+	}
+
+	/**
+	 * Sets the k b folder remote service.
+	 *
+	 * @param kbFolderService the k b folder remote service
+	 */
+	public void setKBFolderService(
+		com.liferay.knowledgebase.service.KBFolderService kbFolderService) {
+		this.kbFolderService = kbFolderService;
+	}
+
+	/**
+	 * Returns the k b folder persistence.
+	 *
+	 * @return the k b folder persistence
+	 */
+	public KBFolderPersistence getKBFolderPersistence() {
+		return kbFolderPersistence;
+	}
+
+	/**
+	 * Sets the k b folder persistence.
+	 *
+	 * @param kbFolderPersistence the k b folder persistence
+	 */
+	public void setKBFolderPersistence(KBFolderPersistence kbFolderPersistence) {
+		this.kbFolderPersistence = kbFolderPersistence;
 	}
 
 	/**
@@ -587,6 +664,63 @@ public abstract class KBCommentLocalServiceBaseImpl extends BaseLocalServiceImpl
 	public void setClassNamePersistence(
 		ClassNamePersistence classNamePersistence) {
 		this.classNamePersistence = classNamePersistence;
+	}
+
+	/**
+	 * Returns the portlet preferences local service.
+	 *
+	 * @return the portlet preferences local service
+	 */
+	public com.liferay.portal.service.PortletPreferencesLocalService getPortletPreferencesLocalService() {
+		return portletPreferencesLocalService;
+	}
+
+	/**
+	 * Sets the portlet preferences local service.
+	 *
+	 * @param portletPreferencesLocalService the portlet preferences local service
+	 */
+	public void setPortletPreferencesLocalService(
+		com.liferay.portal.service.PortletPreferencesLocalService portletPreferencesLocalService) {
+		this.portletPreferencesLocalService = portletPreferencesLocalService;
+	}
+
+	/**
+	 * Returns the portlet preferences remote service.
+	 *
+	 * @return the portlet preferences remote service
+	 */
+	public com.liferay.portal.service.PortletPreferencesService getPortletPreferencesService() {
+		return portletPreferencesService;
+	}
+
+	/**
+	 * Sets the portlet preferences remote service.
+	 *
+	 * @param portletPreferencesService the portlet preferences remote service
+	 */
+	public void setPortletPreferencesService(
+		com.liferay.portal.service.PortletPreferencesService portletPreferencesService) {
+		this.portletPreferencesService = portletPreferencesService;
+	}
+
+	/**
+	 * Returns the portlet preferences persistence.
+	 *
+	 * @return the portlet preferences persistence
+	 */
+	public PortletPreferencesPersistence getPortletPreferencesPersistence() {
+		return portletPreferencesPersistence;
+	}
+
+	/**
+	 * Sets the portlet preferences persistence.
+	 *
+	 * @param portletPreferencesPersistence the portlet preferences persistence
+	 */
+	public void setPortletPreferencesPersistence(
+		PortletPreferencesPersistence portletPreferencesPersistence) {
+		this.portletPreferencesPersistence = portletPreferencesPersistence;
 	}
 
 	/**
@@ -809,12 +943,20 @@ public abstract class KBCommentLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected com.liferay.knowledgebase.service.KBArticleService kbArticleService;
 	@BeanReference(type = KBArticlePersistence.class)
 	protected KBArticlePersistence kbArticlePersistence;
+	@BeanReference(type = KBArticleFinder.class)
+	protected KBArticleFinder kbArticleFinder;
 	@BeanReference(type = com.liferay.knowledgebase.service.KBCommentLocalService.class)
 	protected com.liferay.knowledgebase.service.KBCommentLocalService kbCommentLocalService;
 	@BeanReference(type = com.liferay.knowledgebase.service.KBCommentService.class)
 	protected com.liferay.knowledgebase.service.KBCommentService kbCommentService;
 	@BeanReference(type = KBCommentPersistence.class)
 	protected KBCommentPersistence kbCommentPersistence;
+	@BeanReference(type = com.liferay.knowledgebase.service.KBFolderLocalService.class)
+	protected com.liferay.knowledgebase.service.KBFolderLocalService kbFolderLocalService;
+	@BeanReference(type = com.liferay.knowledgebase.service.KBFolderService.class)
+	protected com.liferay.knowledgebase.service.KBFolderService kbFolderService;
+	@BeanReference(type = KBFolderPersistence.class)
+	protected KBFolderPersistence kbFolderPersistence;
 	@BeanReference(type = com.liferay.knowledgebase.service.KBTemplateLocalService.class)
 	protected com.liferay.knowledgebase.service.KBTemplateLocalService kbTemplateLocalService;
 	@BeanReference(type = com.liferay.knowledgebase.service.KBTemplateService.class)
@@ -829,6 +971,12 @@ public abstract class KBCommentLocalServiceBaseImpl extends BaseLocalServiceImpl
 	protected com.liferay.portal.service.ClassNameService classNameService;
 	@BeanReference(type = ClassNamePersistence.class)
 	protected ClassNamePersistence classNamePersistence;
+	@BeanReference(type = com.liferay.portal.service.PortletPreferencesLocalService.class)
+	protected com.liferay.portal.service.PortletPreferencesLocalService portletPreferencesLocalService;
+	@BeanReference(type = com.liferay.portal.service.PortletPreferencesService.class)
+	protected com.liferay.portal.service.PortletPreferencesService portletPreferencesService;
+	@BeanReference(type = PortletPreferencesPersistence.class)
+	protected PortletPreferencesPersistence portletPreferencesPersistence;
 	@BeanReference(type = com.liferay.portal.service.ResourceLocalService.class)
 	protected com.liferay.portal.service.ResourceLocalService resourceLocalService;
 	@BeanReference(type = com.liferay.portal.service.UserLocalService.class)

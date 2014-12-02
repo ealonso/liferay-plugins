@@ -16,6 +16,7 @@ package com.liferay.knowledgebase.admin.util;
 
 import com.liferay.knowledgebase.model.KBArticle;
 import com.liferay.knowledgebase.model.KBArticleConstants;
+import com.liferay.knowledgebase.model.KBCommentConstants;
 import com.liferay.knowledgebase.service.KBArticleLocalServiceUtil;
 import com.liferay.knowledgebase.util.PortletPropsValues;
 import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
@@ -120,6 +121,181 @@ public class AdminUtil {
 			PortletPropsValues.ADMIN_EMAIL_KB_ARTICLE_ADDED_SUBJECT);
 	}
 
+	public static String getEmailKBArticleSuggestionInProgressBody(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionInProgressBody = preferences.getValue(
+			"emailKBArticleSuggestionInProgressBody", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionInProgressBody)) {
+			return emailKBArticleSuggestionInProgressBody;
+		}
+
+		return ContentUtil.get(
+			PortletPropsValues.
+				ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_BODY);
+	}
+
+	public static boolean getEmailKBArticleSuggestionInProgressEnabled(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionInProgressEnabled = preferences.getValue(
+			"emailKBArticleSuggestionInProgressEnabled", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionInProgressEnabled)) {
+			return GetterUtil.getBoolean(
+				emailKBArticleSuggestionInProgressEnabled);
+		}
+
+		return PortletPropsValues.
+			ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_ENABLED;
+	}
+
+	public static String getEmailKBArticleSuggestionInProgressSubject(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionInProgressSubject = preferences.getValue(
+			"emailKBArticleSuggestionInProgressSubject", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionInProgressSubject)) {
+			return emailKBArticleSuggestionInProgressSubject;
+		}
+
+		return ContentUtil.get(
+			PortletPropsValues.
+				ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_SUBJECT);
+	}
+
+	public static String getEmailKBArticleSuggestionNotificationBody(
+		int status, PortletPreferences portletPreferences) {
+
+		if (status == KBCommentConstants.STATUS_COMPLETED) {
+			return AdminUtil.getEmailKBArticleSuggestionResolvedBody(
+				portletPreferences);
+		}
+		else if (status == KBCommentConstants.STATUS_IN_PROGRESS) {
+			return AdminUtil.getEmailKBArticleSuggestionInProgressBody(
+				portletPreferences);
+		}
+		else if (status == KBCommentConstants.STATUS_NEW) {
+			return AdminUtil.getEmailKBArticleSuggestionReceivedBody(
+				portletPreferences);
+		}
+		else {
+			throw new IllegalArgumentException(
+				String.format("Unknown suggestion status %s", status));
+		}
+	}
+
+	public static String getEmailKBArticleSuggestionNotificationSubject(
+		int status, PortletPreferences portletPreferences) {
+
+		if (status == KBCommentConstants.STATUS_COMPLETED) {
+			return AdminUtil.getEmailKBArticleSuggestionResolvedSubject(
+				portletPreferences);
+		}
+		else if (status == KBCommentConstants.STATUS_IN_PROGRESS) {
+			return AdminUtil.getEmailKBArticleSuggestionInProgressSubject(
+				portletPreferences);
+		}
+		else if (status == KBCommentConstants.STATUS_NEW) {
+			return AdminUtil.getEmailKBArticleSuggestionReceivedSubject(
+				portletPreferences);
+		}
+		else {
+			throw new IllegalArgumentException(
+				String.format("Unknown suggestion status %s", status));
+		}
+	}
+
+	public static String getEmailKBArticleSuggestionReceivedBody(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionReceivedBody = preferences.getValue(
+			"emailKBArticleSuggestionReceivedBody", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionReceivedBody)) {
+			return emailKBArticleSuggestionReceivedBody;
+		}
+
+		return ContentUtil.get(
+			PortletPropsValues.ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_BODY);
+	}
+
+	public static boolean getEmailKBArticleSuggestionReceivedEnabled(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionReceivedEnabled = preferences.getValue(
+			"emailKBArticleSuggestionReceivedEnabled", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionReceivedEnabled)) {
+			return GetterUtil.getBoolean(
+				emailKBArticleSuggestionReceivedEnabled);
+		}
+
+		return PortletPropsValues.
+			ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_ENABLED;
+	}
+
+	public static String getEmailKBArticleSuggestionReceivedSubject(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionReceivedSubject = preferences.getValue(
+			"emailKBArticleSuggestionReceivedSubject", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionReceivedSubject)) {
+			return emailKBArticleSuggestionReceivedSubject;
+		}
+
+		return ContentUtil.get(
+			PortletPropsValues.
+				ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_SUBJECT);
+	}
+
+	public static String getEmailKBArticleSuggestionResolvedBody(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionResolvedBody = preferences.getValue(
+			"emailKBArticleSuggestionResolvedBody", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionResolvedBody)) {
+			return emailKBArticleSuggestionResolvedBody;
+		}
+
+		return ContentUtil.get(
+			PortletPropsValues.ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_BODY);
+	}
+
+	public static boolean getEmailKBArticleSuggestionResolvedEnabled(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionResolvedEnabled = preferences.getValue(
+			"emailKBArticleSuggestionResolvedEnabled", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionResolvedEnabled)) {
+			return GetterUtil.getBoolean(
+				emailKBArticleSuggestionResolvedEnabled);
+		}
+
+		return PortletPropsValues.
+			ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_ENABLED;
+	}
+
+	public static String getEmailKBArticleSuggestionResolvedSubject(
+		PortletPreferences preferences) {
+
+		String emailKBArticleSuggestionResolvedSubject = preferences.getValue(
+			"emailKBArticleSuggestionResolvedSubject", StringPool.BLANK);
+
+		if (Validator.isNotNull(emailKBArticleSuggestionResolvedSubject)) {
+			return emailKBArticleSuggestionResolvedSubject;
+		}
+
+		return ContentUtil.get(
+			PortletPropsValues.
+				ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_SUBJECT);
+	}
+
 	public static String getEmailKBArticleUpdatedBody(
 		PortletPreferences preferences) {
 
@@ -200,6 +376,10 @@ public class AdminUtil {
 
 			Attributes attributes = element.getAttributes();
 
+			if (attributes == null) {
+				continue;
+			}
+
 			Attribute changeTypeAttribute = attributes.get("changeType");
 
 			if (changeTypeAttribute != null) {
@@ -249,6 +429,23 @@ public class AdminUtil {
 		}
 
 		return outputDocument.toString();
+	}
+
+	public static boolean isSuggestionStatusChangeNotificationEnabled(
+		int status, PortletPreferences preferences) {
+
+		if (status == KBCommentConstants.STATUS_COMPLETED) {
+			return getEmailKBArticleSuggestionResolvedEnabled(preferences);
+		}
+		else if (status == KBCommentConstants.STATUS_IN_PROGRESS) {
+			return getEmailKBArticleSuggestionInProgressEnabled(preferences);
+		}
+		else if (status == KBCommentConstants.STATUS_NEW) {
+			return getEmailKBArticleSuggestionReceivedEnabled(preferences);
+		}
+		else {
+			return false;
+		}
 	}
 
 	public static String[] unescapeSections(String sections) {

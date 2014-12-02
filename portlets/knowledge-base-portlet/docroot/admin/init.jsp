@@ -23,7 +23,11 @@ page import="com.liferay.knowledgebase.admin.search.KBTemplateDisplayTerms" %><%
 page import="com.liferay.knowledgebase.admin.search.KBTemplateSearch" %><%@
 page import="com.liferay.knowledgebase.admin.search.KBTemplateSearchTerms" %><%@
 page import="com.liferay.knowledgebase.admin.util.AdminUtil" %><%@
-page import="com.liferay.knowledgebase.admin.util.KBArticleAssetEntriesUtil" %>
+page import="com.liferay.knowledgebase.admin.util.KBArticleAssetEntriesUtil" %><%@
+page import="com.liferay.knowledgebase.model.KBCommentConstants" %><%@
+page import="com.liferay.knowledgebase.util.KBSuggestionListDisplayContext" %><%@
+page import="com.liferay.portal.model.Portlet" %><%@
+page import="com.liferay.portal.service.PortletLocalServiceUtil" %>
 
 <%
 String kbArticlesOrderByCol = portletPreferences.getValue("kbArticlesOrderByCol", StringPool.BLANK);
@@ -31,10 +35,9 @@ String kbArticlesOrderByType = portletPreferences.getValue("kbArticlesOrderByTyp
 
 boolean enableKBArticleDescription = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleDescription", null));
 boolean enableKBArticleRatings = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleRatings", null));
+String kbArticleRatingsType = GetterUtil.getString(portletPreferences.getValue("kbArticleRatingsType", null), "thumbs");
 boolean showKBArticleAssetEntries = GetterUtil.getBoolean(portletPreferences.getValue("showKBArticleAssetEntries", null));
 boolean enableKBArticleAssetLinks = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleAssetLinks", null), true);
-boolean enableKBArticleKBComments = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleKBComments", null));
-boolean showKBArticleKBComments = GetterUtil.getBoolean(portletPreferences.getValue("showKBArticleKBComments", null));
 boolean enableKBArticleViewCountIncrement = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleViewCountIncrement", null));
 boolean enableKBArticleSubscriptions = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleSubscriptions", null), true);
 boolean enableKBArticleHistory = GetterUtil.getBoolean(portletPreferences.getValue("enableKBArticleHistory", null), true);

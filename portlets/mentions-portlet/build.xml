@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE project>
+
+<project name="mentions-portlet" basedir="." default="deploy">
+	<import file="../build-common-portlet.xml" />
+
+	<macrodef name="update-from-portal-github">
+		<attribute name="source.dir" />
+		<attribute name="source.file" />
+		<attribute name="target.dir" />
+
+		<sequential>
+			<if>
+				<available file="docroot/META-INF/custom_jsps/html/js/@{target.dir}/@{source.file}" />
+				<then>
+					<mkdir dir="docroot/META-INF/custom_jsps/html/js/@{target.dir}" />
+
+					<get
+						dest="docroot/META-INF/custom_jsps/html/js/@{target.dir}/@{source.file}"
+						src="https://raw.githubusercontent.com/liferay/liferay-portal/ac7e6f6c91926b69b89dc3a76cd78aa2f8ca8e51/portal-web/docroot/html/js/@{source.dir}/@{source.file}"
+						verbose="true"
+					/>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+
+	<target name="update-from-portal">
+		<update-from-portal-github
+			source.dir="liferay"
+			source.file="autocomplete_input.js"
+			target.dir="aui"
+		/>
+
+		<update-from-portal-github
+			source.dir="liferay"
+			source.file="autocomplete_input_caretindex.js"
+			target.dir="aui"
+		/>
+
+		<update-from-portal-github
+			source.dir="liferay"
+			source.file="autocomplete_input_caretindex_sel.js"
+			target.dir="aui"
+		/>
+
+		<update-from-portal-github
+			source.dir="liferay"
+			source.file="autocomplete_input_caretoffset.js"
+			target.dir="aui"
+		/>
+
+		<update-from-portal-github
+			source.dir="liferay"
+			source.file="autocomplete_input_caretoffset_sel.js"
+			target.dir="aui"
+		/>
+
+		<update-from-portal-github
+			source.dir="liferay"
+			source.file="autocomplete_textarea.js"
+			target.dir="aui"
+		/>
+
+		<update-from-portal-github
+			source.dir="editor/ckeditor_diffs/plugins/autocomplete"
+			source.file="autocomplete.js"
+			target.dir="editor/ckeditor/plugins/autocomplete"
+		/>
+
+		<update-from-portal-github
+			source.dir="editor/ckeditor_diffs/plugins/autocomplete"
+			source.file="plugin.js"
+			target.dir="editor/ckeditor/plugins/autocomplete"
+		/>
+
+		<replace file="docroot/META-INF/custom_jsps/html/js/editor/ckeditor/plugins/autocomplete/plugin.js">
+			<replacetoken>CKEDITOR.scriptLoader.loadScripts</replacetoken>
+			<replacevalue>CKEDITOR.scriptLoader.load</replacevalue>
+		</replace>
+	</target>
+</project>

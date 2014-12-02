@@ -1,3 +1,5 @@
+Bundle-SymbolicName: system-packages-extra-shared
+Bundle-Version: 1.0.0
 Export-Package: \
 	com.germinus.easyconf,\
 	com.liferay.portal.apache.bridges.struts,\
@@ -8,9 +10,11 @@ Export-Package: \
 	com.liferay.portal.servlet.filters.dynamiccss,\
 	com.liferay.portal.jsonwebservice,\
 	com.liferay.portal.spring.context,\
+	com.liferay.portal.spring.transaction,\
 	com.liferay.portal.struts,\
+	com.liferay.portal.templateparser,\
 	com.liferay.util,\
 	com.liferay.util.bean,\
-	com.liferay.util.portlet.PortletProps,\
+	com.liferay.util.portlet,\
 	com.liferay.util.service
 Fragment-Host: system.bundle;extension:=framework

@@ -21,4 +21,20 @@
 		<service-type>com.liferay.portlet.bookmarks.service.BookmarksEntryLocalService</service-type>
 		<service-impl>com.liferay.notifications.hook.service.impl.BookmarksEntryLocalServiceImpl</service-impl>
 	</service>
+	<service>
+		<service-type>com.liferay.portlet.documentlibrary.service.DLAppHelperLocalService</service-type>
+		<service-impl>com.liferay.notifications.hook.service.impl.DLAppHelperLocalServiceImpl</service-impl>
+	</service>
+	<service>
+		<service-type>com.liferay.portlet.journal.service.JournalArticleLocalService</service-type>
+		<service-impl>com.liferay.notifications.hook.service.impl.JournalArticleLocalServiceImpl</service-impl>
+	</service>
+	<service>
+		<service-type>com.liferay.portlet.messageboards.service.MBMessageLocalService</service-type>
+		<service-impl>com.liferay.notifications.hook.service.impl.MBMessageLocalServiceImpl</service-impl>
+	</service>
+	<service>
+		<service-type>com.liferay.portlet.wiki.service.WikiPageLocalService</service-type>
+		<service-impl>com.liferay.notifications.hook.service.impl.WikiPageLocalServiceImpl</service-impl>
+	</service>
 </hook>

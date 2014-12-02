@@ -14,31 +14,17 @@
  */
 --%>
 
-<%@ include file="/html/portlet/journal/init.jsp" %>
-
-<liferay-util:buffer var="html">
-	<liferay-util:include page="/html/portlet/journal/article_toolbar.portal.jsp" />
-</liferay-util:buffer>
+<%@ include file="/html/portlet/journal/article_toolbar.portal.jsp" %>
 
 <%
-int index = html.indexOf("<portlet:renderURL var=\"viewHistoryURL\">");
-
-JournalArticle article = (JournalArticle)request.getAttribute(WebKeys.JOURNAL_ARTICLE);
-
 String structureId = BeanParamUtil.getString(article, request, "structureId");
 %>
 
-<c:choose>
-	<c:when test="<%= (index > 0) && (article != null) && Validator.isNotNull(structureId) %>">
-		<style type="text/css">
-			.portlet-journal .article-toolbar .icon-download {
-				background-image: none;
-			}
-		</style>
+<c:if test="<%= (article != null) && Validator.isNotNull(structureId) %>">
+	<aui:script use="aui-base">
+		var toolbar = A.Widget.getByNode('#<portlet:namespace />articleToolbar');
 
-		<%= html.substring(0, index) %>
-
-		toolbarButtonGroup.push(
+		toolbar.add(
 			{
 				icon: 'icon-download',
 				label: '<%= UnicodeLanguageUtil.get(pageContext, "download") %>',
@@ -60,10 +46,11 @@ String structureId = BeanParamUtil.getString(article, request, "structureId");
 				}
 			}
 		);
+	</aui:script>
 
-		<%= html.substring(index) %>
-	</c:when>
-	<c:otherwise>
-		<%= html %>
-	</c:otherwise>
-</c:choose>
+	<style type="text/css">
+		.portlet-journal .article-toolbar .icon-download {
+			background-image: none;
+		}
+	</style>
+</c:if>

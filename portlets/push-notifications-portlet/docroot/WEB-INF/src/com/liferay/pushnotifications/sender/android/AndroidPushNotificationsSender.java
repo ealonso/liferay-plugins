@@ -19,9 +19,13 @@ import com.google.android.gcm.server.Message.Builder;
 import com.google.android.gcm.server.Sender;
 
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.pushnotifications.sender.PushNotificationsSender;
 import com.liferay.pushnotifications.util.PortletPropsValues;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,12 +35,28 @@ import java.util.List;
 public class AndroidPushNotificationsSender implements PushNotificationsSender {
 
 	public AndroidPushNotificationsSender() {
-		_sender = new Sender(PortletPropsValues.ANDROID_API_KEY);
+		String key = PortletPropsValues.ANDROID_API_KEY;
+
+		if (Validator.isNull(key)) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"The property \"android.api.key\" is not set in " +
+						"portlet.properties");
+			}
+
+			return;
+		}
+
+		_sender = new Sender(key);
 	}
 
 	@Override
 	public void send(List<String> tokens, JSONObject jsonObject)
 		throws Exception {
+
+		if (_sender == null) {
+			return;
+		}
 
 		Message message = buildMessage(jsonObject);
 
@@ -46,14 +66,19 @@ public class AndroidPushNotificationsSender implements PushNotificationsSender {
 	protected Message buildMessage(JSONObject jsonObject) {
 		Builder builder = new Builder();
 
-		String entryTitle = jsonObject.getString("entryTitle");
+		Iterator<String> keys = jsonObject.keys();
 
-		if (entryTitle != null) {
-			builder.addData("data", entryTitle);
+		while (keys.hasNext()) {
+			String key = keys.next();
+
+			builder.addData(key, jsonObject.getString(key));
 		}
 
 		return builder.build();
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(
+		AndroidPushNotificationsSender.class);
 
 	private Sender _sender;
 

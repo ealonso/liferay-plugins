@@ -17,7 +17,7 @@ package com.liferay.pushnotifications.service;
 import com.liferay.portal.service.InvokableLocalService;
 
 /**
- * @author Silvio Santos
+ * @author Bruno Farache
  * @generated
  */
 public class PushNotificationsDeviceLocalServiceClp
@@ -126,7 +126,7 @@ public class PushNotificationsDeviceLocalServiceClp
 
 		_methodParameterTypes20 = new String[] { "java.lang.String" };
 
-		_methodName21 = "getTokens";
+		_methodName21 = "getPushNotificationsDevices";
 
 		_methodParameterTypes21 = new String[] {
 				"long", "java.lang.String", "int", "int"
@@ -765,8 +765,8 @@ public class PushNotificationsDeviceLocalServiceClp
 	}
 
 	@Override
-	public java.util.List<java.lang.String> getTokens(long userId,
-		java.lang.String platform, int start, int end)
+	public java.util.List<com.liferay.pushnotifications.model.PushNotificationsDevice> getPushNotificationsDevices(
+		long toUserId, java.lang.String platform, int start, int end)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		Object returnObj = null;
 
@@ -774,7 +774,7 @@ public class PushNotificationsDeviceLocalServiceClp
 			returnObj = _invokableLocalService.invokeMethod(_methodName21,
 					_methodParameterTypes21,
 					new Object[] {
-						userId,
+						toUserId,
 						
 					ClpSerializer.translateInput(platform),
 						
@@ -799,7 +799,7 @@ public class PushNotificationsDeviceLocalServiceClp
 			}
 		}
 
-		return (java.util.List<java.lang.String>)ClpSerializer.translateOutput(returnObj);
+		return (java.util.List<com.liferay.pushnotifications.model.PushNotificationsDevice>)ClpSerializer.translateOutput(returnObj);
 	}
 
 	private InvokableLocalService _invokableLocalService;

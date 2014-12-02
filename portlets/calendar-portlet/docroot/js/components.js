@@ -22,6 +22,7 @@
 			var Lang = A.Lang;
 
 			var getClassName = A.getClassName;
+
 			var isArray = Lang.isArray;
 
 			var owns = A.Object.owns;
@@ -200,11 +201,25 @@
 										cssClass += STR_SPACE + item.cssClass;
 									}
 
+									var icon = STR_BLANK;
+
+									if (item.icon) {
+										icon = Lang.sub(
+											TPL_ICON,
+											{
+												iconClass: item.icon
+											}
+										);
+
+										caption = [icon, caption].join(STR_SPACE);
+									}
+
 									var li = A.Node.create(
 										Lang.sub(
 											TPL_SIMPLE_MENU_ITEM,
 											{
 												cssClass: cssClass,
+												icon: icon,
 												id: id
 											}
 										)
@@ -289,7 +304,7 @@
 				'<tpl for="calendars">',
 					'<div class="', CSS_CALENDAR_LIST_ITEM, '">',
 						'<div class="', CSS_CALENDAR_LIST_ITEM_COLOR, '" {[ parent.calendars[$i].get("visible") ? ', '\'style="background-color:\'', STR_PLUS, 'parent.calendars[$i].get("color")', STR_PLUS, '";border-color:"', STR_PLUS, 'parent.calendars[$i].get("color")', STR_PLUS, '";\\""', ' : \'', STR_BLANK, '\' ]}></div>',
-							'<span class="', CSS_CALENDAR_LIST_ITEM_LABEL, '">{[ Liferay.Util.escapeHTML(parent.calendars[$i].getDisplayName()) ]}</span>',
+							'<span class="', CSS_CALENDAR_LIST_ITEM_LABEL, '">{[LString.escapeHTML(parent.calendars[$i].getDisplayName())]}</span>',
 						'<div class="', CSS_CALENDAR_LIST_ITEM_ARROW, '"><i class="', CSS_ICON_CARET_DOWN, '"></i></div>',
 					'</div>',
 				'</tpl>'
@@ -364,8 +379,8 @@
 
 							contentBox.delegate(
 								'hover',
-								A.bind(instance._onHoverOver, instance),
-								A.bind(instance._onHoverOut, instance),
+								A.bind('_onHoverOver', instance),
+								A.bind('_onHoverOut', instance),
 								STR_DOT + CSS_CALENDAR_LIST_ITEM
 							);
 						},
@@ -613,13 +628,13 @@
 							return A.merge(
 								{
 									align: {
-										points: [ A.WidgetPositionAlign.TL, A.WidgetPositionAlign.BL ]
+										points: [A.WidgetPositionAlign.TL, A.WidgetPositionAlign.BL]
 									},
-									bubbleTargets: [ instance ],
+									bubbleTargets: [instance],
 									constrain: true,
 									host: instance,
 									items: [],
-									plugins: [ A.Plugin.OverlayAutohide ],
+									plugins: [A.Plugin.OverlayAutohide],
 									visible: false,
 									width: 290,
 									zIndex: Liferay.zIndex.MENU
@@ -1008,10 +1023,31 @@
 					Liferay.Language.get('december')
 				],
 
+				POSITION_LABELS: {
+					'-1': Liferay.Language.get('last'),
+					'1': Liferay.Language.get('first'),
+					'2': Liferay.Language.get('second'),
+					'3': Liferay.Language.get('third'),
+					'4': Liferay.Language.get('fourth')
+				},
+
+				WEEKDAY_LABELS: {
+					FR: Liferay.Language.get('weekday.FR'),
+					MO: Liferay.Language.get('weekday.MO'),
+					SA: Liferay.Language.get('weekday.SA'),
+					SU: Liferay.Language.get('weekday.SU'),
+					TH: Liferay.Language.get('weekday.TH'),
+					TU: Liferay.Language.get('weekday.TU'),
+					WE: Liferay.Language.get('weekday.WE')
+				},
+
 				getSummary: function(recurrence) {
 					var instance = this;
 
+					var month = null;
+					var position = null;
 					var template = [];
+					var weekDay = null;
 
 					if (recurrence.interval == 1) {
 						template.push(recurrence.frequency);
@@ -1020,7 +1056,19 @@
 						template.push(Liferay.Language.get('every'), ' {interval} {intervalLabel}');
 					}
 
-					if ((recurrence.frequency == instance.FREQUENCY.WEEKLY) && (recurrence.weekdays.length > 0)) {
+					if (recurrence.positionalWeekday) {
+						if (recurrence.frequency == instance.FREQUENCY.MONTHLY) {
+							template.push(STR_SPACE, Liferay.Language.get('on'), ' {position} {weekDay}');
+						}
+						else {
+							template.push(STR_SPACE, Liferay.Language.get('on-the'), ' {position} {weekDay} ', Liferay.Language.get('of'), ' {month}');
+						}
+
+						month = instance.MONTH_LABELS[recurrence.positionalWeekday.month];
+						position = instance.POSITION_LABELS[recurrence.positionalWeekday.position];
+						weekDay = instance.WEEKDAY_LABELS[recurrence.positionalWeekday.weekday];
+					}
+					else if ((recurrence.frequency == instance.FREQUENCY.WEEKLY) && (recurrence.weekdays.length > 0)) {
 						template.push(STR_SPACE, TPL_SPAN, Liferay.Language.get('on'), TPL_SPAN_CLOSE, ' {weekDays}');
 					}
 
@@ -1053,6 +1101,9 @@
 							count: recurrence.count,
 							interval: recurrence.interval,
 							intervalLabel: instance.INTERVAL_LABELS[recurrence.frequency],
+							month: month,
+							position: position,
+							weekDay: weekDay,
 							weekDays: recurrence.weekdays.join(', ')
 						}
 					);
@@ -1063,8 +1114,9 @@
 				openConfirmationPanel: function(actionName, onlyThisInstanceFn, allFollowingFn, allEventsInFn, cancelFn) {
 					var instance = this;
 
-					var titleText;
 					var changeDeleteText;
+					var confirmationPanel;
+					var titleText;
 
 					if (actionName === 'delete') {
 						titleText = Liferay.Language.get('delete-recurring-event');
@@ -1079,9 +1131,9 @@
 						return {
 							label: label,
 							on: {
-								click: function(event, buttonItem) {
+								click: function() {
 									if (callback) {
-										callback.apply(confirmationPanel, arguments);
+										callback.apply(this, arguments);
 									}
 
 									confirmationPanel.hide();
@@ -1090,7 +1142,7 @@
 						};
 					};
 
-					var confirmationPanel = Liferay.Util.Window.getWindow(
+					confirmationPanel = Liferay.Util.Window.getWindow(
 						{
 							dialog:	{
 								bodyContent: changeDeleteText,
@@ -1125,6 +1177,13 @@
 	AUI.add(
 		'liferay-calendar-message-util',
 		function(A) {
+			var Lang = A.Lang;
+			var LString = Lang.String;
+
+			var TPL_MESSAGE_UPDATE_ALL_INVITED = '<p class="calendar-portlet-confirmation-text">' +
+				Liferay.Language.get('invited-users-will-be-notified') +
+			'</p>';
+
 			Liferay.CalendarMessageUtil = {
 
 				closeEventHandle: null,
@@ -1132,13 +1191,15 @@
 				confirm: function(message, yesButtonLabel, noButtonLabel, yesFn, noFn) {
 					var instance = this;
 
+					var confirmationPanel;
+
 					var getButtonConfig = function(label, callback) {
 						return {
 							label: label,
 							on: {
-								click: function(event, buttonItem) {
+								click: function() {
 									if (callback) {
-										callback.apply(confirmationPanel, arguments);
+										callback.apply(this, arguments);
 									}
 
 									confirmationPanel.hide();
@@ -1147,7 +1208,7 @@
 						};
 					};
 
-					var confirmationPanel = Liferay.Util.Window.getWindow(
+					confirmationPanel = Liferay.Util.Window.getWindow(
 						{
 							dialog : {
 								bodyContent: message,
@@ -1167,6 +1228,158 @@
 					);
 
 					return confirmationPanel.render().show();
+				},
+
+				promptSchedulerEventUpdate: function(data) {
+					var instance = this;
+
+					data.answers = {};
+
+					var queue = new A.AsyncQueue();
+
+					if (data.recurring) {
+						queue.add(
+							{
+								args: [data],
+								autoContinue: false,
+								context: instance,
+								fn: instance._queueableQuestionUpdateRecurring,
+								timeout: 0
+							}
+						);
+					}
+
+					if (data.masterBooking) {
+						if (data.hasChild) {
+							queue.add(
+								{
+									args: [data],
+									autoContinue: false,
+									context: instance,
+									fn: instance._queueableQuestionUpdateAllInvited,
+									timeout: 0
+								}
+							);
+						}
+					}
+					else {
+						queue.add(
+							{
+								args: [data],
+								autoContinue: false,
+								context: instance,
+								fn: instance._queueableQuestionUserCalendarOnly,
+								timeout: 0
+							}
+						);
+					}
+
+					queue.add(
+						{
+							args: [data],
+							autoContinue: false,
+							context: instance,
+							fn: data.resolver,
+							timeout: 0
+						}
+					);
+
+					instance.queue = queue;
+
+					queue.run();
+				},
+
+				_queueableQuestionUpdateAllInvited: function(data) {
+					var instance = this;
+
+					var answers = data.answers;
+
+					var showNextQuestion = A.bind('run', instance.queue);
+
+					if (answers.cancel) {
+						A.soon(showNextQuestion);
+					}
+					else {
+						Liferay.CalendarMessageUtil.confirm(
+							TPL_MESSAGE_UPDATE_ALL_INVITED,
+							Liferay.Language.get('save-changes'),
+							Liferay.Language.get('do-not-change-the-event'),
+							showNextQuestion,
+							function() {
+								answers.cancel = true;
+
+								showNextQuestion();
+							}
+						);
+					}
+				},
+
+				_queueableQuestionUpdateRecurring: function(data) {
+					var instance = this;
+
+					var answers = data.answers;
+
+					var showNextQuestion = A.bind('run', instance.queue);
+
+					if (answers.cancel) {
+						A.soon(showNextQuestion);
+					}
+					else {
+						Liferay.RecurrenceUtil.openConfirmationPanel(
+							'update',
+							function() {
+								answers.updateInstance = true;
+
+								showNextQuestion();
+							},
+							function() {
+								answers.allFollowing = true;
+								answers.updateInstance = true;
+
+								showNextQuestion();
+							},
+							showNextQuestion,
+							function() {
+								answers.cancel = true;
+
+								showNextQuestion();
+							}
+						);
+					}
+				},
+
+				_queueableQuestionUserCalendarOnly: function(data) {
+					var instance = this;
+
+					var answers = data.answers;
+
+					var showNextQuestion = A.bind('run', instance.queue);
+
+					if (answers.cancel) {
+						A.soon(showNextQuestion);
+					}
+					else {
+						var content = [
+							'<p class="calendar-portlet-confirmation-text">',
+							Lang.sub(
+								Liferay.Language.get('you-are-about-to-make-changes-that-will-only-affect-your-calendar-x'),
+								[LString.escapeHTML(data.calendarName)]
+							),
+							'</p>'
+						].join(STR_BLANK);
+
+						Liferay.CalendarMessageUtil.confirm(
+							content,
+							Liferay.Language.get('save-changes'),
+							Liferay.Language.get('do-not-change-the-event'),
+							showNextQuestion,
+							function() {
+								answers.cancel = true;
+
+								showNextQuestion();
+							}
+						);
+					}
 				},
 
 				showAlert: function(container, message) {

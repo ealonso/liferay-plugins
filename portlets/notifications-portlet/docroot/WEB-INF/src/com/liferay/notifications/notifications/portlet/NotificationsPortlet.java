@@ -14,28 +14,85 @@
 
 package com.liferay.notifications.notifications.portlet;
 
+import com.liferay.notifications.model.UserNotificationEvent;
+import com.liferay.notifications.util.NotificationsConstants;
+import com.liferay.notifications.util.NotificationsUtil;
+import com.liferay.notifications.util.PortletKeys;
+import com.liferay.notifications.util.PortletPropsValues;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.notifications.UserNotificationFeedEntry;
+import com.liferay.portal.kernel.notifications.UserNotificationManagerUtil;
+import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.UserNotificationEvent;
+import com.liferay.portal.model.Portlet;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.service.ServiceContextFactory;
+import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.UserNotificationDeliveryLocalServiceUtil;
 import com.liferay.portal.service.UserNotificationEventLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
+import com.liferay.util.ContentUtil;
 import com.liferay.util.bridges.mvc.MVCPortlet;
 
+import java.text.Format;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletURL;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
+import javax.portlet.WindowState;
 
 /**
  * @author Jonathan Lee
  */
 public class NotificationsPortlet extends MVCPortlet {
+
+	public void deleteUserNotificationEvent(
+			ActionRequest actionRequest, ActionResponse actionResponse)
+		throws Exception {
+
+		long userNotificationEventId = ParamUtil.getLong(
+			actionRequest, "userNotificationEventId");
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		try {
+			com.liferay.portal.model.UserNotificationEvent
+				userNotificationEvent =
+					UserNotificationEventLocalServiceUtil.
+						fetchUserNotificationEvent(userNotificationEventId);
+
+			if (userNotificationEvent != null) {
+				UserNotificationEventLocalServiceUtil.
+					deleteUserNotificationEvent(userNotificationEvent);
+			}
+
+			jsonObject.put("success", Boolean.TRUE);
+		}
+		catch (Exception e) {
+			jsonObject.put("success", Boolean.FALSE);
+		}
+
+		writeJSON(actionRequest, actionResponse, jsonObject);
+	}
 
 	public void markAllAsRead(
 			ActionRequest actionRequest, ActionResponse actionResponse)
@@ -97,7 +154,13 @@ public class NotificationsPortlet extends MVCPortlet {
 			String actionName = ParamUtil.getString(
 				actionRequest, ActionRequest.ACTION_NAME);
 
-			if (actionName.equals("markAsRead")) {
+			if (actionName.equals("deleteUserNotificationEvent")) {
+				deleteUserNotificationEvent(actionRequest, actionResponse);
+			}
+			else if (actionName.equals("markAllAsRead")) {
+				markAllAsRead(actionRequest, actionResponse);
+			}
+			else if (actionName.equals("markAsRead")) {
 				markAsRead(actionRequest, actionResponse);
 			}
 			else if (actionName.equals("setDelivered")) {
@@ -121,10 +184,13 @@ public class NotificationsPortlet extends MVCPortlet {
 		throws PortletException {
 
 		try {
-			String resourceId = resourceRequest.getResourceID();
+			String resourceID = resourceRequest.getResourceID();
 
-			if (resourceId.equals("notifcationsCount")) {
+			if (resourceID.equals("getNotificationsCount")) {
 				getNotificationsCount(resourceRequest, resourceResponse);
+			}
+			else if (resourceID.equals("getUserNotificationEvents")) {
+				getUserNotificationEvents(resourceRequest, resourceResponse);
 			}
 		}
 		catch (Exception e) {
@@ -142,13 +208,14 @@ public class NotificationsPortlet extends MVCPortlet {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		try {
-			List<UserNotificationEvent> userNotificationEvents =
-				UserNotificationEventLocalServiceUtil.
-					getDeliveredUserNotificationEvents(
-						themeDisplay.getUserId(), false);
+			List<com.liferay.portal.model.UserNotificationEvent>
+				userNotificationEvents =
+					UserNotificationEventLocalServiceUtil.
+						getDeliveredUserNotificationEvents(
+							themeDisplay.getUserId(), false);
 
-			for (UserNotificationEvent userNotificationEvent :
-					userNotificationEvents) {
+			for (com.liferay.portal.model.UserNotificationEvent
+					userNotificationEvent : userNotificationEvents) {
 
 				userNotificationEvent.setDelivered(true);
 
@@ -226,10 +293,204 @@ public class NotificationsPortlet extends MVCPortlet {
 		writeJSON(resourceRequest, resourceResponse, jsonObject);
 	}
 
+	protected void getUserNotificationEvents(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		boolean fullView = ParamUtil.getBoolean(resourceRequest, "fullView");
+		boolean actionable = ParamUtil.getBoolean(
+			resourceRequest, "actionable");
+		int start = ParamUtil.getInteger(resourceRequest, "start");
+		int end = ParamUtil.getInteger(resourceRequest, "end");
+
+		List<com.liferay.notifications.model.UserNotificationEvent>
+			userNotificationEvents = null;
+		int total = 0;
+
+		if (fullView) {
+			userNotificationEvents =
+				NotificationsUtil.getUserNotificationEvents(
+					themeDisplay.getUserId(), actionable, start, end);
+
+			total = NotificationsUtil.getUserNotificationEventsCount(
+				themeDisplay.getUserId(), actionable);
+		}
+		else {
+			userNotificationEvents =
+				NotificationsUtil.getArchivedUserNotificationEvents(
+					themeDisplay.getUserId(), actionable, false, start, end);
+
+			total = NotificationsUtil.getArchivedUserNotificationEventsCount(
+				themeDisplay.getUserId(), actionable, false);
+		}
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		List<Long> newUserNotificationEventIds = new ArrayList<Long>();
+
+		for (com.liferay.notifications.model.UserNotificationEvent
+				userNotificationEvent : userNotificationEvents) {
+
+			String entry = renderEntry(
+				resourceRequest, resourceResponse, userNotificationEvent);
+
+			if (Validator.isNotNull(entry)) {
+				jsonArray.put(entry);
+
+				if (!userNotificationEvent.isArchived()) {
+					newUserNotificationEventIds.add(
+						userNotificationEvent.getUserNotificationEventId());
+				}
+			}
+		}
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		jsonObject.put("entries", jsonArray);
+
+		int newTotalUuserNotificationEventsCount =
+			NotificationsUtil.getArchivedUserNotificationEventsCount(
+				themeDisplay.getUserId(), actionable, false);
+
+		jsonObject.put(
+			"newTotalUuserNotificationEventsCount",
+			newTotalUuserNotificationEventsCount);
+
+		jsonObject.put(
+			"newUserNotificationEventIds",
+			StringUtil.merge(newUserNotificationEventIds));
+		jsonObject.put(
+			"newUserNotificationEventsCount",
+			newUserNotificationEventIds.size());
+
+		jsonObject.put("total", total);
+
+		writeJSON(resourceRequest, resourceResponse, jsonObject);
+	}
+
+	protected String renderEntry(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse,
+			UserNotificationEvent userNotificationEvent)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		com.liferay.portal.model.UserNotificationEvent
+			portalUserNotificationEvent =
+				userNotificationEvent.getUserNotificationEvent();
+
+		UserNotificationFeedEntry userNotificationFeedEntry =
+			UserNotificationManagerUtil.interpret(
+				StringPool.BLANK, portalUserNotificationEvent,
+				ServiceContextFactory.getInstance(resourceRequest));
+
+		if (userNotificationFeedEntry == null) {
+			return null;
+		}
+
+		boolean actionable = ArrayUtil.contains(
+			NotificationsConstants.ACTIONABLE_TYPES,
+			userNotificationFeedEntry.getPortletId());
+
+		LiferayPortletResponse liferayPortletResponse =
+			(LiferayPortletResponse)resourceResponse;
+
+		PortletURL actionURL = liferayPortletResponse.createActionURL(
+			PortletKeys.NOTIFICATIONS);
+
+		actionURL.setParameter(
+			"userNotificationEventId",
+			String.valueOf(userNotificationEvent.getUserNotificationEventId()));
+
+		actionURL.setWindowState(WindowState.NORMAL);
+
+		String actionDiv = StringPool.BLANK;
+		String cssClass = StringPool.BLANK;
+		String markAsReadIcon = StringPool.BLANK;
+
+		if (actionable) {
+			actionURL.setParameter(
+				"javax.portlet.action", "deleteUserNotificationEvent");
+
+			actionDiv =
+				StringUtil.replace(
+					_DELETE_DIV, "[$DELETE_URL$]", actionURL.toString());
+		}
+		else {
+			actionURL.setParameter("javax.portlet.action", "markAsRead");
+
+			actionDiv =
+				StringUtil.replace(
+					_MARK_AS_READ_DIV,
+					new String[] {"[$LINK$]", "[$MARK_AS_READ_URL$]"},
+					new String[] {
+						userNotificationFeedEntry.getLink(),
+						actionURL.toString()});
+
+			if (userNotificationEvent.isArchived()) {
+				cssClass = "archived";
+			}
+			else {
+				markAsReadIcon = StringUtil.replace(
+					_MARK_AS_READ_ICON, "[$TITLE_MESSAGE$]",
+					LanguageUtil.get(themeDisplay.getLocale(), "mark-as-read"));
+			}
+		}
+
+		Portlet portlet =
+			PortletLocalServiceUtil.getPortletById(
+				themeDisplay.getCompanyId(), userNotificationEvent.getType());
+
+		String portletName = portlet.getDisplayName();
+		String portletIcon = portlet.getContextPath() + portlet.getIcon();
+
+		Format simpleDateFormat =
+			FastDateFormatFactoryUtil.getSimpleDateFormat(
+				"EEEE, MMMMM dd, yyyy 'at' h:mm a", themeDisplay.getLocale(),
+				themeDisplay.getTimeZone());
+
+		JSONObject userNotificationEventJSONObject =
+			JSONFactoryUtil.createJSONObject(
+				userNotificationEvent.getPayload());
+
+		long userId = userNotificationEventJSONObject.getLong("userId");
+
+		String userFullName = HtmlUtil.escape(
+			PortalUtil.getUserName(userId, StringPool.BLANK));
+
+		String userPortraitURL = StringPool.BLANK;
+
+		User user = UserLocalServiceUtil.fetchUserById(userId);
+
+		if (user != null) {
+			userPortraitURL = user.getPortraitURL(themeDisplay);
+		}
+
+		return StringUtil.replace(
+			ContentUtil.get(PortletPropsValues.USER_NOTIFICATION_ENTRY),
+			new String[] {
+				"[$ACTION_DIV$]", "[$BODY$]", "[$CSS_CLASS$]",
+				"[$MARK_AS_READ_ICON$]", "[$PORTLET_ICON$]", "[$PORTLET_NAME$]",
+				"[$TIMESTAMP$]", "[$TIMETITLE$]", "[$USER_FULL_NAME$]",
+				"[$USER_PORTRAIT_URL$]"},
+			new String[] {
+				actionDiv, userNotificationFeedEntry.getBody(), cssClass,
+				markAsReadIcon, portletIcon, portletName,
+				Time.getRelativeTimeDescription(
+					userNotificationEvent.getTimestamp(),
+					themeDisplay.getLocale(), themeDisplay.getTimeZone()),
+				simpleDateFormat.format(userNotificationEvent.getTimestamp()),
+				userFullName, userPortraitURL});
+	}
+
 	protected void updateArchived(long userNotificationEventId)
 		throws Exception {
 
-		UserNotificationEvent userNotificationEvent =
+		com.liferay.portal.model.UserNotificationEvent userNotificationEvent =
 			UserNotificationEventLocalServiceUtil.getUserNotificationEvent(
 				userNotificationEventId);
 
@@ -238,5 +499,17 @@ public class NotificationsPortlet extends MVCPortlet {
 		UserNotificationEventLocalServiceUtil.updateUserNotificationEvent(
 			userNotificationEvent);
 	}
+
+	private static final String _DELETE_DIV =
+		"<div class=\"clearfix user-notification-delete\" data-deleteURL=\"" +
+			"[$DELETE_URL$]\">";
+
+	private static final String _MARK_AS_READ_DIV =
+		"<div class=\"clearfix user-notification-link\" data-href=\"" +
+			"[$LINK$]\" data-markAsReadURL=\"[$MARK_AS_READ_URL$]\">";
+
+	private static final String _MARK_AS_READ_ICON =
+		"<div class=\"mark-as-read\" title=\"[$TITLE_MESSAGE$]\"><i class=\"" +
+			"icon-remove\"></i></div>";
 
 }

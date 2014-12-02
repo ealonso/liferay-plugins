@@ -243,6 +243,20 @@ public interface KBArticleModel extends BaseModel<KBArticle>, ResourcedModel,
 	public void setRootResourcePrimKey(long rootResourcePrimKey);
 
 	/**
+	 * Returns the parent resource class name ID of this k b article.
+	 *
+	 * @return the parent resource class name ID of this k b article
+	 */
+	public long getParentResourceClassNameId();
+
+	/**
+	 * Sets the parent resource class name ID of this k b article.
+	 *
+	 * @param parentResourceClassNameId the parent resource class name ID of this k b article
+	 */
+	public void setParentResourceClassNameId(long parentResourceClassNameId);
+
+	/**
 	 * Returns the parent resource prim key of this k b article.
 	 *
 	 * @return the parent resource prim key of this k b article
@@ -255,6 +269,20 @@ public interface KBArticleModel extends BaseModel<KBArticle>, ResourcedModel,
 	 * @param parentResourcePrimKey the parent resource prim key of this k b article
 	 */
 	public void setParentResourcePrimKey(long parentResourcePrimKey);
+
+	/**
+	 * Returns the kb folder ID of this k b article.
+	 *
+	 * @return the kb folder ID of this k b article
+	 */
+	public long getKbFolderId();
+
+	/**
+	 * Sets the kb folder ID of this k b article.
+	 *
+	 * @param kbFolderId the kb folder ID of this k b article
+	 */
+	public void setKbFolderId(long kbFolderId);
 
 	/**
 	 * Returns the version of this k b article.
@@ -414,6 +442,21 @@ public interface KBArticleModel extends BaseModel<KBArticle>, ResourcedModel,
 	 * @param main the main of this k b article
 	 */
 	public void setMain(boolean main);
+
+	/**
+	 * Returns the source u r l of this k b article.
+	 *
+	 * @return the source u r l of this k b article
+	 */
+	@AutoEscape
+	public String getSourceURL();
+
+	/**
+	 * Sets the source u r l of this k b article.
+	 *
+	 * @param sourceURL the source u r l of this k b article
+	 */
+	public void setSourceURL(String sourceURL);
 
 	/**
 	 * Returns the status of this k b article.
@@ -604,19 +647,19 @@ public interface KBArticleModel extends BaseModel<KBArticle>, ResourcedModel,
 	public Object clone();
 
 	@Override
-	public int compareTo(KBArticle kbArticle);
+	public int compareTo(com.liferay.knowledgebase.model.KBArticle kbArticle);
 
 	@Override
 	public int hashCode();
 
 	@Override
-	public CacheModel<KBArticle> toCacheModel();
+	public CacheModel<com.liferay.knowledgebase.model.KBArticle> toCacheModel();
 
 	@Override
-	public KBArticle toEscapedModel();
+	public com.liferay.knowledgebase.model.KBArticle toEscapedModel();
 
 	@Override
-	public KBArticle toUnescapedModel();
+	public com.liferay.knowledgebase.model.KBArticle toUnescapedModel();
 
 	@Override
 	public String toString();

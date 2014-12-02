@@ -41,6 +41,59 @@ public class PortletPropsValues {
 	public static final String ADMIN_EMAIL_KB_ARTICLE_ADDED_SUBJECT =
 		PortletProps.get(PortletPropsKeys.ADMIN_EMAIL_KB_ARTICLE_ADDED_SUBJECT);
 
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_BODY =
+			PortletProps.get(
+				PortletPropsKeys.
+					ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_BODY);
+
+	public static final boolean
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_ENABLED =
+			GetterUtil.getBoolean(
+				PortletProps.get(
+					PortletPropsKeys.
+						ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_ENABLED));
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_SUBJECT =
+			PortletProps.get(
+				PortletPropsKeys.
+					ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_SUBJECT);
+
+	public static final String ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_BODY =
+		PortletProps.get(
+			PortletPropsKeys.ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_BODY);
+
+	public static final boolean
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_ENABLED =
+			GetterUtil.getBoolean(
+				PortletProps.get(
+					PortletPropsKeys.
+						ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_ENABLED));
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_SUBJECT =
+			PortletProps.get(
+				PortletPropsKeys.
+					ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_SUBJECT);
+
+	public static final String ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_BODY =
+		PortletProps.get(
+			PortletPropsKeys.ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_BODY);
+
+	public static final boolean
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_ENABLED =
+			GetterUtil.getBoolean(
+				PortletProps.get(
+					PortletPropsKeys.
+						ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_ENABLED));
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_SUBJECT =
+			PortletProps.get(
+				PortletPropsKeys.
+					ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_SUBJECT);
+
 	public static final String ADMIN_EMAIL_KB_ARTICLE_UPDATED_BODY =
 		PortletProps.get(PortletPropsKeys.ADMIN_EMAIL_KB_ARTICLE_UPDATED_BODY);
 
@@ -77,13 +130,18 @@ public class PortletPropsValues {
 		PortletProps.get(
 			PortletPropsKeys.KNOWLEDGE_BASE_SOCIAL_BOOKMARKS_DISPLAY_STYLE);
 
+	public static final String KNOWLEDGE_BASE_SOURCE_URL_EDIT_MESSAGE_KEY =
+		PortletProps.get(
+			PortletPropsKeys.KNOWLEDGE_BASE_SOURCE_URL_EDIT_MESSAGE_KEY);
+
+	public static final boolean KNOWLEDGE_BASE_SOURCE_URL_ENABLED =
+		GetterUtil.getBoolean(
+			PortletProps.get(
+				PortletPropsKeys.KNOWLEDGE_BASE_SOURCE_URL_ENABLED));
+
 	public static final String[] MARKDOWN_IMPORTER_ARTICLE_EXTENSIONS =
 		PortletProps.getArray(
 			PortletPropsKeys.MARKDOWN_IMPORTER_ARTICLE_EXTENSIONS);
-
-	public static final String MARKDOWN_IMPORTER_ARTICLE_HOME =
-		GetterUtil.getString(
-			PortletProps.get(PortletPropsKeys.MARKDOWN_IMPORTER_ARTICLE_HOME));
 
 	public static final String MARKDOWN_IMPORTER_ARTICLE_INTRO =
 		GetterUtil.getString(

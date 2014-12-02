@@ -1,6 +1,8 @@
 create index IX_571C019E on KBArticle (companyId, latest);
 create index IX_5A381890 on KBArticle (companyId, main);
 create index IX_FBC2D349 on KBArticle (companyId, status);
+create index IX_4A49CDD6 on KBArticle (groupId, kbFolderId, urlTitle);
+create index IX_379FD6BC on KBArticle (groupId, kbFolderId, urlTitle, status);
 create index IX_694EA2E0 on KBArticle (groupId, latest);
 create index IX_97C62252 on KBArticle (groupId, main);
 create index IX_B0FCBB47 on KBArticle (groupId, parentResourcePrimKey, latest);
@@ -26,12 +28,21 @@ create index IX_4E87D659 on KBArticle (uuid_, companyId);
 create unique index IX_5C941F1B on KBArticle (uuid_, groupId);
 
 create index IX_9FE4C2A3 on KBComment (classNameId, classPK);
+create index IX_47D3AE89 on KBComment (classNameId, classPK, status);
 create index IX_20A6BD9C on KBComment (groupId);
 create index IX_E8D43932 on KBComment (groupId, classNameId);
-create unique index IX_FD56A55D on KBComment (userId, classNameId, classPK);
+create index IX_828BA082 on KBComment (groupId, status);
+create index IX_FD56A55D on KBComment (userId, classNameId, classPK);
 create index IX_8E470726 on KBComment (uuid_);
 create index IX_6CB72942 on KBComment (uuid_, companyId);
 create unique index IX_791D1844 on KBComment (uuid_, groupId);
+
+create index IX_1F52AB5D on KBFolder (groupId, parentKBFolderId);
+create index IX_3FA4415C on KBFolder (groupId, parentKBFolderId, name);
+create index IX_729A89FA on KBFolder (groupId, parentKBFolderId, urlTitle);
+create index IX_30B67029 on KBFolder (uuid_);
+create index IX_32D1105F on KBFolder (uuid_, companyId);
+create unique index IX_1FD022A1 on KBFolder (uuid_, groupId);
 
 create index IX_83D9CC13 on KBTemplate (groupId);
 create index IX_9909475D on KBTemplate (uuid_);

@@ -145,6 +145,7 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 					<portlet:param name="endTimeMinute" value="{endTimeMinute}" />
 					<portlet:param name="endTimeMonth" value="{endTimeMonth}" />
 					<portlet:param name="endTimeYear" value="{endTimeYear}" />
+					<portlet:param name="instanceIndex" value="{instanceIndex}" />
 					<portlet:param name="startTimeDay" value="{startTimeDay}" />
 					<portlet:param name="startTimeHour" value="{startTimeHour}" />
 					<portlet:param name="startTimeMinute" value="{startTimeMinute}" />
@@ -186,10 +187,6 @@ boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, 
 
 <aui:script use="aui-toggler,liferay-calendar-list,liferay-scheduler,liferay-store,json">
 	Liferay.CalendarUtil.USER_CLASS_NAME_ID = <%= PortalUtil.getClassNameId(User.class) %>;
-
-	Liferay.CalendarUtil.INVITEES_URL = '<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="calendarBookingInvitees" />';
-	Liferay.CalendarUtil.RENDERING_RULES_URL = '<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="calendarRenderingRules" />';
-	Liferay.CalendarUtil.RESOURCE_CALENDARS_URL = '<liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="resourceCalendars" />';
 
 	<c:if test="<%= defaultCalendar != null %>">
 		Liferay.CalendarUtil.DEFAULT_USER_CALENDAR_ID = <%= defaultCalendar.getCalendarId() %>;

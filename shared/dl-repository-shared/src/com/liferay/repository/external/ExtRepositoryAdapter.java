@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -961,7 +962,7 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 		hits.setDocs(documents.toArray(new Document[documents.size()]));
 		hits.setLength(total);
 		hits.setQueryTerms(new String[0]);
-		hits.setScores(scores.toArray(new Float[scores.size()]));
+		hits.setScores(ArrayUtil.toFloatArray(scores));
 		hits.setSearchTime(searchTime);
 		hits.setSnippets(snippets.toArray(new String[snippets.size()]));
 		hits.setStart(startTime);
@@ -1069,6 +1070,10 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 	}
 
 	protected ExtRepositoryAdapter(ExtRepository extRepository) {
+		if (extRepository == null) {
+			extRepository = (ExtRepository)this;
+		}
+
 		_extRepository = extRepository;
 	}
 
@@ -1088,6 +1093,15 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 		repositoryEntry = _getRootRepositoryEntry(rootMountDLFolder);
 
 		return repositoryEntry.getMappedId();
+	}
+
+	private void _checkAssetEntry(
+			ExtRepositoryFileEntryAdapter extRepositoryFileEntryAdapter)
+		throws PortalException, SystemException {
+
+		dlAppHelperLocalService.checkAssetEntry(
+			PrincipalThreadLocal.getUserId(), extRepositoryFileEntryAdapter,
+			extRepositoryFileEntryAdapter.getFileVersion() );
 	}
 
 	private <T extends ExtRepositoryObjectAdapter<?>> List<T> _filterByMimeType(
@@ -1118,7 +1132,7 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 		return filteredExtRepositoryObjects;
 	}
 
-	private void _forceGetVersions(
+	private void _forceGetFileVersions(
 			ExtRepositoryFileEntryAdapter extRepositoryFileEntryAdapter)
 		throws SystemException {
 
@@ -1319,7 +1333,10 @@ public class ExtRepositoryAdapter extends BaseRepositoryImpl {
 				extRepositoryObjectAdapter = new ExtRepositoryFileEntryAdapter(
 					this, extRepositoryObjectId, uuid, extRepositoryFileEntry);
 
-				_forceGetVersions(
+				_forceGetFileVersions(
+					(ExtRepositoryFileEntryAdapter)extRepositoryObjectAdapter);
+
+				_checkAssetEntry(
 					(ExtRepositoryFileEntryAdapter)extRepositoryObjectAdapter);
 			}
 

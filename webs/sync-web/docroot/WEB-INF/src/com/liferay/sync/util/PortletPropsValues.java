@@ -25,12 +25,16 @@ public class PortletPropsValues {
 	public static final String SYNC_AUTH_VERIFIER_PIPELINE = PortletProps.get(
 		PortletPropsKeys.SYNC_AUTH_VERIFIER_PIPELINE);
 
-	public static final int SYNC_CLIENT_MAX_CONNECTIONS =
-		GetterUtil.getInteger(
-			PortletProps.get(PortletPropsKeys.SYNC_CLIENT_MAX_CONNECTIONS));
+	public static final int SYNC_CLIENT_MAX_CONNECTIONS = GetterUtil.getInteger(
+		PortletProps.get(PortletPropsKeys.SYNC_CLIENT_MAX_CONNECTIONS));
 
 	public static final int SYNC_CLIENT_POLL_INTERVAL = GetterUtil.getInteger(
 		PortletProps.get(PortletPropsKeys.SYNC_CLIENT_POLL_INTERVAL));
+
+	public static final int SYNC_FILE_CHECKSUM_THRESHOLD_SIZE =
+		GetterUtil.getInteger(
+			PortletProps.get(
+				PortletPropsKeys.SYNC_FILE_CHECKSUM_THRESHOLD_SIZE));
 
 	public static final int SYNC_FILE_DIFF_CACHE_DELETE_INTERVAL =
 		GetterUtil.getInteger(
@@ -45,5 +49,8 @@ public class PortletPropsValues {
 		GetterUtil.getLong(
 			PortletProps.get(
 				PortletPropsKeys.SYNC_FILE_DIFF_CACHE_EXPIRATION_TIME));
+
+	public static final boolean SYNC_SERVICES_ENABLED = GetterUtil.getBoolean(
+		PortletProps.get(PortletPropsKeys.SYNC_SERVICES_ENABLED));
 
 }

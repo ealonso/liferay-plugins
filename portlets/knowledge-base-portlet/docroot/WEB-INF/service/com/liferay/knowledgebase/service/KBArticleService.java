@@ -65,31 +65,25 @@ public interface KBArticleService extends BaseService, InvokableService {
 		java.lang.String[] parameterTypes, java.lang.Object[] arguments)
 		throws java.lang.Throwable;
 
-	public void addAttachment(java.lang.String portletId, long resourcePrimKey,
-		java.lang.String dirName, java.lang.String shortFileName,
-		java.io.InputStream inputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
 	public com.liferay.knowledgebase.model.KBArticle addKBArticle(
-		java.lang.String portletId, long parentResourcePrimKey,
-		java.lang.String title, java.lang.String urlTitle,
-		java.lang.String content, java.lang.String description,
-		java.lang.String[] sections, java.lang.String dirName,
+		java.lang.String portletId, long parentResourceClassNameId,
+		long parentResourcePrimKey, java.lang.String title,
+		java.lang.String urlTitle, java.lang.String content,
+		java.lang.String description, java.lang.String sourceURL,
+		java.lang.String[] sections, java.lang.String[] selectedFileNames,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
-	public void addKBArticlesMarkdown(long groupId, java.lang.String fileName,
-		java.io.InputStream inputStream,
+	public void addKBArticlesMarkdown(long groupId, long parentKBFolderId,
+		java.lang.String fileName, java.io.InputStream inputStream,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
-	public void deleteAttachment(long companyId, long groupId,
-		java.lang.String portletId, long resourcePrimKey,
-		java.lang.String fileName)
+	public void addTempAttachment(long groupId, long resourcePrimKey,
+		java.lang.String fileName, java.lang.String tempFolderName,
+		java.io.InputStream inputStream, java.lang.String mimeType)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
@@ -102,10 +96,14 @@ public interface KBArticleService extends BaseService, InvokableService {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	public void deleteTempAttachment(long groupId, long resourcePrimKey,
+		java.lang.String fileName, java.lang.String tempFolderName)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.io.File getAttachment(long companyId, long groupId,
-		java.lang.String portletId, long resourcePrimKey,
-		java.lang.String fileName)
+	public com.liferay.knowledgebase.model.KBArticle fetchLatestKBArticle(
+		long resourcePrimKey, int status)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
@@ -242,7 +240,14 @@ public interface KBArticleService extends BaseService, InvokableService {
 		long parentResourcePrimKey, int status)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
-	public void moveKBArticle(long resourcePrimKey, long parentResourcePrimKey,
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.lang.String[] getTempAttachmentNames(long groupId,
+		java.lang.String tempFolderName)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
+	public void moveKBArticle(long resourcePrimKey,
+		long parentResourceClassNameId, long parentResourcePrimKey,
 		double priority)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
@@ -265,16 +270,11 @@ public interface KBArticleService extends BaseService, InvokableService {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
-	public java.lang.String updateAttachments(java.lang.String portletId,
-		long resourcePrimKey, java.lang.String dirName,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
 	public com.liferay.knowledgebase.model.KBArticle updateKBArticle(
 		long resourcePrimKey, java.lang.String title, java.lang.String content,
-		java.lang.String description, java.lang.String[] sections,
-		java.lang.String dirName,
+		java.lang.String description, java.lang.String sourceURL,
+		java.lang.String[] sections, java.lang.String[] selectedFileNames,
+		long[] removeFileEntryIds,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;

@@ -25,7 +25,9 @@
 				<temporal>TIMESTAMP</temporal>
 			</basic>
 			<basic name="rootResourcePrimKey" />
+			<basic name="parentResourceClassNameId" />
 			<basic name="parentResourcePrimKey" />
+			<basic name="kbFolderId" />
 			<basic name="version" />
 			<basic name="title" />
 			<basic name="urlTitle" />
@@ -36,6 +38,7 @@
 			<basic name="viewCount" />
 			<basic name="latest" />
 			<basic name="main" />
+			<basic name="sourceURL" />
 			<basic name="status" />
 			<basic name="statusByUserId" />
 			<basic name="statusByUserName" />
@@ -69,7 +72,34 @@
 			<basic name="classPK" />
 			<basic name="content" />
 			<basic name="helpful" />
+			<basic name="status" />
 			<transient name="className" />
+			<transient name="modelAttributes" />
+			<transient name="primaryKey" />
+			<transient name="primaryKeyObj" />
+			<transient name="userUuid" />
+		</attributes>
+	</mapped-superclass>
+	<mapped-superclass class="com.liferay.knowledgebase.model.impl.KBFolderModelImpl">
+		<attributes>
+			<id name="kbFolderId" />
+			<basic name="uuid">
+				<column name="UUID_" />
+			</basic>
+			<basic name="groupId" />
+			<basic name="companyId" />
+			<basic name="userId" />
+			<basic name="userName" />
+			<basic name="createDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="modifiedDate">
+				<temporal>TIMESTAMP</temporal>
+			</basic>
+			<basic name="parentKBFolderId" />
+			<basic name="name" />
+			<basic name="urlTitle" />
+			<basic name="description" />
 			<transient name="modelAttributes" />
 			<transient name="primaryKey" />
 			<transient name="primaryKeyObj" />
@@ -106,6 +136,10 @@
 	</entity>
 	<entity class="com.liferay.knowledgebase.model.impl.KBCommentImpl" name="KBComment">
 		<table name="KBComment" />
+		<attributes />
+	</entity>
+	<entity class="com.liferay.knowledgebase.model.impl.KBFolderImpl" name="KBFolder">
+		<table name="KBFolder" />
 		<attributes />
 	</entity>
 	<entity class="com.liferay.knowledgebase.model.impl.KBTemplateImpl" name="KBTemplate">

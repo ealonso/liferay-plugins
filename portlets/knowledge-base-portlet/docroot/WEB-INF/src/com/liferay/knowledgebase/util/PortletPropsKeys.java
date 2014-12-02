@@ -33,6 +33,40 @@ public class PortletPropsKeys {
 	public static final String ADMIN_EMAIL_KB_ARTICLE_ADDED_SUBJECT =
 		"admin.email.kb.article.added.subject";
 
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_BODY =
+			"admin.email.kb.article.suggestion.in.progress.body";
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_ENABLED =
+			"admin.email.kb.article.suggestion.in.progress.enabled";
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_IN_PROGRESS_SUBJECT =
+			"admin.email.kb.article.suggestion.in.progress.subject";
+
+	public static final String ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_BODY =
+		"admin.email.kb.article.suggestion.received.body";
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_ENABLED =
+			"admin.email.kb.article.suggestion.received.enabled";
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RECEIVED_SUBJECT =
+			"admin.email.kb.article.suggestion.received.subject";
+
+	public static final String ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_BODY =
+		"admin.email.kb.article.suggestion.resolved.body";
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_ENABLED =
+			"admin.email.kb.article.suggestion.resolved.enabled";
+
+	public static final String
+		ADMIN_EMAIL_KB_ARTICLE_SUGGESTION_RESOLVED_SUBJECT =
+			"admin.email.kb.article.suggestion.resolved.subject";
+
 	public static final String ADMIN_EMAIL_KB_ARTICLE_UPDATED_BODY =
 		"admin.email.kb.article.updated.body";
 
@@ -57,11 +91,14 @@ public class PortletPropsKeys {
 	public static final String KNOWLEDGE_BASE_SOCIAL_BOOKMARKS_DISPLAY_STYLE =
 		"knowledge.base.social.bookmarks.display.style";
 
+	public static final String KNOWLEDGE_BASE_SOURCE_URL_EDIT_MESSAGE_KEY =
+		"knowledge.base.source.url.edit.message.key";
+
+	public static final String KNOWLEDGE_BASE_SOURCE_URL_ENABLED =
+		"knowledge.base.source.url.enabled";
+
 	public static final String MARKDOWN_IMPORTER_ARTICLE_EXTENSIONS =
 		"markdown.importer.article.extensions";
-
-	public static final String MARKDOWN_IMPORTER_ARTICLE_HOME =
-		"markdown.importer.article.home";
 
 	public static final String MARKDOWN_IMPORTER_ARTICLE_INTRO =
 		"markdown.importer.article.intro";

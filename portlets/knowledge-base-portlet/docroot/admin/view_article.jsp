@@ -16,6 +16,8 @@
 
 <%@ include file="/admin/init.jsp" %>
 
-<liferay-util:include page="/admin/top_tabs.jsp" servletContext="<%= application %>" />
+<c:if test="<%= redirect.equals(currentURL) %>">
+	<liferay-util:include page="/admin/top_tabs.jsp" servletContext="<%= application %>" />
+</c:if>
 
 <liferay-util:include page="/admin/common/view_article.jsp" servletContext="<%= application %>" />

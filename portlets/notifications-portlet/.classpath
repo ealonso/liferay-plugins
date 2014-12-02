@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <classpath>
+	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="docroot/WEB-INF/service" />
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="docroot/WEB-INF/src" />
 	<classpathentry kind="src" path="/portal-6.2.x" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
@@ -19,9 +20,12 @@
 	<classpathentry kind="lib" path="/portal-6.2.x/util-java/util-java.jar" />
 	<classpathentry kind="lib" path="/portal-6.2.x/util-taglib/util-taglib.jar" />
 	<classpathentry kind="lib" path="docroot/WEB-INF/lib/contacts-shared.jar" />
+	<classpathentry kind="lib" path="docroot/WEB-INF/lib/microblogs-shared.jar" />
+	<classpathentry kind="lib" path="docroot/WEB-INF/lib/notifications-shared.jar" />
 	<classpathentry kind="lib" path="docroot/WEB-INF/lib/portal-compat-shared.jar" />
 	<classpathentry kind="lib" path="docroot/WEB-INF/lib/private-messaging-shared.jar" />
 	<classpathentry kind="lib" path="docroot/WEB-INF/lib/so-announcements-shared.jar" />
+	<classpathentry kind="lib" path="docroot/WEB-INF/lib/so-configurations-shared.jar" />
 	<classpathentry kind="lib" path="docroot/WEB-INF/lib/so-shared.jar" />
 	<classpathentry kind="output" path="bin" />
 </classpath>

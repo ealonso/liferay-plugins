@@ -18,8 +18,11 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.security.ac.AccessControlled;
 import com.liferay.pushnotifications.model.PushNotificationsDevice;
 import com.liferay.pushnotifications.service.base.PushNotificationsDeviceServiceBaseImpl;
+import com.liferay.pushnotifications.service.permission.PushNotificationsPermission;
+import com.liferay.pushnotifications.util.ActionKeys;
 
 /**
  * @author Silvio Santos
@@ -28,10 +31,14 @@ import com.liferay.pushnotifications.service.base.PushNotificationsDeviceService
 public class PushNotificationsDeviceServiceImpl
 	extends PushNotificationsDeviceServiceBaseImpl {
 
+	@AccessControlled(guestAccessEnabled = true)
 	@Override
 	public PushNotificationsDevice addPushNotificationsDevice(
 			String token, String platform)
 		throws PortalException, SystemException {
+
+		PushNotificationsPermission.check(
+			getPermissionChecker(), ActionKeys.ADD_DEVICE);
 
 		PushNotificationsDevice pushNotificationsDevice =
 			pushNotificationsDevicePersistence.fetchByToken(token);
@@ -39,10 +46,10 @@ public class PushNotificationsDeviceServiceImpl
 		if (pushNotificationsDevice == null) {
 			pushNotificationsDevice =
 				pushNotificationsDeviceLocalService.addPushNotificationsDevice(
-					getUserId(), platform, token);
+					getGuestOrUserId(), platform, token);
 		}
 		else {
-			long userId = getUserId();
+			long userId = getGuestOrUserId();
 
 			if (pushNotificationsDevice.getUserId() != userId) {
 				pushNotificationsDevice = null;
@@ -86,6 +93,12 @@ public class PushNotificationsDeviceServiceImpl
 		}
 
 		return pushNotificationsDevice;
+	}
+
+	@Override
+	public boolean hasPermission(String actionId) throws PortalException {
+		return PushNotificationsPermission.contains(
+			getPermissionChecker(), actionId);
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(

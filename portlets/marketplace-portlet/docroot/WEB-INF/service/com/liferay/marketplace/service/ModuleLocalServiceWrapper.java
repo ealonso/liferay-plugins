@@ -282,16 +282,21 @@ public class ModuleLocalServiceWrapper implements ModuleLocalService,
 
 	@Override
 	public com.liferay.marketplace.model.Module addModule(long userId,
-		long appId, java.lang.String contextName)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _moduleLocalService.addModule(userId, appId, contextName);
+		long appId, java.lang.String bundleSymbolicName,
+		java.lang.String bundleVersion, java.lang.String contextName)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _moduleLocalService.addModule(userId, appId, bundleSymbolicName,
+			bundleVersion, contextName);
 	}
 
 	@Override
 	public com.liferay.marketplace.model.Module fetchModule(long appId,
+		java.lang.String bundleSymbolicName, java.lang.String bundleVersion,
 		java.lang.String contextName)
 		throws com.liferay.portal.kernel.exception.SystemException {
-		return _moduleLocalService.fetchModule(appId, contextName);
+		return _moduleLocalService.fetchModule(appId, bundleSymbolicName,
+			bundleVersion, contextName);
 	}
 
 	@Override

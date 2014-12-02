@@ -1,12 +1,12 @@
 #set ($namespace = $request.get('portlet-namespace'))
-#set ($article-url = $request.get('render-url') + "&" + $namespace + "articleId=" + $reserved-article-id.getData() + "&" + $namespace + "templateId=regular-article")
+#set ($article-url = $request.get('render-url') + "&" + $namespace + "articleId=" + $reserved-article-id.getData() + "&" + $namespace + "ddmTemplateKey=regular-article")
 
 #if (!$show-maximized-in-descriptive-mode.getData())
 	#set ($article-url = $article-url.replace("p_p_state=maximized", "p_p_state=normal"))
 #end
 
 <div class="article-description-wrapper">
-	#if ($article-title != "")
+	#if ($article-title.getData() != "")
 		<h4 class="article-title"><a href="$article-url"><span>$article-title.getData()</span></a></h4>
 	#end
 

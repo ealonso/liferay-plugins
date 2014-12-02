@@ -22,7 +22,6 @@
 
 	.site-title {
 		display: inline-block;
-		float: left;
 
 		&, a {
 			color: $red;
@@ -43,6 +42,10 @@
 			vertical-align: middle;
 			width: auto;
 		}
+	}
+
+	.member-link {
+		margin: 0 1em;
 	}
 
 	.avatar {
@@ -519,11 +522,21 @@ html.aui {
 .aui .row-fluid {
 	.span4 {
 		margin-left: 0;
-		width: 34%;
+		width: 33.33%;
+	}
+
+	.span6 {
+		margin-left: 0;
+		width: 50%;
 	}
 
 	.span8 {
-		width: 66%;
+		margin-left: 0;
+		width: 66.66%;
+	}
+
+	.span12 {
+		width: 100%;
 	}
 }
 
@@ -868,17 +881,15 @@ html.aui {
 		padding: 0;
 	}
 
-	.abstract, .entry-categories, .entry-tags {
-		display: none;
+	.abstract img {
+		margin-right: 10px;
 	}
 
-	.comments {
-		display: inline;
-		margin: 0.5em 0;
-	}
-
-	.comments a {
-		white-space: nowrap;
+	.entry-tags {
+		border-left-width: 0;
+		margin-bottom: 0.5em;
+		padding-left: 0;
+		padding-right: 0;
 	}
 }
 
@@ -966,17 +977,7 @@ html.aui {
 			}
 
 			a {
-				background-color: #EEE;
-
-				@include border-radius(4px);
-
-				display: inline-block;
-				padding: 4px 6px;
-
-				&:hover {
-					background-color: #DDD;
-					text-decoration: none;
-				}
+				@include tag(true);
 			}
 		}
 	}
@@ -1279,30 +1280,22 @@ html.aui {
 
 	.tags {
 		margin-bottom: 0.5em;
-
-		.tag {
-			background-color: #EEE;
-			background-position-x: 7px;
-
-			@include border-radius(4px);
-
-			color: #2571AD;
-			display: inline-block;
-			padding: 7px 7px 7px 27px;
-		}
 	}
 
 	/* ---------- Thread ---------- */
 
 	.edit-controls li, .thread-actions li, .thread-navigation {
+		height: 2em;
 		line-height: 2em;
 	}
 
 	.thread-message-view {
 		position: relative;
 
-		td, tr {
-			display: block;
+		> tbody > {
+			tr, tr > td {
+				display: block;
+			}
 		}
 	}
 
@@ -1315,6 +1308,7 @@ html.aui {
 	}
 
 	.message-container {
+		clear: both;
 		overflow: visible;
 
 		.thread-message-view {
@@ -1389,6 +1383,7 @@ html.aui {
 		.user-profile-image {
 			height: 55px;
 			max-width: 55px;
+			overflow: hidden;
 
 			.avatar {
 				width: 55px;
@@ -1564,6 +1559,33 @@ html.aui {
 
 .private-page .microblogs-status-container {
 	padding-bottom: 0;
+}
+
+/* ---------- Portlet: notifications ---------- */
+
+.dockbar-user-notifications {
+	.hashtag {
+		color: #999;
+	}
+
+	.hashtag-link {
+		&, &:active, &:hover {
+			color: inherit;
+		}
+	}
+}
+
+/* ---------- Portlet: powwow ---------- */
+
+.powwow-portlet {
+	.taglib-header {
+		margin-top: 0;
+		padding: 0 10px;
+	}
+
+	.view-meetings {
+		padding: 20px 20px 10px;
+	}
 }
 
 /* ---------- Portlet: private messaging ---------- */
@@ -1873,6 +1895,10 @@ html.aui {
 	}
 }
 
+.taglib-asset-tags-summary .tag {
+	@include tag(false);
+}
+
 /* ---------- Top links component ---------- */
 
 .taglib-header {
@@ -1942,6 +1968,12 @@ html.aui {
 		.portlet-layout, .portlet-column {
 			display: block;
 			width: auto;
+		}
+
+		/* ---------- Icon menu ---------- */
+
+		.lfr-menu-list.dropdown-menu > li > a {
+			white-space: normal;
 		}
 
 		/* ---------- Portlet: message boards ---------- */
@@ -2177,8 +2209,12 @@ html.aui {
 		/* ---------- Portlet: message boards ---------- */
 
 		.portlet-asset-publisher, .portlet-message-boards {
-			#toggle_id_message_boards_view_message_thread, #toggle_id_message_boards_view_message_thread_image, .thread-view-controls {
+			#toggle_id_message_boards_view_message_thread_image, .thread-view-controls {
 				display: none;
+			}
+
+			#toggle_id_message_boards_view_message_thread {
+				display: none !important;
 			}
 
 			.accordion-inner {
@@ -2319,6 +2355,12 @@ html.aui {
 			.microblogs-status-container {
 				display: none;
 			}
+		}
+
+		/* ---------- Portlet: powwow ---------- */
+
+		.powwow-portlet .view-meetings {
+			padding: 0 10px;
 		}
 
 		/* ---------- Taglib: discussion ---------- */

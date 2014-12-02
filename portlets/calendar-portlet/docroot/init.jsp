@@ -40,6 +40,7 @@ page import="com.liferay.calendar.notification.NotificationField" %><%@
 page import="com.liferay.calendar.notification.NotificationTemplateType" %><%@
 page import="com.liferay.calendar.notification.NotificationType" %><%@
 page import="com.liferay.calendar.recurrence.Frequency" %><%@
+page import="com.liferay.calendar.recurrence.PositionalWeekday" %><%@
 page import="com.liferay.calendar.recurrence.Recurrence" %><%@
 page import="com.liferay.calendar.recurrence.Weekday" %><%@
 page import="com.liferay.calendar.search.CalendarResourceDisplayTerms" %><%@
@@ -63,6 +64,7 @@ page import="com.liferay.calendar.util.RecurrenceUtil" %><%@
 page import="com.liferay.calendar.util.WebKeys" %><%@
 page import="com.liferay.calendar.util.comparator.CalendarNameComparator" %><%@
 page import="com.liferay.calendar.workflow.CalendarBookingWorkflowConstants" %><%@
+page import="com.liferay.compat.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.bean.BeanPropertiesUtil" %><%@
 page import="com.liferay.portal.kernel.dao.orm.QueryUtil" %><%@
@@ -71,6 +73,7 @@ page import="com.liferay.portal.kernel.dao.search.SearchContainer" %><%@
 page import="com.liferay.portal.kernel.json.JSONArray" %><%@
 page import="com.liferay.portal.kernel.json.JSONFactoryUtil" %><%@
 page import="com.liferay.portal.kernel.json.JSONObject" %><%@
+page import="com.liferay.portal.kernel.json.JSONSerializer" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.language.UnicodeLanguageUtil" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
@@ -106,6 +109,7 @@ page import="com.liferay.util.RSSUtil" %>
 <%@ page import="java.text.Format" %>
 
 <%@ page import="java.util.ArrayList" %><%@
+page import="java.util.Arrays" %><%@
 page import="java.util.Collections" %><%@
 page import="java.util.Date" %><%@
 page import="java.util.Iterator" %><%@
@@ -120,6 +124,8 @@ page import="java.util.TimeZone" %>
 
 <%
 String currentURL = PortalUtil.getCurrentURL(request);
+
+CalendarBooking calendarBooking = (CalendarBooking)request.getAttribute(WebKeys.CALENDAR_BOOKING);
 
 CalendarResource groupCalendarResource = CalendarResourceUtil.getGroupCalendarResource(liferayPortletRequest, scopeGroupId);
 CalendarResource userCalendarResource = CalendarResourceUtil.getUserCalendarResource(liferayPortletRequest, themeDisplay.getUserId());
@@ -156,15 +162,21 @@ long rssTimeInterval = GetterUtil.getLong(portletPreferences.getValue("rssTimeIn
 TimeZone userTimeZone = TimeZone.getTimeZone(timeZoneId);
 TimeZone utcTimeZone = TimeZone.getTimeZone(StringPool.UTC);
 
-Format dateFormatDate = FastDateFormatFactoryUtil.getDate(locale);
-Format dateFormatLongDate = FastDateFormatFactoryUtil.getDate(FastDateFormatConstants.LONG, locale, timeZone);
+boolean allDay = BeanParamUtil.getBoolean(calendarBooking, request, "allDay");
+
+if (allDay) {
+	userTimeZone = utcTimeZone;
+}
+
+Format dateFormatDate = FastDateFormatFactoryUtil.getDate(locale, userTimeZone);
+Format dateFormatLongDate = FastDateFormatFactoryUtil.getDate(FastDateFormatConstants.LONG, locale, userTimeZone);
 
 Format dateFormatTime = null;
 
 if (isoTimeFormat) {
-	dateFormatTime = FastDateFormatFactoryUtil.getSimpleDateFormat("HH:mm", locale, timeZone);
+	dateFormatTime = FastDateFormatFactoryUtil.getSimpleDateFormat("HH:mm", locale, userTimeZone);
 }
 else {
-	dateFormatTime = FastDateFormatFactoryUtil.getSimpleDateFormat("hh:mm a", locale, timeZone);
+	dateFormatTime = FastDateFormatFactoryUtil.getSimpleDateFormat("hh:mm a", locale, userTimeZone);
 }
 %>

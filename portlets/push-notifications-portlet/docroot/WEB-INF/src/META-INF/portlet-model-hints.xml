@@ -6,6 +6,19 @@
 		<field name="userId" type="long" />
 		<field name="createDate" type="Date" />
 		<field name="platform" type="String" />
-		<field name="token" type="String" />
+		<field name="token" type="String">
+			<hint name="max-length">4000</hint>
+		</field>
+	</model>
+	<model name="com.liferay.pushnotifications.model.PushNotificationsEntry">
+		<field name="pushNotificationsEntryId" type="long" />
+		<field name="userId" type="long" />
+		<field name="createTime" type="long" />
+		<field name="parentPushNotificationsEntryId" type="long" />
+		<field name="childrenPushNotificationsEntriesCount" type="int" />
+		<field name="payload" type="String">
+			<hint name="max-length">4000</hint>
+		</field>
+		<field name="ratingsTotalScore" type="long" />
 	</model>
 </model-hints>
