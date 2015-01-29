@@ -133,6 +133,11 @@ public class SyncDLObjectLocalServiceImpl
 	}
 
 	@Override
+	public SyncDLObject fetchSyncDLObject(String type, long typePK) {
+		return syncDLObjectPersistence.fetchByT_T(type, typePK);
+	}
+
+	@Override
 	public long getLatestModifiedTime() {
 		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
 			SyncDLObject.class, SyncDLObject.class.getClassLoader());

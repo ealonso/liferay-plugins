@@ -48,7 +48,7 @@ public class KBNavigationDisplayContext {
 	}
 
 	public List<Long> getAncestorResourcePrimaryKeys() throws PortalException {
-		List<Long> ancestorResourcePrimaryKeys = new ArrayList<Long>();
+		List<Long> ancestorResourcePrimaryKeys = new ArrayList<>();
 
 		if (_kbArticle != null) {
 			KBArticle latestKBArticle =
@@ -70,8 +70,9 @@ public class KBNavigationDisplayContext {
 	}
 
 	public String getCurrentKBFolderURLTitle() throws PortalException {
-		String currentKBFolderURLTitle = _portalPreferences.getValue(
-			PortletKeys.KNOWLEDGE_BASE_DISPLAY, "preferredKBFolderURLTitle");
+		String currentKBFolderURLTitle =
+			KnowledgeBaseUtil.getPreferredKBFolderURLTitle(
+				_portalPreferences, getContentRootPrefix());
 
 		long rootResourcePrimKey = getRootResourcePrimKey();
 

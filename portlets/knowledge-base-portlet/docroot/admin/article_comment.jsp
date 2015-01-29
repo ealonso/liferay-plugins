@@ -22,6 +22,8 @@ KBArticle kbArticle = (KBArticle)request.getAttribute(WebKeys.KNOWLEDGE_BASE_KB_
 KBComment kbComment = (KBComment)request.getAttribute("article_comment.jsp-kb_comment");
 
 KBSuggestionListDisplayContext kbSuggestionListDisplayContext = (KBSuggestionListDisplayContext)request.getAttribute(WebKeys.KNOWLEDGE_BASE_KB_SUGGESTION_LIST_DISPLAY_CONTEXT);
+
+KBArticleURLHelper kbArticleURLHelper = new KBArticleURLHelper(renderRequest, renderResponse, templatePath);
 %>
 
 <div class="kb-article-comment">
@@ -35,18 +37,17 @@ KBSuggestionListDisplayContext kbSuggestionListDisplayContext = (KBSuggestionLis
 			/>
 		</td>
 		<td>
-			<portlet:renderURL var="viewKBArticleURL">
-				<portlet:param name="mvcPath" value='<%= templatePath + "view_article.jsp" %>' />
-				<portlet:param name="resourcePrimKey" value="<%= String.valueOf(kbArticle.getResourcePrimKey()) %>" />
-				<portlet:param name="redirect" value="<%= currentURL %>" />
-			</portlet:renderURL>
+
+			<%
+			PortletURL viewKBArticleURL = kbArticleURLHelper.createViewWithRedirectURL(kbArticle, currentURL);
+			%>
 
 			<c:if test="<%= kbSuggestionListDisplayContext.isShowKBArticleTitle() %>">
-				<h4><a href="<%= viewKBArticleURL %>"><%= HtmlUtil.escape(kbArticle.getTitle()) %></a></h4>
+				<h4><a href="<%= viewKBArticleURL.toString() %>"><%= HtmlUtil.escape(kbArticle.getTitle()) %></a></h4>
 			</c:if>
 
 			<div>
-				<%= HtmlUtil.escape(kbComment.getContent()) %>
+				<%= HtmlUtil.replaceNewLine(HtmlUtil.escape(kbComment.getContent())) %>
 			</div>
 
 			<div class="kb-article-comment-helpful">
@@ -110,7 +111,7 @@ KBSuggestionListDisplayContext kbSuggestionListDisplayContext = (KBSuggestionLis
 						<portlet:param name="kbCommentId" value="<%= String.valueOf(kbComment.getKbCommentId()) %>" />
 					</liferay-portlet:actionURL>
 
-					<aui:button cssClass="kb-suggestion-delete" href="<%= kbSuggestionListDisplayContext.getViewSuggestionURL(deleteURL, kbSuggestionListDisplayContext.getSelectedNavItem()) %>" value="delete" />
+					<aui:button cssClass="kb-suggestion-delete" data-href="<%= kbSuggestionListDisplayContext.getViewSuggestionURL(deleteURL, kbSuggestionListDisplayContext.getSelectedNavItem()) %>" value="delete" />
 				</c:if>
 			</div>
 		</td>

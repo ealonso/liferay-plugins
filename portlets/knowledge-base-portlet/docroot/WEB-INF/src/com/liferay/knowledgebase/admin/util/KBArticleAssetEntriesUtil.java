@@ -36,8 +36,9 @@ import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.messageboards.model.MBMessage;
-import com.liferay.portlet.wiki.model.WikiPage;
-import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
+import com.liferay.wiki.constants.WikiPortletKeys;
+import com.liferay.wiki.model.WikiPage;
+import com.liferay.wiki.service.WikiPageLocalServiceUtil;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -94,7 +95,7 @@ public class KBArticleAssetEntriesUtil {
 		long[] tagIds = AssetTagLocalServiceUtil.getTagIds(
 			groupIds, StringUtil.split(ListUtil.toString(assetTags, "name")));
 
-		Set<Long> filteredTagIds = new LinkedHashSet<Long>();
+		Set<Long> filteredTagIds = new LinkedHashSet<>();
 
 		for (long tagId : tagIds) {
 			try {
@@ -168,7 +169,7 @@ public class KBArticleAssetEntriesUtil {
 			WikiPage wikiPage = WikiPageLocalServiceUtil.getPage(classPK);
 
 			portletURL = PortletURLFactoryUtil.create(
-				request, PortletKeys.WIKI, themeDisplay.getPlid(),
+				request, WikiPortletKeys.WIKI, themeDisplay.getPlid(),
 				PortletRequest.RENDER_PHASE);
 
 			portletURL.setParameter("struts_action", "/wiki/view");
