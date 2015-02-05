@@ -138,9 +138,9 @@ public class SolrSpellCheckIndexWriter
 
 		addQuerySeparator(sb);
 
-		sb.append(Field.PORTLET_ID);
+		sb.append(Field.SPELL_CHECK_WORD);
 		sb.append(StringPool.COLON);
-		sb.append(PortletKeys.SEARCH);
+		sb.append(Boolean.TRUE.toString());
 
 		addQuerySeparator(sb);
 
