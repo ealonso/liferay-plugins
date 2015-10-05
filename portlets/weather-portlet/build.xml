@@ -2,5 +2,7 @@
 <!DOCTYPE project>
 
 <project name="weather-portlet" basedir="." default="deploy">
+	<property name="osgi.runtime.dependencies" value="com.liferay.application.list.api.jar" />
+
 	<import file="../../build-common-osgi-plugin.xml" />
 </project>

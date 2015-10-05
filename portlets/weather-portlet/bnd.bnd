@@ -1,5 +1,10 @@
 Bundle-Name: Liferay Weather Portlet
 Bundle-SymbolicName: com.liferay.weather.web
+Import-Package:\
+	com.liferay.application.list,\
+	com.liferay.portal.kernel.portlet,\
+	javax.portlet,\
+	*;resolution:="optional"
 Include-Resource:\
 	classes,\
 	META-INF/resources=src/META-INF/resources
