@@ -14,6 +14,7 @@
 
 package com.liferay.weather.web.portlet;
 
+import com.liferay.weather.web.constants.WeatherPortletKeys;
 import com.liferay.weather.web.model.Weather;
 import com.liferay.weather.web.util.WeatherUtil;
 
@@ -24,9 +25,15 @@ import javax.portlet.PortletPreferences;
 import javax.portlet.PreferencesValidator;
 import javax.portlet.ValidatorException;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Brian Wing Shun Chan
  */
+@Component(
+	immediate = true,
+	property = {"javax.portlet.name=" + WeatherPortletKeys.WEATHER_PORTLET}
+)
 public class WeatherPreferencesValidator implements PreferencesValidator {
 
 	@Override
