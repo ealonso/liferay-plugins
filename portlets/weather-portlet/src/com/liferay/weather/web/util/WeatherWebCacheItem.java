@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.weather.util;
+package com.liferay.weather.web.util;
 
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -23,7 +23,7 @@ import com.liferay.portal.kernel.xml.Attribute;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
-import com.liferay.weather.model.Weather;
+import com.liferay.weather.web.model.Weather;
 
 /**
  * @author Brian Wing Shun Chan

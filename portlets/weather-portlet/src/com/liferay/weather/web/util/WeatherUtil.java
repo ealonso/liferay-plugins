@@ -12,12 +12,12 @@
  * details.
  */
 
-package com.liferay.weather.util;
+package com.liferay.weather.web.util;
 
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.webcache.WebCacheItem;
 import com.liferay.portal.kernel.webcache.WebCachePoolUtil;
-import com.liferay.weather.model.Weather;
+import com.liferay.weather.web.model.Weather;
 
 /**
  * @author Brian Wing Shun Chan

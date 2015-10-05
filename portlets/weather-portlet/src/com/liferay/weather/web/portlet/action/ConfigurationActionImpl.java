@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.weather.action;
+package com.liferay.weather.web.portlet.action;
 
 import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
 import com.liferay.portal.kernel.servlet.SessionErrors;
