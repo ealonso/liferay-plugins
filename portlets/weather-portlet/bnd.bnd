@@ -1,0 +1,5 @@
+Bundle-Name: Liferay Weather Portlet
+Bundle-SymbolicName: com.liferay.weather.web
+Include-Resource:\
+	classes,\
+	META-INF/resources=src/META-INF/resources
