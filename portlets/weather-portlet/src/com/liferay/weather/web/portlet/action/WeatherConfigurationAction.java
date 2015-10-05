@@ -14,20 +14,38 @@
 
 package com.liferay.weather.web.portlet.action;
 
+import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.weather.web.constants.WeatherPortletKeys;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.ValidatorException;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Samuel Kong
  */
-public class ConfigurationActionImpl extends DefaultConfigurationAction {
+@Component(
+	immediate = true,
+	property = {"javax.portlet.name=" + WeatherPortletKeys.WEATHER_PORTLET},
+	service = ConfigurationAction.class
+)
+public class WeatherConfigurationAction extends DefaultConfigurationAction {
+
+	@Override
+	public String getJspPath(HttpServletRequest request) {
+		return "/configuration.jsp";
+	}
 
 	@Override
 	public void processAction(
@@ -47,6 +65,14 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 			SessionErrors.add(
 				actionRequest, ValidatorException.class.getName(), ve);
 		}
+	}
+
+	@Override
+	@Reference(
+		target = "(osgi.web.symbolicname=com.liferay.weather.web)", unbind = "-"
+	)
+	public void setServletContext(ServletContext servletContext) {
+		super.setServletContext(servletContext);
 	}
 
 }
