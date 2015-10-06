@@ -22,4 +22,6 @@ public class WeatherPortletKeys {
 	public static final String WEATHER_PORTLET =
 		"com_liferay_weather_web_portlet_WeatherPortlet";
 
+	public static final String WEATHER_CATEGORY = "user.weather";
+
 }

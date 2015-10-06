@@ -14,38 +14,39 @@
 
 package com.liferay.weather.web.list;
 
-import com.liferay.application.list.BaseControlPanelEntryPanelApp;
-import com.liferay.application.list.PanelApp;
-import com.liferay.portal.model.Portlet;
-import com.liferay.weather.web.constants.WeatherPortletKeys;
+import com.liferay.application.list.BasePanelCategory;
+import com.liferay.application.list.PanelCategory;
+import com.liferay.application.list.constants.PanelCategoryKeys;
+import com.liferay.portal.kernel.language.LanguageUtil;
 
+import java.util.Locale;
+
+import com.liferay.weather.web.constants.WeatherPortletKeys;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
  */
 @Component(
 	immediate = true,
-	property = {
-		"panel.category.key=" + WeatherPortletKeys.WEATHER_CATEGORY,
-		"service.ranking:Integer=100"
-	},
-	service = PanelApp.class
+	property = {"panel.category.key=" + PanelCategoryKeys.USER},
+	service = PanelCategory.class
 )
-public class WeatherPanelApp extends BaseControlPanelEntryPanelApp {
+public class WeatherPanelCategory extends BasePanelCategory {
 
 	@Override
-	public String getPortletId() {
-		return WeatherPortletKeys.WEATHER_PORTLET;
+	public String getIconCssClass() {
+		return "icon-time";
 	}
 
-	@Reference(
-		target = "(javax.portlet.name=" + WeatherPortletKeys.WEATHER_PORTLET + ")",
-		unbind = "-"
-	)
-	protected void setPortlet(Portlet portlet) {
-		super.setPortlet(portlet);
+	@Override
+	public String getKey() {
+		return WeatherPortletKeys.WEATHER_CATEGORY;
+	}
+
+	@Override
+	public String getLabel(Locale locale) {
+		return LanguageUtil.get(locale, "weather");
 	}
 
 }
